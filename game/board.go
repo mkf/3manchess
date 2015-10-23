@@ -11,3 +11,14 @@ type State struct {
 
 //func (s State) String() string {
 //}
+
+type Move struct {
+	From [2]uint8
+	To [2]uint8
+	What byte
+	Before *State
+}
+
+func (m *Move) After() *State {
+//	m.Before
+}
