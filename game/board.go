@@ -18,19 +18,54 @@ type Pos [2]uint8
 
 type Board [6][24]Square
 
-//func (b Board) Straight
+func (b *Board) Straight(from Pos, to Pos, m MoatsState) bool {
+	var cantech, canmoat, canfig, canbridge bool
+	canbridge = true
+	if from[0]==to[0] {
+		cantech = true
+		if from[0]==0 {
+			canbridge=false
+		} else {
+			canmoat = true
+			canfig = true
+			for i:=from[1]+1;((i-from[1])%24<(to[1]-from[1])%24)&&canfig;i=(i+1)%24 {
+				go func() {
+					if canfig&&!(*b[from[0]][i].Empty()) {
+						canfig = false
+					}
+				}()
+			}
+			canfiga = true
+			for i:=from[1]-1;((i-from[1])%24>(to[1]-from[1])%24)&&canfiga;i=(i-1)%24 {
+				go func() {
+					if canfiga&&!(*b[from[0]][i].Empty()) {
+						canfiga = false
+					}
+				}()
+			}
+			canfig = canfig||canfiga
+		}
+	} else if from[1]==to[1] {
+		cantech = true
+		canmoat = true
+		canfig = true
+		//for i
+	} else if ((from[1]-12)%24)==to[1] {
+		cantech = true
+		canmoat = true
+	} else {
+		return false
+	}
 
 //func (b Board) Diagonal
 
 type MoatsState [3]bool //Black-White, White-Gray, Gray-Black
 
-//func (ms MoatsState) EnBridge
-
 type MovesNext byte
 
 type Castling [3][2]bool
 
-func forcastlingconv(c, b byte) {
+func forcastlingconv(c byte, b byte) (bool,bool) {
 	var col uint8
 	switch c {
 	case 'W', 'w':
@@ -50,12 +85,12 @@ func forcastlingconv(c, b byte) {
 	return col, ct
 }
 
-func (cs Castling) Give(c, b byte) bool {
+func (cs Castling) Give(c byte, b byte) bool {
 	col, ct := forcastlingconv(c, b)
 	return cs[col][ct]
 }
 
-func (cs Castling) Change(c, b byte, w bool) Castling {
+func (cs Castling) Change(c byte, b byte, w bool) Castling {
 	cso = cs
 	col, ct := forcastlingconv(c, b)
 	cso[col][ct] = w
