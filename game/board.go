@@ -3,7 +3,7 @@ package game
 type Square [2]byte
 
 func (s Square) Empty() bool {
-	return s[0]==0
+	return s[0] == 0
 }
 
 func (s Square) Color() byte {
@@ -30,29 +30,34 @@ type MovesNext byte
 
 type Castling [3][2]bool
 
-func forcastlingconv(c,b byte) {
+func forcastlingconv(c, b byte) {
 	var col uint8
 	switch c {
-	case 'W','w': col=0
-	case 'G','g': col=1
-	case 'B','b': col=2
+	case 'W', 'w':
+		col = 0
+	case 'G', 'g':
+		col = 1
+	case 'B', 'b':
+		col = 2
 	}
 	var ct uint8
 	switch b {
-	case 'k','K': ct = 0
-	case 'q','Q': ct = 1
+	case 'k', 'K':
+		ct = 0
+	case 'q', 'Q':
+		ct = 1
 	}
-	return col,ct
+	return col, ct
 }
 
-func (cs Castling) Give(c,b byte) bool {
-	col,ct := forcastlingconv(c,b)
+func (cs Castling) Give(c, b byte) bool {
+	col, ct := forcastlingconv(c, b)
 	return cs[col][ct]
 }
 
-func (cs Castling) Change(c,b byte,w bool) Castling {
+func (cs Castling) Change(c, b byte, w bool) Castling {
 	cso = cs
-	col,ct := forcastlingconv(c,b)
+	col, ct := forcastlingconv(c, b)
 	cso[col][ct] = w
 	return cso
 }
@@ -67,21 +72,21 @@ type State struct {
 	*Board //[color,figure_lowercase] //[0,0]
 	MoatsState
 	MovesNext //W G B
-	Castling //0W 1G 2B  //0K 1Q
+	Castling  //0W 1G 2B  //0K 1Q
 	EnPassant //[previousplayer,currentplayer]  [number,letter]
 	HalfmoveClock
 	FullmoveNumber
 }
 
-var COLORS = [3]byte{'W','G','B'}
-var FIRSTRANKNEWGAME = [8]byte{'r','n','b','k','q','b','n','r'}
+var COLORS = [3]byte{'W', 'G', 'B'}
+var FIRSTRANKNEWGAME = [8]byte{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'}
 
-var DEFENPASSANT = make([][2]uint8,0,2)
+var DEFENPASSANT = make([][2]uint8, 0, 2)
 
 var DEFCASTLING = [3][2]bool{
-	{{true,true},{true,true}},
-	{{true,true},{true,true}},
-	{{true,true},{true,true}},
+	{{true, true}, {true, true}},
+	{{true, true}, {true, true}},
+	{{true, true}, {true, true}},
 }
 
 var BOARDFORNEWGAME [6][24][2]byte
@@ -89,20 +94,20 @@ var BOARDFORNEWGAME [6][24][2]byte
 var NEWGAME State
 
 func init() {
-	for ci,c := range COLORS {
-		for fi,f := range FIRSTRANKNEWGAME {
-			a = ci*8+fi
+	for ci, c := range COLORS {
+		for fi, f := range FIRSTRANKNEWGAME {
+			a = ci*8 + fi
 			BOARDFORNEWGAME[0][a][1] = f
 			BOARDFORNEWGAME[0][a][0] = c
 			BOARDFORNEWGAME[1][a][0] = c
 			BOARDFORNEWGAME[1][a][1] = 'p'
-			for l:=2;l<6;l++ {
+			for l := 2; l < 6; l++ {
 				BOARDFORNEWGAME[l][a][0] = 0
 				BOARDFORNEWGAME[l][a][1] = 0
 			}
 		}
 	}
-	NEWGAME = State{&BOARDFORNEWGAME,'W',DEFCASTLING,DEFENPASSANT,uint8(0),uint16(1)}
+	NEWGAME = State{&BOARDFORNEWGAME, 'W', DEFCASTLING, DEFENPASSANT, uint8(0), uint16(1)}
 }
 
 //func (s *State) String() string {   // returns FEN
@@ -115,11 +120,11 @@ func init() {
 //}
 
 type Move struct {
-	From [2]uint8
-	To [2]uint8
-	What [2]byte
+	From        [2]uint8
+	To          [2]uint8
+	What        [2]byte
 	AlreadyHere [2]byte
-	Before *State
+	Before      *State
 }
 
 //func (m *Move) String() string {
@@ -127,7 +132,7 @@ type Move struct {
 
 func (m *Move) After() *State {
 	var movesnext byte
-	if m.What[0]!=m.Before.MovesNext {
+	if m.What[0] != m.Before.MovesNext {
 		panic(m)
 	}
 	switch m.Before.MovesNext {
@@ -138,7 +143,7 @@ func (m *Move) After() *State {
 	case 'B':
 		movesnext = 'W'
 	}
-	if m.What[0]==m.AlreadyHere[0] {
+	if m.What[0] == m.AlreadyHere[0] {
 		panic(m)
 	}
 
