@@ -162,7 +162,7 @@ type EnPassant []Pos
 
 type HalfmoveClock uint8
 
-type Fullmovenumber uint16
+type FullmoveNumber uint16
 
 type State struct {
 	*Board //[color,figure_lowercase] //[0,0]
