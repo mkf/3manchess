@@ -159,5 +159,3 @@ func init() {
 
 //func Pars3FEN([]byte) *State {
 //}
-
-

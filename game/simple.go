@@ -12,5 +12,3 @@ func sign(u int8) int8 {
 		return int8(127)
 	}
 }
-
-
