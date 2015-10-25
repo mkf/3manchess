@@ -29,16 +29,40 @@ type Pos [2]uint8
 
 type Board [6][24]Square
 
-func (b *Board) Straight(from Pos, to Pos, m MoatsState) bool {
-	var cantech, canmoat, canfig, canbridge bool
-	canbridge = true
+func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(whether it can, whether it can capture/check)
+	var cantech, canmoat, canfig bool
+	capcheck := true
 	if from == to {
 		panic("Same square!")
 	}
 	if from[0] == to[0] {
 		cantech = true
 		if from[0] == 0 {
-			canbridge = false
+			var mshort, mlong, capcheckshort bool
+			if from[1]/8 == to[1]/8 {
+				capcheckshort = true
+				canmoat = true
+				mshort = true
+				if m[0] && m[1] && m[2] {
+					mlong = true
+				}
+			} else {
+				capcheckshort = false
+				fromto := [2]uint8{from[1] / 8, to[1] / 8}
+				switch fromto {
+				case [2]uint8{0, 1}, [2]uint8{1, 0}:
+					mshort = m[1]
+					mlong = m[0] && m[2]
+				case [2]uint8{1, 2}, [2]uint8{2, 1}:
+					mshort = m[2]
+					mlong = m[0] && m[1]
+				case [2]uint8{2, 0}, [2]uint8{0, 2}:
+					mshort = m[0]
+					mlong = m[1] && m[2]
+				}
+			}
+			var direcshort uint8
+			//if to[0]
 		} else {
 			canmoat = true
 			canfig = true
