@@ -1,13 +1,15 @@
 package game
 
-func sign(u uint8) uint8 {
+func sign(u int8) int8 {
 	switch {
 	case u == 0:
 		return u
 	case u < 0:
-		return uint8(-1)
+		return int8(-1)
 	case u > 0:
-		return uint8(1)
+		return int8(1)
+	default:
+		return int8(127)
 	}
 }
 
@@ -25,7 +27,7 @@ func (s Square) What() byte {
 	return s[1]
 }
 
-type Pos [2]uint8
+type Pos [2]int8
 
 type Board [6][24]Square
 
@@ -48,20 +50,20 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 				}
 			} else {
 				capcheckshort = false
-				fromto := [2]uint8{from[1] / 8, to[1] / 8}
+				fromto := [2]int8{from[1] / 8, to[1] / 8}
 				switch fromto {
-				case [2]uint8{0, 1}, [2]uint8{1, 0}:
+				case [2]int8{0, 1}, [2]int8{1, 0}:
 					mshort = m[1]
 					mlong = m[0] && m[2]
-				case [2]uint8{1, 2}, [2]uint8{2, 1}:
+				case [2]int8{1, 2}, [2]int8{2, 1}:
 					mshort = m[2]
 					mlong = m[0] && m[1]
-				case [2]uint8{2, 0}, [2]uint8{0, 2}:
+				case [2]int8{2, 0}, [2]int8{0, 2}:
 					mshort = m[0]
 					mlong = m[1] && m[2]
 				}
 			}
-			var direcshort uint8
+			var direcshort int8
 			//if to[0]
 		} else {
 			canmoat = true
@@ -73,7 +75,7 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 					}
 				}()
 			}
-			canfiga = true
+			canfiga := true
 			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfiga; i = (i - 1) % 24 {
 				go func() {
 					if canfiga && !(*b[from[0]][i].Empty()) {
@@ -113,9 +115,8 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 				}()
 			}()
 		}
-	} else {
-		return false
 	}
+	return false,false
 }
 
 //func (b Board) Diagonal
@@ -126,7 +127,7 @@ type MovesNext byte
 
 type Castling [3][2]bool
 
-func forcastlingconv(c byte, b byte) (bool, bool) {
+func forcastlingconv(c byte, b byte) (byte, byte) {
 	var col uint8
 	switch c {
 	case 'W', 'w':
@@ -152,7 +153,7 @@ func (cs Castling) Give(c byte, b byte) bool {
 }
 
 func (cs Castling) Change(c byte, b byte, w bool) Castling {
-	cso = cs
+	cso := cs
 	col, ct := forcastlingconv(c, b)
 	cso[col][ct] = w
 	return cso
@@ -177,22 +178,22 @@ type State struct {
 var COLORS = [3]byte{'W', 'G', 'B'}
 var FIRSTRANKNEWGAME = [8]byte{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'}
 
-var DEFENPASSANT = make([][2]uint8, 0, 2)
+var DEFENPASSANT = make([][2]int8, 0, 2)
 
 var DEFCASTLING = [3][2]bool{
-	{{true, true}, {true, true}},
-	{{true, true}, {true, true}},
-	{{true, true}, {true, true}},
+	{true, true},
+	{true, true},
+	{true, true},
 }
 
-var BOARDFORNEWGAME [6][24][2]byte
+var BOARDFORNEWGAME Board
 
 var NEWGAME State
 
 func init() {
 	for ci, c := range COLORS {
 		for fi, f := range FIRSTRANKNEWGAME {
-			a = ci*8 + fi
+			a := ci*8 + fi
 			BOARDFORNEWGAME[0][a][1] = f
 			BOARDFORNEWGAME[0][a][0] = c
 			BOARDFORNEWGAME[1][a][0] = c
@@ -216,8 +217,8 @@ func init() {
 //}
 
 type Move struct {
-	From        [2]uint8
-	To          [2]uint8
+	From        [2]int8
+	To          [2]int8
 	What        [2]byte
 	AlreadyHere [2]byte
 	Before      *State
