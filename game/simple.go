@@ -12,3 +12,10 @@ func sign(u int8) int8 {
 		return int8(127)
 	}
 }
+
+func abs(u int8) int8 {
+	if u < 0 {
+		return -u
+	}
+	return u
+}

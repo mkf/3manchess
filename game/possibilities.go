@@ -33,7 +33,17 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 				}
 			}
 			var direcshort int8
-			//if to[0]
+			var fromtominus int8
+			if capcheckshort {
+				direcshort = sign(to[1]-from[1])
+			} else {
+				fromtominus = fromto[1]-fromto[0]
+				if abs(fromtominus)==2 {
+					fromtominus=-fromtominus
+				}
+				direcshort = sign(fromtominus)
+			}
+			//zrobić zamienne capfig/capmoat jeśli jedno to drugie było(próbować)
 		} else {
 			canmoat = true
 			canfig = true
@@ -84,8 +94,10 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 				}()
 			}()
 		}
+	} else {
+		cantech = false
 	}
-	return false, false
+	return cantech&&canmoat&&canfig,
 }
 
 //func (b Board) Diagonal
