@@ -1,5 +1,16 @@
 package game
 
+func sign(u uint8) uint8 {
+	switch {
+	case u==0:
+		return u
+	case u<0:
+		return uint8(-1)
+	case u>0:
+		return uint8(1)
+	}
+}
+
 type Square [2]byte
 
 func (s Square) Empty() bool {
@@ -21,6 +32,9 @@ type Board [6][24]Square
 func (b *Board) Straight(from Pos, to Pos, m MoatsState) bool {
 	var cantech, canmoat, canfig, canbridge bool
 	canbridge = true
+	if from==to {
+		panic("Same square!")
+	}
 	if from[0]==to[0] {
 		cantech = true
 		if from[0]==0 {
@@ -49,10 +63,32 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) bool {
 		cantech = true
 		canmoat = true
 		canfig = true
-		//for i
+		sgn := sign(to[0]-from[0])
+		for i:=from[0]+sgn;(sgn*i<to[0])&&canfig;i+=sgn {
+			go func() {
+				if canfig&&!(*b[i][from[1]].Empty()) {
+					canfig = false
+				}
+			}()
+		}
 	} else if ((from[1]-12)%24)==to[1] {
 		cantech = true
 		canmoat = true
+		canfig = true
+		for i,j:=from[0],to[0];canfig && (i<6 && j<6) ; i,j=i+1,j+1 {
+			go func() {
+				go func() {
+					if canfig&&!(*b[i][from[1]].Empty()) {
+						canfig = false
+					}
+				}()
+				go func() {
+					if canfig&&!(*b[j][to[1]].Empty()) {
+						canfig = false
+					}
+				}()
+			}()
+		}
 	} else {
 		return false
 	}
