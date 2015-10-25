@@ -56,6 +56,7 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) bool {
 	} else {
 		return false
 	}
+}
 
 //func (b Board) Diagonal
 
