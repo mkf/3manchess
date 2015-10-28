@@ -10,6 +10,8 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 		cantech = true
 		if from[0] == 0 {
 			var mshort, mlong, capcheckshort bool
+			var direcshort int8
+			var fromtominus int8
 			if from[1]/8 == to[1]/8 {
 				capcheckshort = true
 				canmoat = true
@@ -17,6 +19,7 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 				if m[0] && m[1] && m[2] {
 					mlong = true
 				}
+				direcshort = sign(to[1] - from[1])
 			} else {
 				capcheckshort = false
 				fromto := [2]int8{from[1] / 8, to[1] / 8}
@@ -31,19 +34,44 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 					mshort = m[0]
 					mlong = m[1] && m[2]
 				}
-			}
-			var direcshort int8
-			var fromtominus int8
-			if capcheckshort {
-				direcshort = sign(to[1]-from[1])
-			} else {
-				fromtominus = fromto[1]-fromto[0]
-				if abs(fromtominus)==2 {
-					fromtominus=-fromtominus
+				fromtominus = fromto[1] - fromto[0]
+				if abs(fromtominus) == 2 {
+					fromtominus = -fromtominus
 				}
 				direcshort = sign(fromtominus)
 			}
-			//zrobić zamienne capfig/capmoat jeśli jedno to drugie było(próbować)
+			canfigminus := true
+			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfig; i = (i + 1) % 24 {
+				go func() {
+					if canfig && !((*b)[0][i].Empty()) {
+						canfig = false
+					}
+				}()
+			}
+			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
+				go func() {
+					if canfigminus && !((*b)[0][i].Empty()) {
+						canfigminus = false
+					}
+				}()
+			}
+			canfigplus := canfig
+			canfig = canfigplus || canfigminus
+			if direcshort == 1 {
+				if canfigplus && mshort {
+					canmoat = true
+				} else if canfigminus && mlong {
+					canmoat = true
+				}
+			} else if direcshort == -1 {
+				if canfigminus && mshort {
+					canmoat = true
+				} else if canfigplus && mlong {
+					canmoat = true
+				}
+			} else {
+				panic(direcshort)
+			}
 		} else {
 			canmoat = true
 			canfig = true
@@ -54,15 +82,15 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 					}
 				}()
 			}
-			canfiga := true
-			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfiga; i = (i - 1) % 24 {
+			canfigminus := true
+			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
 				go func() {
-					if canfiga && !((*b)[from[0]][i].Empty()) {
-						canfiga = false
+					if canfigminus && !((*b)[from[0]][i].Empty()) {
+						canfigminus = false
 					}
 				}()
 			}
-			canfig = canfig || canfiga
+			canfig = canfig || canfigminus
 		}
 	} else if from[1] == to[1] {
 		cantech = true
@@ -97,7 +125,8 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 	} else {
 		cantech = false
 	}
-	return cantech&&canmoat&&canfig,
+	final := cantech && canmoat && canfig
+	return final, capcheck && final
 }
 
 //func (b Board) Diagonal
