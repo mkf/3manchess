@@ -19,3 +19,17 @@ func abs(u int8) int8 {
 	}
 	return u
 }
+
+func min(i int8, j int8) int8 {
+	if i < j {
+		return i
+	}
+	return j
+}
+
+func max(i int8, j int8) int8 {
+	if i > j {
+		return i
+	}
+	return j
+}

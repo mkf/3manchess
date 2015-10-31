@@ -129,4 +129,87 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 	return final, capcheck && final
 }
 
-//func (b Board) Diagonal
+func (b *Board) Diagonal(from Pos, to Pos, m MoatsState) (bool, bool) {
+	if from[0] != 0 && from == to {
+		panic("Same square and not the first rank!") //make sure //awaiting email reply
+	}
+	przel := abs(to[1]-from[1]) % 24
+	vectrank := to[0] - from[0]
+	rankdirec := sign(vectrank)
+	short := abs(vectrank) == przel     //without center
+	long := abs(from[0]+to[0]) == przel //with center
+	cantech := short || long
+	var filedirec int8
+	if (from[1]+przel)%24 == to[1] {
+		filedirec = +1
+	} else if (from[1]-przel)%24 == to[1] {
+		filedirec = -1
+	} else if !(short && long) {
+		panic(from.String() + " " + to.String())
+	}
+	var canfig bool
+	canfigshort := true
+	canfiglong := true
+	canmoat := true
+	capcheck := true
+	if from[0] == 0 || to[0] == 0 {
+		if from[0] == 0 {
+			mdir := filedirec
+		} else {
+			mdir := -filedirec
+		}
+		switch from[1] {
+		case 0:
+			if mdir == -1 {
+				capcheck = false
+				canmoat = m[0]
+			}
+		case 23:
+			if mdir == 1 {
+				capcheck = false
+				canmoat = m[0]
+			}
+		case 8:
+			if mdir == -1 {
+				capcheck = false
+				canmoat = m[1]
+			}
+		case 7:
+			if mdir == 1 {
+				capcheck = false
+				canmoat = m[1]
+			}
+		case 16:
+			if mdir == -1 {
+				capcheck = false
+				canmoat = m[2]
+			}
+		case 15:
+			if mdir == 1 {
+				capcheck = false
+				canmoat = m[2]
+			}
+		}
+	}
+	if short {
+		for i := 1; canfigshort && (i <= przel); i++ {
+			if !((*b)[from[0]+(i*rankdirec)][from[1]+(i*filedirec)].Empty()) {
+				canfigshort = false
+			}
+		}
+	}
+	if long {
+		for i := 1; canfiglong && (i <= (5 - from[0])); i++ {
+			if !((*b)[from[0]+i][from[1]+(i*filedirec)].Empty()) {
+				canfiglong = false
+			}
+		}
+		for i := 0; canfiglong && (i+5-from[0] <= przel); i++ {
+			if !((*b)[5-i][from[1]+((5-from[0]+i)*filedirec)].Empty()) {
+				canfiglong = false
+			}
+		}
+	}
+	canfig = canfigshort || canfiglong
+	return cantech && canfig && canmoat, capcheck
+}
