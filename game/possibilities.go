@@ -133,6 +133,8 @@ func (b *Board) Diagonal(from Pos, to Pos, m MoatsState) (bool, bool) {
 	nasz := (*b)[from[0]][from[1]]
 	if from[0] != 0 && from == to {
 		panic("Same square and not the first rank!") //make sure //awaiting email reply
+		//if such thing was legal, one could easily escape a zugzwang, having such a possibility around
+		//also, that would make move detection *really* hard
 	}
 	przel := abs(to[1]-from[1]) % 24
 	vectrank := to[0] - from[0]
@@ -237,8 +239,17 @@ func (b *Board) Diagonal(from Pos, to Pos, m MoatsState) (bool, bool) {
 		}
 	}
 	canfig = canfigshort || canfiglong
-	if canfigshort && canfiglong {
-		canmoat = canmoatshort || canmoatlong
-	} // dalej: co jeśli jedno z nich? rozpatrywać przypadki tylko short i tylko long
-	return cantech && canfig && canmoat, capcheck
+	//if canfigshort && canfiglong {
+	//	canmoat = canmoatshort || canmoatlong
+	//} // dalej: co jeśli jedno z nich? rozpatrywać przypadki tylko short i tylko long
+	canshort := cantech && canfigshort && canmoatshort && (!(bijemyostatniego && (!capcheckshort)))
+	canlong := cantech && canfiglong && canmoatlong && (!(bijemyostatniego && (!capchecklong)))
+	if canshort && canlong {
+		capcheck = capcheckshort || capchecklong
+	} else if canshort {
+		capcheck = capcheckshort
+	} else if canlong {
+		capcheck = capchecklong
+	}
+	return canshort || canlong, capcheck
 }
