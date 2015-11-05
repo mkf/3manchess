@@ -297,4 +297,17 @@ func (b *Board) PawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	return cantech && canfig //, pc, ep
 }
 
-//func (b *Board) PawnCapture(from Pos, to Pos,
+func (b *Board) PawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
+	var cantech, canfig bool
+	nasz := (*b)[from[0]][from[1]]
+	gdziekolor := ColorUint8(from[1] / 8)
+	if nasz.Color() == gdziekolor && !p {
+		panic(nasz.Color())
+	}
+	if p {
+		sgn := int8(-1)
+	} else {
+		sgn := int8(1)
+	}
+	//if
+}
