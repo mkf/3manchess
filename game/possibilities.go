@@ -1,6 +1,6 @@
 package game
 
-func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(whether it can, whether it can capture/check)
+func (b *Board) Straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
 	var cantech, canmoat, canfig bool
 	capcheck := true
 	if from == to {
@@ -126,13 +126,16 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 		cantech = false
 	}
 	final := cantech && canmoat && canfig
-	return final, capcheck && final
+	return final //, capcheck && final
 }
 
-func (b *Board) Diagonal(from Pos, to Pos, m MoatsState) (bool, bool) {
+func (b *Board) Diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	nasz := (*b)[from[0]][from[1]]
 	if from[0] != 0 && from == to {
-		panic("Same square and not the first rank!") //make sure //awaiting email reply
+		panic("Same square and not the first rank!")
+	}
+	if from == to {
+		panic("Same square!") //make sure //awaiting email reply
 		//if such thing was legal, one could easily escape a zugzwang, having such a possibility around
 		//also, that would make move detection *really* hard
 	}
@@ -244,12 +247,54 @@ func (b *Board) Diagonal(from Pos, to Pos, m MoatsState) (bool, bool) {
 	//} // dalej: co jeśli jedno z nich? rozpatrywać przypadki tylko short i tylko long
 	canshort := cantech && canfigshort && canmoatshort && (!(bijemyostatniego && (!capcheckshort)))
 	canlong := cantech && canfiglong && canmoatlong && (!(bijemyostatniego && (!capchecklong)))
-	if canshort && canlong {
-		capcheck = capcheckshort || capchecklong
-	} else if canshort {
-		capcheck = capcheckshort
-	} else if canlong {
-		capcheck = capchecklong
-	}
-	return canshort || canlong, capcheck
+	/*
+		if canshort && canlong {
+			capcheck = capcheckshort || capchecklong
+		} else if canshort {
+			capcheck = capcheckshort
+		} else if canlong {
+			capcheck = capchecklong
+		}
+	*/
+	return canshort || canlong //, capcheck
 }
+
+func (b *Board) PawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
+	var cantech, canfig bool
+	//pc := p
+	//ep := e
+	if from == to {
+		panic("Same square!")
+	}
+	nasz := (*b)[from[0]][from[1]]
+	gdziekolor := ColorUint8(from[1] / 8)
+	if nasz.Color() == gdziekolor && !p {
+		panic(nasz.Color())
+	}
+	if p {
+		sgn := int8(-1)
+	} else {
+		sgn := int8(1)
+	}
+	if from[1] == to[1] {
+		realsgn := sign(to[0] - from[0])
+		if realsgn != sgn {
+			return false //,p,e
+		}
+		if !p && from[0] == 1 && to[0] == 3 {
+			cantech = true
+			canfig = (*b)[2][from[1]].Empty() && (*b)[3][from[1]].Empty()
+			//ep:=e.Appeared(Pos{2,from[1]})
+		} else if to[0] == from[0]+sgn {
+			cantech = true
+			canfig = (*b)[to[0]][from[1]].Empty()
+		}
+	} else if ((from[1]-12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !p {
+		cantech = true
+		canfig = (*b)[5][to[1]].Empty()
+		//pc = true
+	}
+	return cantech && canfig //, pc, ep
+}
+
+//func (b *Board) PawnCapture(from Pos, to Pos,

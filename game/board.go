@@ -9,9 +9,12 @@ var Bishop = FigType('b')
 var Queen = FigType('q')
 var King = FigType('k')
 
+type PawnCenter bool
+
 type Fig struct {
 	FigType
 	Color
+	PawnCenter
 }
 
 type Square struct {
@@ -47,6 +50,19 @@ func (c Color) UInt8() uint8 {
 		return 2
 	}
 	panic(c)
+}
+
+func ColorUint8(u uint8) Color {
+	switch u {
+	case 0:
+		return White
+	case 1:
+		return Gray
+	case 2:
+		return Black
+	default:
+		panic(u)
+	}
 }
 
 var White = Color('W')

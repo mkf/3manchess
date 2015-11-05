@@ -30,7 +30,17 @@ func (cs Castling) Change(c Color, b byte, w bool) Castling {
 	return cso
 }
 
-type EnPassant []Pos
+type EnPassant [2]Pos
+
+func (e EnPassant) Appeared(p Pos) EnPassant {
+	ep := e
+	ep[0] = ep[1]
+	ep[1] = p
+	return ep
+}
+func (e EnPassant) Nothing() EnPassant {
+	return EnPassant{e[1], Pos{127, 127}}
+}
 
 type HalfmoveClock uint8
 
