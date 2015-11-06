@@ -301,7 +301,6 @@ func (b *Board) PawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 }
 
 func (b *Board) PawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
-	var cantech, canfig bool
 	nasz := (*b)[from[0]][from[1]]
 	gdziekolor := ColorUint8(from[1] / 8)
 	cancreek := true
@@ -336,4 +335,10 @@ func (b *Board) PawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 		return true
 	}
 	return false
+}
+
+func (b *Board) KnightMove(from Pos, to Pos, m MoatsState) bool {
+	nasz := (*b)[from[0]][from[1]]
+	gdziekolor := ColorUint8(from[1]/8)
+	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
 }
