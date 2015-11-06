@@ -309,5 +309,13 @@ func (b *Board) PawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	} else {
 		sgn := int8(1)
 	}
-	//if
+	if from[0] == 5 && !p && to[0] == 5 && (to[1] == ((from[1]-10)%24) || to[1] == ((from[1]+10)%24)) && (*b)[to[0]][to[1]].Color() != nasz.Color() {
+		return true
+	}
+	if (e[0] == to || e[1] == to) && (*b)[3][to[1]].What() == Pawn && (*b)[3][to[1]].Color != nasz.Color() && (*b)[2][to[1]].Empty() {
+		return true
+	} else if to[0] == from[0]+sgn && (to[1] == (from[1]+1)%24 || to[1] == (from[1]-1)%24) && (*b)[to[0]][to[1]].Color() != nasz.Color() {
+		return true
+	}
+	return false
 }
