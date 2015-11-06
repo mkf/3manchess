@@ -4,7 +4,8 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	var cantech, canmoat, canfig bool
 	capcheck := true
 	if from == to {
-		panic("Same square!")
+		//panic("Same square!")
+		return false
 	}
 	if from[0] == to[0] {
 		cantech = true
@@ -131,13 +132,14 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 
 func (b *Board) Diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	nasz := (*b)[from[0]][from[1]]
-	if from[0] != 0 && from == to {
-		panic("Same square and not the first rank!")
-	}
+	//if from[0] != 0 && from == to {
+	//panic("Same square and not the first rank!")
+	//}
 	if from == to {
-		panic("Same square!") //make sure //awaiting email reply
+		//panic("Same square!") //make sure //awaiting email reply
 		//if such thing was legal, one could easily escape a zugzwang, having such a possibility around
 		//also, that would make move detection *really* hard
+		return false
 	}
 	przel := abs(to[1]-from[1]) % 24
 	vectrank := to[0] - from[0]
@@ -264,7 +266,8 @@ func (b *Board) PawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	//pc := p
 	//ep := e
 	if from == to {
-		panic("Same square!")
+		//panic("Same square!")
+		return false
 	}
 	nasz := (*b)[from[0]][from[1]]
 	gdziekolor := ColorUint8(from[1] / 8)
@@ -301,6 +304,21 @@ func (b *Board) PawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	var cantech, canfig bool
 	nasz := (*b)[from[0]][from[1]]
 	gdziekolor := ColorUint8(from[1] / 8)
+	cancreek := true
+	if from == to {
+		return false
+	}
+	if !p {
+		creektemp1 := false
+		fromto := [2]int8{from[0], to[0]}
+		switch fromto {
+		case [2]int8{0, 1}, [2]int8{1, 0}, [2]int8{1, 2}, [2]int8{2, 1}, [2]int8{2, 3}, [2]int8{3, 2}:
+			creektemp1 = true
+		}
+		if ((to[1]%8 == 0 && from[1]%8 == 7) || (from[1]%8 == 0 && to[1]%8 == 7)) && creektemp1 {
+			cancreek = false
+		}
+	}
 	if nasz.Color() == gdziekolor && !p {
 		panic(nasz.Color())
 	}
@@ -314,7 +332,7 @@ func (b *Board) PawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	}
 	if (e[0] == to || e[1] == to) && (*b)[3][to[1]].What() == Pawn && (*b)[3][to[1]].Color != nasz.Color() && (*b)[2][to[1]].Empty() {
 		return true
-	} else if to[0] == from[0]+sgn && (to[1] == (from[1]+1)%24 || to[1] == (from[1]-1)%24) && (*b)[to[0]][to[1]].Color() != nasz.Color() {
+	} else if to[0] == from[0]+sgn && ((to[1] == (from[1]+1)%24) || (to[1] == (from[1]-1)%24)) && (*b)[to[0]][to[1]].Color() != nasz.Color() {
 		return true
 	}
 	return false
