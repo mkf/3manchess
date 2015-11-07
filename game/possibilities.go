@@ -527,7 +527,7 @@ func (b *Board) Bishop(from Pos, to Pos, m MoatsState) { //whether a boshop coul
 func (b *Board) King(from Pos, to Pos, m MoatsState, cs Castling) { //whether a king could move like that
 	return b.kingStraight(from, to, m) || b.Castling(from, to, cs)
 }
-func (b *Board) Queen(from Pos, to Pos, m MoatsState) {  //whether a queen could move like that (concurrency, yay!)
+func (b *Board) Queen(from Pos, to Pos, m MoatsState) { //whether a queen could move like that (concurrency, yay!)
 	endedstr := false
 	endeddiag := false
 	var whether bool
@@ -551,26 +551,26 @@ func (b *Board) Queen(from Pos, to Pos, m MoatsState) {  //whether a queen could
 		}
 	}
 }
-func (b *Board) Pawn(from Pos, to Pos, e EnPassant, p PawnCenter) {  //whether a pawn could move like that
+func (b *Board) Pawn(from Pos, to Pos, e EnPassant, p PawnCenter) { //whether a pawn could move like that
 	return b.pawnStraight(from, to, e, p) || b.pawnCapture(from, to, e, p)
 }
 
 func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant, p PawnCenter) { //whether the piece being in 'from' could move like that
 	switch (*b)[from[0]][from[1]].What() {
 	case Pawn:
-		return b.Pawn(from,to,e,p)
+		return b.Pawn(from, to, e, p)
 	case Rook:
-		return b.Rook(from,to,m)
+		return b.Rook(from, to, m)
 	case Knight:
-		return b.Knight(from,to,m)
+		return b.Knight(from, to, m)
 	case Bishop:
-		return b.Bishop(from,to,m)
+		return b.Bishop(from, to, m)
 	case King:
-		return b.King(from,to,m,cs)
+		return b.King(from, to, m, cs)
 	case Queen:
-		return b.Queen(from,to,m)
+		return b.Queen(from, to, m)
 	default:
-		if (*b)[from[0][from[1]].NotEmpty {
+		if (*b)[from[0]][from[1]].NotEmpty {
 			panic("What it is if it was said to exist???")
 		} else {
 			return false

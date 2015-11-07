@@ -11,7 +11,7 @@ type Move struct { //a struct describing a single move with the situation before
 //func (m *Move) String() string {
 //}
 
-func (m *Move) After() *State {   //situation after
+func (m *Move) After() *State { //situation after
 	var movesnext Color
 	if m.What.Color != m.Before.MovesNext {
 		panic(m)

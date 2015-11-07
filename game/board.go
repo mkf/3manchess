@@ -2,12 +2,12 @@ package game
 
 type FigType byte //piece type
 
-var Pawn = FigType('p') //pawn typw
-var Rook = FigType('r') //rook type
+var Pawn = FigType('p')   //pawn typw
+var Rook = FigType('r')   //rook type
 var Knight = FigType('n') //knight type
 var Bishop = FigType('b') //bishop type
-var Queen = FigType('q') //queen type
-var King = FigType('k') //king type
+var Queen = FigType('q')  //queen type
+var King = FigType('k')   //king type
 
 type PawnCenter bool //whether the pawn had already passed through the center
 
@@ -40,7 +40,7 @@ type Board [6][24]Square //board array
 
 type Color byte //color type
 
-func (c Color) UInt8() uint8 {  //returns 0 for white, 1 for gray, 2 for black
+func (c Color) UInt8() uint8 { //returns 0 for white, 1 for gray, 2 for black
 	switch c {
 	case 'W', 'w':
 		return 0
@@ -52,7 +52,7 @@ func (c Color) UInt8() uint8 {  //returns 0 for white, 1 for gray, 2 for black
 	panic(c)
 }
 
-func ColorUint8(u uint8) Color {  //returns White for 0, Gray for 1, Black for 2
+func ColorUint8(u uint8) Color { //returns White for 0, Gray for 1, Black for 2
 	switch u {
 	case 0:
 		return White
@@ -66,10 +66,10 @@ func ColorUint8(u uint8) Color {  //returns White for 0, Gray for 1, Black for 2
 }
 
 var White = Color('W') //white color
-var Gray = Color('G') //gray color
+var Gray = Color('G')  //gray color
 var Black = Color('B') //black color
 
-var COLORS = [3]Color{White, Gray, Black}  //array of colors, ordered
+var COLORS = [3]Color{White, Gray, Black}                                                  //array of colors, ordered
 var FIRSTRANKNEWGAME = [8]FigType{Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook} //first rank, from 0mod8 to 7mod8
 
 var BOARDFORNEWGAME Board //newgame board
