@@ -70,7 +70,7 @@ var Gray = Color('G')
 var Black = Color('B')
 
 var COLORS = [3]Color{White, Gray, Black}
-var FIRSTRANKNEWGAME = [8]FigType{Rook, Knight, Bishop, King, Queen, Bishop, Knight, Rook}
+var FIRSTRANKNEWGAME = [8]FigType{Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook}
 
 var BOARDFORNEWGAME Board
 

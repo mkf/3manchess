@@ -300,6 +300,25 @@ func (b *Board) PawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	return cantech && canfig //, pc, ep
 }
 
+func (b *Board) KingStraight(from Pos, to Pos, m MoatsState) bool {
+	if from == to {
+		return false
+	}
+	nasz := (*b)[from[0]][from[1]]
+	switch to {
+	case Pos{from[0] + 1, from[1]}, Pos{from[0] - 1, from[1]}, Pos{from[0], (from[1] + 1) % 24}, Pos{from[0], (from[1] - 1) % 24}:
+		if (*b)[to[0]][to[1]].NotEmpty {
+			if (*b)[to[0]][to[1]].Color() == nasz.Color() {
+				return false
+			}
+			return true
+		}
+		return true
+	default:
+		return false
+	}
+}
+
 func (b *Board) PawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	nasz := (*b)[from[0]][from[1]]
 	gdziekolor := ColorUint8(from[1] / 8)
@@ -466,4 +485,72 @@ func (b *Board) KnightMove(from Pos, to Pos, m MoatsState) bool {
 		}
 	}
 	return cantech && canmoat && canfig
+}
+
+func (b *Board) Castling(from Pos, to Pos, cs Castling) {
+	var colorproper bool
+	var col Color
+	switch from {
+	case Pos{4, 0}:
+		col = White
+		colorproper = true
+	case Pos{12, 0}:
+		col = Gray
+		colorproper = true
+	case Pos{20, 0}:
+		col = Black
+		colorproper = true
+	}
+	if !colorproper || to[0] != 0 {
+		return false
+	}
+	queenside := false
+	kingside := false
+	switch to[1] {
+	case from[1] - 2:
+		queenside = cs.Give(col, 'Q')
+	case from[1] + 2:
+		kingside = cs.Give(col, 'K')
+	}
+	return (kingside && (*b)[0][from[0]+1].Empty() && (*b)[0][from[0]+2].Empty()) || (queenside && (*b)[0][to[0]+1].Empty() && (*b)[0][to[0]+2].Empty())
+}
+
+func (b *Board) Rook(from Pos, to Pos, m MoatsState) {
+	return b.Straight(from, to, m)
+}
+func (b *Board) Knight(from Pos, to Pos, m MoatsState) {
+	return b.KnightMove(from, to, m)
+}
+func (b *Board) Bishop(from Pos, to Pos, m MoatsState) {
+	return b.Diagonal(from, to, m)
+}
+func (b *Board) King(from Pos, to Pos, m MoatsState, cs Castling) {
+	return b.KingStraight(from, to, m) || b.Castling(from, to, cs)
+}
+func (b *Board) Queen(from Pos, to Pos, m MoatsState) {
+	endedstr := false
+	endeddiag := false
+	var whether bool
+	go func() {
+		my := b.Straight(from, to, m)
+		if my {
+			whether = true
+		}
+		endedstr = true
+	}()
+	go func() {
+		my := b.Diagonal(from, to, m)
+		if my {
+			whether = true
+		}
+		endeddiag = true
+	}()
+	for {
+		if whether || (endedstr && endeddiag) {
+			return whether
+		}
+	}
+}
+func (b *Board) Pawn(from Pos, to Pos, e EnPassant, p PawnCenter) {
+	return b.PawnStraight(from, to, e, p) || b.PawnCapture(from, to, e, p)
 }
