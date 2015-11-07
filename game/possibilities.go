@@ -1,6 +1,6 @@
 package game
 
-func (b *Board) Straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
+func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
 	var cantech, canmoat, canfig bool
 	capcheck := true
 	if from == to {
@@ -130,7 +130,7 @@ func (b *Board) Straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	return final //, capcheck && final
 }
 
-func (b *Board) Diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
+func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	nasz := (*b)[from[0]][from[1]]
 	//if from[0] != 0 && from == to {
 	//panic("Same square and not the first rank!")
@@ -261,7 +261,7 @@ func (b *Board) Diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	return canshort || canlong //, capcheck
 }
 
-func (b *Board) PawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
+func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
 	var cantech, canfig bool
 	//pc := p
 	//ep := e
@@ -300,7 +300,7 @@ func (b *Board) PawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	return cantech && canfig //, pc, ep
 }
 
-func (b *Board) KingStraight(from Pos, to Pos, m MoatsState) bool {
+func (b *Board) kingStraight(from Pos, to Pos, m MoatsState) bool {
 	if from == to {
 		return false
 	}
@@ -319,7 +319,7 @@ func (b *Board) KingStraight(from Pos, to Pos, m MoatsState) bool {
 	}
 }
 
-func (b *Board) PawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
+func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	nasz := (*b)[from[0]][from[1]]
 	gdziekolor := ColorUint8(from[1] / 8)
 	cancreek := true
@@ -356,7 +356,7 @@ func (b *Board) PawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	return false
 }
 
-func (b *Board) KnightMove(from Pos, to Pos, m MoatsState) bool {
+func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 	nasz := (*b)[from[0]][from[1]]
 	gdziekolor := ColorUint8(from[1] / 8)
 	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
@@ -487,7 +487,7 @@ func (b *Board) KnightMove(from Pos, to Pos, m MoatsState) bool {
 	return cantech && canmoat && canfig
 }
 
-func (b *Board) Castling(from Pos, to Pos, cs Castling) {
+func (b *Board) castling(from Pos, to Pos, cs Castling) {
 	var colorproper bool
 	var col Color
 	switch from {
@@ -515,31 +515,31 @@ func (b *Board) Castling(from Pos, to Pos, cs Castling) {
 	return (kingside && (*b)[0][from[0]+1].Empty() && (*b)[0][from[0]+2].Empty()) || (queenside && (*b)[0][to[0]+1].Empty() && (*b)[0][to[0]+2].Empty())
 }
 
-func (b *Board) Rook(from Pos, to Pos, m MoatsState) {
-	return b.Straight(from, to, m)
+func (b *Board) Rook(from Pos, to Pos, m MoatsState) { //whether a rook could move like that
+	return b.straight(from, to, m)
 }
-func (b *Board) Knight(from Pos, to Pos, m MoatsState) {
-	return b.KnightMove(from, to, m)
+func (b *Board) Knight(from Pos, to Pos, m MoatsState) { //whether a knight could move like that
+	return b.knightMove(from, to, m)
 }
-func (b *Board) Bishop(from Pos, to Pos, m MoatsState) {
-	return b.Diagonal(from, to, m)
+func (b *Board) Bishop(from Pos, to Pos, m MoatsState) { //whether a boshop could move like that
+	return b.diagonal(from, to, m)
 }
-func (b *Board) King(from Pos, to Pos, m MoatsState, cs Castling) {
-	return b.KingStraight(from, to, m) || b.Castling(from, to, cs)
+func (b *Board) King(from Pos, to Pos, m MoatsState, cs Castling) { //whether a king could move like that
+	return b.kingStraight(from, to, m) || b.Castling(from, to, cs)
 }
-func (b *Board) Queen(from Pos, to Pos, m MoatsState) {
+func (b *Board) Queen(from Pos, to Pos, m MoatsState) {  //whether a queen could move like that (concurrency, yay!)
 	endedstr := false
 	endeddiag := false
 	var whether bool
 	go func() {
-		my := b.Straight(from, to, m)
+		my := b.straight(from, to, m)
 		if my {
 			whether = true
 		}
 		endedstr = true
 	}()
 	go func() {
-		my := b.Diagonal(from, to, m)
+		my := b.diagonal(from, to, m)
 		if my {
 			whether = true
 		}
@@ -551,6 +551,29 @@ func (b *Board) Queen(from Pos, to Pos, m MoatsState) {
 		}
 	}
 }
-func (b *Board) Pawn(from Pos, to Pos, e EnPassant, p PawnCenter) {
-	return b.PawnStraight(from, to, e, p) || b.PawnCapture(from, to, e, p)
+func (b *Board) Pawn(from Pos, to Pos, e EnPassant, p PawnCenter) {  //whether a pawn could move like that
+	return b.pawnStraight(from, to, e, p) || b.pawnCapture(from, to, e, p)
+}
+
+func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant, p PawnCenter) { //whether the piece being in 'from' could move like that
+	switch (*b)[from[0]][from[1]].What() {
+	case Pawn:
+		return b.Pawn(from,to,e,p)
+	case Rook:
+		return b.Rook(from,to,m)
+	case Knight:
+		return b.Knight(from,to,m)
+	case Bishop:
+		return b.Bishop(from,to,m)
+	case King:
+		return b.King(from,to,m,cs)
+	case Queen:
+		return b.Queen(from,to,m)
+	default:
+		if (*b)[from[0][from[1]].NotEmpty {
+			panic("What it is if it was said to exist???")
+		} else {
+			return false
+		}
+	}
 }
