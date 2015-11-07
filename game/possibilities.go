@@ -339,6 +339,131 @@ func (b *Board) PawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 
 func (b *Board) KnightMove(from Pos, to Pos, m MoatsState) bool {
 	nasz := (*b)[from[0]][from[1]]
-	gdziekolor := ColorUint8(from[1]/8)
+	gdziekolor := ColorUint8(from[1] / 8)
 	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
+	cantech := false
+	switch to[1] {
+	case (from[1] + 2) % 24, (from[1] - 2) % 24:
+		if from[0] == 5 && to[0] == 5 {
+			cantech = true
+		} else if from[0] == to[0]+1 || from[0] == to[0]-1 {
+			cantech = true
+		}
+	case (from[1] + 1) % 24, (from[1] - 1) % 24:
+		if from[0] == 5 && to[0] == 4 { // doubtful, awaiting email reply
+			cantech = true
+		} else if from[0] == to[0]+2 || from[0] == to[0]-2 {
+			cantech = true
+		}
+	}
+	canmoat := true
+	cancheck := true
+	if cantech && from[0] < 3 && to[0] < 3 {
+		var ourmoat bool
+		switch from[1] {
+		case 22, 23, 0, 1:
+			ourmoat = m[0]
+		case 6, 7, 8, 9:
+			ourmoat = m[1]
+		case 14, 15, 16, 17:
+			ourmoat = m[2]
+		}
+		switch from[1] % 8 {
+		case 6:
+			if to[1]%8 == 0 {
+				switch from[0] {
+				case 0:
+					if to[0] == 1 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				case 1:
+					if to[0] == 0 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				}
+			}
+		case 7:
+			if to[1]%8 == 1 {
+				switch from[0] {
+				case 0:
+					if to[0] == 1 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				case 1:
+					if to[0] == 0 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				}
+			} else if to[1]%8 == 0 {
+				switch from[0] {
+				case 0:
+					if to[0] == 2 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				case 2:
+					if to[0] == 0 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				}
+			}
+		case 0:
+			if to[1]%8 == 6 {
+				switch from[0] {
+				case 0:
+					if to[0] == 1 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				case 1:
+					if to[0] == 0 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				}
+			} else if to[1]%8 == 7 {
+				switch from[0] {
+				case 0:
+					if to[0] == 2 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				case 2:
+					if to[0] == 0 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				}
+			}
+		case 1:
+			if to[1]%8 == 7 {
+				switch from[0] {
+				case 0:
+					if to[0] == 1 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				case 1:
+					if to[0] == 0 {
+						cancheck = false
+						canmoat = ourmoat
+					}
+				}
+			}
+		}
+	}
+	canfig := true
+	if cantech && canmoat {
+		if (*b)[to[0]][to[1]].NotEmpty {
+			if (*b)[to[0]][to[1]].Color() == nasz.Color() {
+				canfig = false
+			}
+		}
+	}
+	return cantech && canmoat && canfig
 }
