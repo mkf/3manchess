@@ -1,6 +1,6 @@
 package game
 
-type Move struct {
+type Move struct { //a struct describing a single move with the situation before it
 	From        Pos
 	To          Pos
 	What        Fig
@@ -11,7 +11,7 @@ type Move struct {
 //func (m *Move) String() string {
 //}
 
-func (m *Move) After() *State {
+func (m *Move) After() *State {   //situation after
 	var movesnext Color
 	if m.What.Color != m.Before.MovesNext {
 		panic(m)
