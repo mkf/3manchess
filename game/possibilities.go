@@ -2,7 +2,7 @@ package game
 
 func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
 	var cantech, canmoat, canfig bool
-	capcheck := true
+	//capcheck := true
 	if from == to {
 		//panic("Same square!")
 		return false
@@ -10,11 +10,11 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	if from[0] == to[0] {
 		cantech = true
 		if from[0] == 0 {
-			var mshort, mlong, capcheckshort bool
+			var mshort, mlong bool //, capcheckshort bool
 			var direcshort int8
 			var fromtominus int8
 			if from[1]/8 == to[1]/8 {
-				capcheckshort = true
+				//capcheckshort = true
 				canmoat = true
 				mshort = true
 				if m[0] && m[1] && m[2] {
@@ -22,7 +22,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}
 				direcshort = sign(to[1] - from[1])
 			} else {
-				capcheckshort = false
+				//capcheckshort = false
 				fromto := [2]int8{from[1] / 8, to[1] / 8}
 				switch fromto {
 				case [2]int8{0, 1}, [2]int8{1, 0}:
@@ -155,7 +155,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	} else if !(short && long) {
 		panic(from.String() + " " + to.String())
 	}
-	var canfig bool
+	//var canfig bool
 	canfigshort := true
 	canfiglong := true
 	canmoatshort := true
@@ -164,13 +164,13 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	capchecklong := true
 	if from[0] == 0 || to[0] == 0 { //jeżeli jesteśmy na rank 0
 		var sprawdzamy, mdir int8
-		if from[0] == 0 { // jeżeli wyjeżdżamy do środka
-			mdir := filedirec     // short jedzie w kierunku mdir, long jedzie w -mdir
-			sprawdzamy := from[1] //
-		} else { // czyli inaczej:  else if to[0]==0  czyli  jeżeli jedziemy na brzeg
-			mdir := -filedirec
-			sprawdzamy := to[1]
-		}
+		//if from[0] == 0 { // jeżeli wyjeżdżamy do środka
+		//mdir := filedirec     // short jedzie w kierunku mdir, long jedzie w -mdir
+		//sprawdzamy := from[1] //
+		//} else { // czyli inaczej:  else if to[0]==0  czyli  jeżeli jedziemy na brzeg
+		//mdir := -filedirec
+		//sprawdzamy := to[1]
+		//}
 		capchecktemp := true
 		canmoattemp := true
 		var dirtemp int8
@@ -246,7 +246,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			}
 		}
 	}
-	canfig = canfigshort || canfiglong
+	//canfig = canfigshort || canfiglong
 	//if canfigshort && canfiglong {
 	//	canmoat = canmoatshort || canmoatlong
 	//} // dalej: co jeśli jedno z nich? rozpatrywać przypadki tylko short i tylko long
@@ -279,9 +279,9 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	}
 	var sgn int8
 	if p {
-		sgn := int8(-1)
+		sgn = int8(-1)
 	} else {
-		sgn := int8(1)
+		sgn = int8(1)
 	}
 	if from[1] == to[1] {
 		realsgn := sign(to[0] - from[0])
@@ -326,7 +326,7 @@ func (b *Board) kingStraight(from Pos, to Pos, m MoatsState) bool {
 func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	nasz := (*b)[from[0]][from[1]]
 	gdziekolor := ColorUint8(uint8(from[1] / 8))
-	cancreek := true
+	//cancreek := true
 	if from == to {
 		return false
 	}
@@ -338,7 +338,7 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 			creektemp1 = true
 		}
 		if ((to[1]%8 == 0 && from[1]%8 == 7) || (from[1]%8 == 0 && to[1]%8 == 7)) && creektemp1 {
-			cancreek = false
+			//cancreek = false
 		}
 	}
 	if nasz.Color() == gdziekolor && !p {
@@ -346,9 +346,9 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	}
 	var sgn int8
 	if p {
-		sgn := int8(-1)
+		sgn = int8(-1)
 	} else {
-		sgn := int8(1)
+		sgn = int8(1)
 	}
 	if from[0] == 5 && !p && to[0] == 5 && (to[1] == ((from[1]-10)%24) || to[1] == ((from[1]+10)%24)) && (*b)[to[0]][to[1]].Color() != nasz.Color() {
 		return true
@@ -363,7 +363,7 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 
 func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 	nasz := (*b)[from[0]][from[1]]
-	gdziekolor := ColorUint8(uint8(from[1] / 8))
+	//gdziekolor := ColorUint8(uint8(from[1] / 8))
 	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
 	cantech := false
 	switch to[1] {
@@ -381,7 +381,7 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 		}
 	}
 	canmoat := true
-	cancheck := true
+	//cancheck := true
 	if cantech && from[0] < 3 && to[0] < 3 {
 		var ourmoat bool
 		switch from[1] {
@@ -398,12 +398,12 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 				switch from[0] {
 				case 0:
 					if to[0] == 1 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				case 1:
 					if to[0] == 0 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				}
@@ -413,12 +413,12 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 				switch from[0] {
 				case 0:
 					if to[0] == 1 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				case 1:
 					if to[0] == 0 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				}
@@ -426,12 +426,12 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 				switch from[0] {
 				case 0:
 					if to[0] == 2 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				case 2:
 					if to[0] == 0 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				}
@@ -441,12 +441,12 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 				switch from[0] {
 				case 0:
 					if to[0] == 1 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				case 1:
 					if to[0] == 0 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				}
@@ -454,12 +454,12 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 				switch from[0] {
 				case 0:
 					if to[0] == 2 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				case 2:
 					if to[0] == 0 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				}
@@ -469,12 +469,12 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 				switch from[0] {
 				case 0:
 					if to[0] == 1 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				case 1:
 					if to[0] == 0 {
-						cancheck = false
+						//cancheck = false
 						canmoat = ourmoat
 					}
 				}

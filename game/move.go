@@ -80,7 +80,7 @@ func (b *Board) CheckChecking(who Color) bool { //true if in check
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			if tojefig := (*b)[i][j].Fig; tojefig.Color == who && tojefig.FigType == King {
-				where := Pos{i, j}
+				where = Pos{i, j}
 				czy = true
 			}
 		}
@@ -211,7 +211,7 @@ func (m *Move) After() (*State, error) { //situation after
 		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove}
 	} else if m.What().FigType == Pawn {
 		var empty Square
-		czyempty := nextboard[m.To[0]][m.To[1]].Empty()
+		//czyempty := nextboard[m.To[0]][m.To[1]].Empty()
 		nextboard[m.To[0]][m.To[1]] = nextboard[m.From[0]][m.From[1]]
 		nextboard[m.From[0]][m.From[1]] = empty
 		nexthalfmoveclock = HalfmoveClock(0)
