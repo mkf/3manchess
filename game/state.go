@@ -55,6 +55,10 @@ type HalfmoveClock uint8
 
 type FullmoveNumber uint16
 
+type PlayersAlive [3]bool
+
+var DEFPLAYERSALIVE = [3]bool{true, true, true}
+
 type State struct {
 	*Board //[color,figure_lowercase] //[0,0]
 	MoatsState
@@ -63,6 +67,7 @@ type State struct {
 	EnPassant       //[previousplayer,currentplayer]  [number,letter]
 	HalfmoveClock
 	FullmoveNumber
+	PlayersAlive
 }
 
 func (s *State) AnyPiece(from, to Pos) bool {
@@ -87,7 +92,7 @@ var NEWGAME State
 
 func init() {
 	boardinit()
-	NEWGAME = State{&BOARDFORNEWGAME, DEFMOATSSTATE, Color('W'), DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1)}
+	NEWGAME = State{&BOARDFORNEWGAME, DEFMOATSSTATE, Color('W'), DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
 }
 
 //func (s *State) String() string {   // returns FEN

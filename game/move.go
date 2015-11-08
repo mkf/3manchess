@@ -73,7 +73,7 @@ func (e *IllegalMoveError) Error() string {
 	return e.Codename + e.Description
 }
 
-func (b *Board) CheckChecking(who Color) bool { //true if in check
+func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in check
 	var i, j int8
 	var where Pos
 	var czy bool
@@ -90,7 +90,7 @@ func (b *Board) CheckChecking(who Color) bool { //true if in check
 	}
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
-			if !(b.AnyPiece(Pos{i, j}, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) {
+			if !((b.AnyPiece(Pos{i, j}, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) || pa[(*b)[i][j].Color().UInt8()]) {
 				return true
 			}
 		}
@@ -117,6 +117,7 @@ func (m *Move) After() (*State, error) { //situation after
 	nextpassant := m.Before.EnPassant
 	nexthalfmoveclock := m.Before.HalfmoveClock
 	nextfullmove := m.Before.FullmoveNumber
+	nextplayersalive := m.Before.PlayersAlive
 	if m.IsItKingSideCastling() {
 		empty := nextboard[0][m.From[1]+2]
 		nextboard[0][m.From[1]+2] = nextboard[0][m.From[1]]
@@ -127,7 +128,7 @@ func (m *Move) After() (*State, error) { //situation after
 		nexthalfmoveclock++
 		nextfullmove++
 		nextpassant = nextpassant.Nothing()
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove}
+		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	} else if m.IsItQueenSideCastling() {
 		empty := nextboard[0][m.From[1]-2]
 		nextboard[0][m.From[1]-2] = nextboard[0][m.From[1]]
@@ -138,14 +139,14 @@ func (m *Move) After() (*State, error) { //situation after
 		nexthalfmoveclock++
 		nextfullmove++
 		nextpassant = nextpassant.Nothing()
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove}
+		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	} else if m.IsItPawnRunningEnPassant() {
 		nextboard[3][m.From[1]] = nextboard[1][m.From[1]]
 		nextboard[1][m.From[1]] = nextboard[2][m.From[1]]
 		nexthalfmoveclock = HalfmoveClock(0)
 		nextfullmove++
 		nextpassant = nextpassant.Appeared(Pos{2, m.From[1]})
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove}
+		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	} else if m.IsItPawnCapturingEnPassant() {
 		nextboard[3][m.To[1]] = nextboard[2][m.To[1]]
 		empty := nextboard[2][m.To[1]]
@@ -154,7 +155,7 @@ func (m *Move) After() (*State, error) { //situation after
 		nexthalfmoveclock = HalfmoveClock(0)
 		nextfullmove++
 		nextpassant = nextpassant.Nothing()
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove}
+		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	} else if m.What().FigType == Rook {
 		var empty Square
 		czyempty := nextboard[m.To[0]][m.To[1]].Empty()
@@ -184,7 +185,7 @@ func (m *Move) After() (*State, error) { //situation after
 			nextmoats[m.From[1]/8] = true
 			nextmoats[m.From[1]/8+1] = true
 		}
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove}
+		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	} else if m.What().FigType == King {
 		var empty Square
 		czyempty := nextboard[m.To[0]][m.To[1]].Empty()
@@ -208,7 +209,7 @@ func (m *Move) After() (*State, error) { //situation after
 			nextmoats[m.From[1]/8] = true
 			nextmoats[m.From[1]/8+1] = true
 		}
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove}
+		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	} else if m.What().FigType == Pawn {
 		var empty Square
 		//czyempty := nextboard[m.To[0]][m.To[1]].Empty()
@@ -227,7 +228,7 @@ func (m *Move) After() (*State, error) { //situation after
 			nextmoats[m.From[1]/8] = true
 			nextmoats[m.From[1]/8+1] = true
 		}
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove}
+		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	} else {
 		var empty Square
 		czyempty := nextboard[m.To[0]][m.To[1]].Empty()
@@ -250,7 +251,7 @@ func (m *Move) After() (*State, error) { //situation after
 			nextmoats[m.From[1]/8] = true
 			nextmoats[m.From[1]/8+1] = true
 		}
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove}
+		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	}
 	if next.Board.CheckChecking(m.What().Color) {
 		return &next, &IllegalMoveError{m, "Check", "We would be in check!"}
