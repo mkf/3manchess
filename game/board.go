@@ -84,7 +84,7 @@ func (c Color) String() string {
 	case 2:
 		return "Black"
 	default:
-		panic(c)
+		panic(c.UInt8())
 	}
 }
 
