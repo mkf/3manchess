@@ -1,5 +1,7 @@
 package game
 
+import "strconv"
+
 type FigType byte //piece type
 
 var Pawn = FigType('p')   //pawn typw
@@ -36,6 +38,10 @@ func (s Square) What() FigType { //return s.Fig.FigType
 
 type Pos [2]int8 //coordinates
 
+func (p Pos) String() string {
+	return "[" + strconv.Itoa(int(p[0])) + "," + strconv.Itoa(int(p[1])) + "]"
+}
+
 type Board [6][24]Square //board array
 
 type Color byte //color type
@@ -70,7 +76,7 @@ func (c Color) Next() Color { //returns the next color: White, Gray, Black,  Whi
 }
 
 func (c Color) String() string {
-	switch c.UInt8 {
+	switch c.UInt8() {
 	case 0:
 		return "White"
 	case 1:

@@ -69,7 +69,7 @@ func (s *State) AnyPiece(from, to Pos) bool {
 	return s.Board.AnyPiece(from, to, s.MoatsState, s.Castling, s.EnPassant)
 }
 
-var DEFENPASSANT = make(EnPassant, 0, 2)
+var DEFENPASSANT = EnPassant{Pos{127, 127}, Pos{127, 127}}
 
 var DEFCASTLING = [3][2]bool{
 	{true, true},
