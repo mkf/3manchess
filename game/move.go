@@ -98,6 +98,8 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 	return false
 }
 
+//TODO: Checkmate, stalemate detection. Doing something with the halfmove timer.
+
 func (m *Move) After() (*State, error) { //situation after
 	var next State
 	var nextboard Board
