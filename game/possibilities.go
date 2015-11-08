@@ -487,7 +487,7 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 	return cantech && canmoat && canfig
 }
 
-func (b *Board) castling(from Pos, to Pos, cs Castling) {
+func (b *Board) Castling(from Pos, to Pos, cs Castling) {
 	var colorproper bool
 	var col Color
 	switch from {
@@ -512,7 +512,7 @@ func (b *Board) castling(from Pos, to Pos, cs Castling) {
 	case from[1] + 2:
 		kingside = cs.Give(col, 'K')
 	}
-	return (kingside && (*b)[0][from[0]+1].Empty() && (*b)[0][from[0]+2].Empty()) || (queenside && (*b)[0][to[0]+1].Empty() && (*b)[0][to[0]+2].Empty())
+	return (kingside && (*b)[0][from[1]+1].Empty() && (*b)[0][from[1]+2].Empty()) || (queenside && (*b)[0][to[1]+1].Empty() && (*b)[0][to[1]+2].Empty() && (*b)[0][to[1]+3].Empty())
 }
 
 func (b *Board) Rook(from Pos, to Pos, m MoatsState) { //whether a rook could move like that
@@ -551,14 +551,16 @@ func (b *Board) Queen(from Pos, to Pos, m MoatsState) { //whether a queen could 
 		}
 	}
 }
-func (b *Board) Pawn(from Pos, to Pos, e EnPassant, p PawnCenter) { //whether a pawn could move like that
+func (b *Board) Pawn(from Pos, to Pos, e EnPassant) { //whether a pawn could move like that
+	var p PawnCenter
+	p = (*b)[from[0]][from[1]].PawnCenter
 	return b.pawnStraight(from, to, e, p) || b.pawnCapture(from, to, e, p)
 }
 
-func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant, p PawnCenter) { //whether the piece being in 'from' could move like that
+func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant) { //whether the piece being in 'from' could move like that
 	switch (*b)[from[0]][from[1]].What() {
 	case Pawn:
-		return b.Pawn(from, to, e, p)
+		return b.Pawn(from, to, e)
 	case Rook:
 		return b.Rook(from, to, m)
 	case Knight:

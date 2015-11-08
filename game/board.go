@@ -65,6 +65,23 @@ func ColorUint8(u uint8) Color { //returns White for 0, Gray for 1, Black for 2
 	}
 }
 
+func (c Color) Next() Color { //returns the next color: White, Gray, Black,  White, etc.
+	return ColorUint8((c.UInt8() + 1) % 3)
+}
+
+func (c Color) String() string {
+	switch c.UInt8 {
+	case 0:
+		return "White"
+	case 1:
+		return "Gray"
+	case 2:
+		return "Black"
+	default:
+		panic(c)
+	}
+}
+
 var White = Color('W') //white color
 var Gray = Color('G')  //gray color
 var Black = Color('B') //black color

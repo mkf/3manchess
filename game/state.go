@@ -1,8 +1,9 @@
 package game
 
-type MoatsState [3]bool //Black-White, White-Gray, Gray-Black
+type MoatsState [3]bool //Black-White, White-Gray, Gray-Black  //true: bridged. Originally, true meant still active, i.e. non-bridged!!!
 
-var DEFMOATSSTATE = MoatsState{true, true, true}
+//var DEFMOATSSTATE = MoatsState{true, true, true}
+var DEFMOATSSTATE = MoatsState{false, false, false} //are they bridged?
 
 type Castling [3][2]bool
 
@@ -28,6 +29,14 @@ func (cs Castling) Change(c Color, b byte, w bool) Castling {
 	col, ct := forcastlingconv(c, b)
 	cso[col][ct] = w
 	return cso
+}
+
+func (cs Castling) OffRook(c Color, b byte) Castling {
+	return cs.Change(c, b, false)
+}
+
+func (cs Castling) OffKing(c Color) Castling {
+	return cs.OffRook(c, 'K').OffRook(c, 'Q')
 }
 
 type EnPassant [2]Pos
@@ -56,12 +65,22 @@ type State struct {
 	FullmoveNumber
 }
 
+func (s *State) AnyPiece(from, to Pos) bool {
+	return s.Board.AnyPiece(from, to, s.MoatsState, s.Castling, s.EnPassant)
+}
+
 var DEFENPASSANT = make(EnPassant, 0, 2)
 
 var DEFCASTLING = [3][2]bool{
 	{true, true},
 	{true, true},
 	{true, true},
+}
+
+var FALSECASTLING = [3][2]bool{
+	{false, false},
+	{false, false},
+	{false, false},
 }
 
 var NEWGAME State
