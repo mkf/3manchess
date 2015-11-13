@@ -255,7 +255,12 @@ func (m *Move) After() (*State, error) { //situation after
 		}
 		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	}
-	if next.Board.CheckChecking(m.What().Color, m.Before.PlayersAlive) {
+	//	if next.Board.CheckChecking(m.What().Color, m.Before.PlayersAlive) {
+	if next.AmIInCheck(m.What().Color) {
+		if !next.CanIMoveWOCheck(m.What().Color) {
+			next.PlayersAlive.Die(m.What().Color)
+			return &next, nil
+		}
 		return &next, &IllegalMoveError{m, "Check", "We would be in check!"}
 	}
 	return &next, nil

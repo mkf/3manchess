@@ -57,6 +57,16 @@ type FullmoveNumber uint16
 
 type PlayersAlive [3]bool
 
+func (pa PlayersAlive) Give(who Color) bool {
+	return pa[who.UInt8()]
+}
+
+func (pa PlayersAlive) Die(who Color) PlayersAlive {
+	pan := pa
+	pan[who.UInt8()] = false
+	return pan
+}
+
 var DEFPLAYERSALIVE = [3]bool{true, true, true}
 
 type State struct {
