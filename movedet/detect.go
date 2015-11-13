@@ -14,12 +14,12 @@ type changereplace struct {
 }
 
 type IllegalMoveDetected struct {
-	description string
-	codename    string
+	Description string
+	Codename    string
 }
 
 func (i IllegalMoveDetected) Error() string {
-	return i.description
+	return i.Description
 }
 
 func WhatMove(bef *game.State, aft *game.Board) (*game.Move, *game.State, error) {
