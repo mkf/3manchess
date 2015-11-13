@@ -17,6 +17,7 @@ func NewAI(t time.Duration) AIsettings {
 }
 
 func Worker(thinking *[6][24][6][24]int64, mutex *sync.RWMutex, state game.State) {
+	//do I really have to do create such a dumb and ineffective AI?!
 }
 
 func (a *AIsettings) Think(s *game.State) game.Move {
