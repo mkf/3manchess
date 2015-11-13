@@ -13,13 +13,22 @@ type changereplace struct {
 	where  game.Pos
 }
 
+type IllegalMoveDetected struct {
+	description string
+	codename    string
+}
+
 func WhatMove(bef *game.State, aft *game.Board) (*game.Move, *game.State, error) {
 	//yep, it's right! all over, again!
 	//but now... with concurrency!
 	var i, j int8
-	appeared := make([]changeempty, 0, 4)
-	disappeared := make([]changeempty, 0, 4)
-	replaced := make([]changereplace, 0, 2)
+	var om *game.Move
+	var os *game.State
+	var ourmove game.Move
+	//var whatafter game.State
+	appeared := make([]changeempty, 0, 2)
+	disappeared := make([]changeempty, 0, 2)
+	replaced := make([]changereplace, 0, 1)
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			prev = bef.Board[i][j]
@@ -35,4 +44,83 @@ func WhatMove(bef *game.State, aft *game.Board) (*game.Move, *game.State, error)
 			}
 		}
 	}
+	if len(replaced) > 1 {
+		return om, os, IllegalMoveDetected{"Too many replaced pieces!", "TooManyReplaced"}
+	}
+	if len(appeared) > len(disappeared) {
+		return om, os, IllegalMoveDetected{"More appeared than disappeared!", "MoreAppearedThanDisappeared"}
+	}
+	if len(appeared) == len(disappeared) == 2 && len(replaced) == 0 {
+		if appeared[0].what.FigType == game.King {
+			aking := appeared[0]
+		} else if appeared[1].what.FigType == game.King {
+			aking := appeared[1]
+		} else {
+			return om, os, IllegalMoveDetected{"It ain't no castling!", "NotACastling"}
+		}
+		if disappeared[0].what.FigType == game.King {
+			dking := disappeared[0]
+		} else if disappeared[1].what.FigType == game.King {
+			dking := disappeared[1]
+		} else {
+			return om, os, IllegalMoveDetected{"It ain't no castling, though there was a king!", "NotACastlingButKing"}
+		}
+		ourmove = game.Move{dking.where, aking.where, bef}
+		whatafter, err := ourmove.After()
+		if err != nil {
+			return &ourmove, &whatafter, err
+		}
+		if whatafter != *aft {
+			panic("Legal move, yet the effect is different from what we've got on input???")
+		}
+		return &ourmove, &whatafter, err
+	}
+	if len(disappeared) > 2 {
+		return om, os, IllegalMoveDetected{"More than 2 disappeared!", "MoreThanTwoDisappeared"}
+	}
+	if len(appeared) == 1 && len(disappeared) == 2 && len(replaced) == 0 && appeared[0].what.FigType == game.Pawn {
+		for _, j := range disappeared {
+			ourmove = game.Move{j.where, appeared[0].where, bef}
+			whatafter, err := ourmove.After()
+			if err == nil {
+				if whatafter != *aft {
+					panic("Legal move, yet the effect is different from what we've got on input???")
+				}
+			}
+			return &ourmove, &whatafter, err
+		}
+	}
+	if (len(appeared) > 0 || len(disappeared) > 1) && len(replaced) > 0 {
+		return om, os, IllegalMoveDetected{"Both (dis)appeared and been replaced!", "BothAppearDisappearAndReplace"}
+	}
+	if len(disappeared) == 1 && len(replaced) == 0 && len(appeared) == 0 {
+		return om, os, IllegalMoveDetected{"One disappearance with no reason!", "NoReasonDisappear"}
+	}
+	if len(disappeared) == 1 && len(replaced) == 1 {
+		ourmove = game.Move{disappeared[0].where, replaced[0].where, bef}
+		whatafter, err := ourmove.After()
+		if err == nil {
+			if whatafter != *aft {
+				panic("Legal move, yet the effect is different from what we've got on input???")
+			}
+		}
+		return &ourmove, &whatafter, err
+	}
+	if len(disappeared) == 1 && len(appeared) == 1 {
+		ourmove = game.Move{disappeared[0].where, appeared[0].where, bef}
+		whatafter, err := ourmove.After()
+		if err == nil {
+			if whatafter != *aft {
+				panic("Legal move, yet the effect is different from what we've got on input???")
+			}
+		}
+		return &ourmove, &whatafter, err
+	}
+	if len(disappeared) == 0 && len(appeared) == 0 && len(replaced) == 0 {
+		return om, bef, IllegalMoveDetected{"The board remains unchanged", "Unchanged"}
+	}
+	if len(disappeared) == 0 && len(appeared) == 0 && len(replaced) == 1 {
+		return om, os, IllegalMoveDetected{"One replacement with no reason!", "NoReasonReplace"}
+	}
+	panic("None of the cases???")
 }
