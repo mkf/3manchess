@@ -25,5 +25,6 @@ func (s *State) CanIMoveWOCheck(who Color) bool {
 	return false
 }
 
-//func (s *State) AmIInCheck(who Color) bool {
-//	return s
+func (s *State) AmIInCheck(who Color) bool {
+	return s.Board.CheckChecking(who, s.PlayersAlive)
+}
