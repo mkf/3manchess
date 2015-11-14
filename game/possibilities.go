@@ -274,8 +274,8 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	}
 	nasz := (*b)[from[0]][from[1]]
 	gdziekolor := ColorUint8(uint8(from[1] / 8))
-	if nasz.Color() == gdziekolor && !p {
-		panic(nasz.Color())
+	if nasz.Color() == gdziekolor && p {
+		panic("pS" + nasz.Color().String())
 	}
 	var sgn int8
 	if p {
@@ -342,7 +342,7 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 		}
 	}
 	if nasz.Color() == gdziekolor && !p {
-		panic(nasz.Color())
+		panic("pC" + nasz.Color().String())
 	}
 	var sgn int8
 	if p {
