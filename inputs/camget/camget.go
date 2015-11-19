@@ -77,44 +77,18 @@ func (v *View) Calibrate() {
 		return ours, pix, myf
 	}
 
-	win.CreateTrackbar("Top0", 0, 1943, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[0].TopTangent = pos
-	})
-	win.CreateTrackbar("Top1", 0, 1943, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[1].TopTangent = pos
-	})
-	win.CreateTrackbar("Top2", 0, 1943, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[2].TopTangent = pos
-	})
-	win.CreateTrackbar("Top3", 0, 1943, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[3].TopTangent = pos
-	})
-	win.CreateTrackbar("Top4", 0, 1943, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[4].TopTangent = pos
-	})
-	win.CreateTrackbar("Top5", 0, 1943, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[5].TopTangent = pos
-	})
-	win.CreateTrackbar("Top6", 0, 1943, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[6].TopTangent = pos
-	})
-	win.CreateTrackbar("Left0", 0, 2591, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[0].LeftTangent = pos
-	})
-	win.CreateTrackbar("Left1", 0, 2591, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[1].LeftTangent = pos
-	})
-	win.CreateTrackbar("Left2", 0, 2591, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[2].LeftTangent = pos
-	})
-	win.CreateTrackbar("Left3", 0, 2591, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[3].LeftTangent = pos
-	})
-	win.CreateTrackbar("Left4", 0, 2591, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[4].LeftTangent = pos
-	})
-	win.CreateTrackbar("Left5", 0, 2591, func(pos int, param ...interface{}) {
-		v.Calibration.Circles[5].LeftTangent = pos
-	})
-	//win.CreateTrackbar("Left6",0,2591,func(pos
+	for i := 0; i < 7; i++ {
+		tours, tpix, tmyf := overfunc("Top", i)
+		lours, lpix, lmyf := overfunc("Left", i)
+		rours, rpix, rmyf := overfunc("Right", i)
+		bours, bpix, bmyf := overfunc("Bottom", i)
+		win.CreateTrackbar(tours, 0, tpix, tmyf)
+		win.CreateTrackbar(lours, 0, lpix, lmyf)
+		win.CreateTrackbar(rours, 0, rpix, rmyf)
+		win.CreateTrackbar(bours, 0, bpix, bmyf)
+	}
+
+	//win.CreateTrackbar("Left5", 0, 2591, func(pos int, param ...interface{}) {
+	//	v.Calibration.Circles[5].LeftTangent = pos
+	//})
 }
