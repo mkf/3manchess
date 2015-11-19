@@ -12,7 +12,7 @@ func init() {
 		{game.Pos{1, 0}, game.Pos{3, 0}, &game.NEWGAME},
 	}
 	temp, _ := g[0].After()
-	g = append(g, game.Move{game.Pos{3, 0}, game.Pos{4, 0}, temp})
+	g = append(g, game.Move{From: game.Pos{3, 0}, To: game.Pos{4, 0}, Before: temp})
 
 	//simplyillegal = []testentity{
 	//	{Pos{3,0},Pos{5,0},g[0].After()}

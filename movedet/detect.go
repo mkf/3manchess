@@ -13,6 +13,7 @@ type changereplace struct {
 	where  game.Pos
 }
 
+//IllegalMoveDetected : error dtruct containing a nice description and a codename string
 type IllegalMoveDetected struct {
 	Description string
 	Codename    string
@@ -22,6 +23,7 @@ func (i IllegalMoveDetected) Error() string {
 	return i.Description
 }
 
+//WhatMove : return a move that happened between the before state and the board after
 func WhatMove(bef *game.State, aft *game.Board) (*game.Move, *game.State, error) {
 	//yep, it's right! all over, again!
 	//but now... with concurrency!
@@ -70,7 +72,7 @@ func WhatMove(bef *game.State, aft *game.Board) (*game.Move, *game.State, error)
 		} else {
 			return om, os, IllegalMoveDetected{"It ain't no castling, though there was a king!", "NotACastlingButKing"}
 		}
-		ourmove = game.Move{dking.where, aking.where, bef}
+		ourmove = game.Move{From: dking.where, To: aking.where, Before: bef}
 		whatafter, err := ourmove.After()
 		if err != nil {
 			return &ourmove, whatafter, err
@@ -85,7 +87,7 @@ func WhatMove(bef *game.State, aft *game.Board) (*game.Move, *game.State, error)
 	}
 	if len(appeared) == 1 && len(disappeared) == 2 && len(replaced) == 0 && appeared[0].what.FigType == game.Pawn {
 		for _, j := range disappeared {
-			ourmove = game.Move{j.where, appeared[0].where, bef}
+			ourmove = game.Move{From: j.where, To: appeared[0].where, Before: bef}
 			whatafter, err := ourmove.After()
 			if err == nil {
 				if *whatafter.Board != *aft {
@@ -102,7 +104,7 @@ func WhatMove(bef *game.State, aft *game.Board) (*game.Move, *game.State, error)
 		return om, os, IllegalMoveDetected{"One disappearance with no reason!", "NoReasonDisappear"}
 	}
 	if len(disappeared) == 1 && len(replaced) == 1 {
-		ourmove = game.Move{disappeared[0].where, replaced[0].where, bef}
+		ourmove = game.Move{From: disappeared[0].where, To: replaced[0].where, Before: bef}
 		whatafter, err := ourmove.After()
 		if err == nil {
 			if *whatafter.Board != *aft {
@@ -112,7 +114,7 @@ func WhatMove(bef *game.State, aft *game.Board) (*game.Move, *game.State, error)
 		return &ourmove, whatafter, err
 	}
 	if len(disappeared) == 1 && len(appeared) == 1 {
-		ourmove = game.Move{disappeared[0].where, appeared[0].where, bef}
+		ourmove = game.Move{From: disappeared[0].where, To: appeared[0].where, Before: bef}
 		whatafter, err := ourmove.After()
 		if err == nil {
 			if *whatafter.Board != *aft {
