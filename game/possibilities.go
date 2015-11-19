@@ -253,7 +253,10 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				canfiglong = false
 			}
 		}
-		ostatni := (*b)[10-from[0]-przel][from[1]+(przel*filedirec)]
+		ostatni := (*b)[(10-from[0]-przel)%6][(from[1]+(przel*filedirec))%24]
+		if r := recover(); r != nil {
+			panic(from[0] + przel)
+		}
 		if !(ostatni.Empty()) {
 			if ostatni.Color() != nasz.Color() {
 				bijemyostatniego = true

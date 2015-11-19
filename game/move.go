@@ -100,7 +100,7 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 	}
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
-			if !((b.AnyPiece(Pos{i, j}, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) || pa[(*b)[i][j].Color().UInt8()]) {
+			if !((b.AnyPiece(Pos{i, j}, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) || ((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()])) { //Bug(ArchieT): Checks color despite the fact there is nothing there.
 				return true
 			}
 		}
