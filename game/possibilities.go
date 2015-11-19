@@ -140,7 +140,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 }
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
-	nasz := (*b)[from[0]][from[1]]
+	nasz := (*b)[from[0]][from[1]] //nasz Square
 	//if from[0] != 0 && from == to {
 	//panic("Same square and not the first rank!")
 	//}
@@ -150,12 +150,14 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		//also, that would make move detection *really* hard
 		return false
 	}
+
 	przel := abs(to[1]-from[1]) % 24
 	vectrank := to[0] - from[0]
 	rankdirec := sign(vectrank)
 	short := abs(vectrank) == przel     //without center
 	long := abs(from[0]+to[0]) == przel //with center
 	cantech := short || long
+
 	var filedirec int8
 	if (from[1]+przel)%24 == to[1] {
 		filedirec = +1
@@ -164,6 +166,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	} else if !(short && long) {
 		panic(from.String() + " " + to.String())
 	}
+
 	//var canfig bool
 	canfigshort := true
 	canfiglong := true
@@ -171,8 +174,10 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	canmoatlong := true
 	capcheckshort := true
 	capchecklong := true
-	if from[0] == 0 || to[0] == 0 { //jeżeli jesteśmy na rank 0
+
+	if from[0] == 0 || to[0] == 0 { //jeżeli jesteśmy na rank 0 i na rank 0 zmierzamy
 		var sprawdzamy, mdir int8
+
 		//if from[0] == 0 { // jeżeli wyjeżdżamy do środka
 		//mdir := filedirec     // short jedzie w kierunku mdir, long jedzie w -mdir
 		//sprawdzamy := from[1] //
@@ -180,6 +185,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		//mdir := -filedirec
 		//sprawdzamy := to[1]
 		//}
+
 		capchecktemp := true
 		canmoattemp := true
 		var dirtemp int8
