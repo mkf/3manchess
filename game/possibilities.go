@@ -77,7 +77,8 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 					canmoat = true
 				}
 			} else {
-				panic(direcshort)
+				//panic(direcshort)
+				return false
 			}
 		} else { //if same rank, but not first rank
 			canmoat = true
@@ -357,7 +358,8 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 		}
 	}
 	if nasz.Color() == gdziekolor && !p {
-		panic("pC" + nasz.Color().String())
+		return false
+		//panic("pC" + nasz.Color().String())
 	}
 	var sgn int8
 	if p {
