@@ -46,7 +46,8 @@ func WhatMove(bef *game.State, aft *game.Board) (*game.Move, *game.State, error)
 			} else if next.NotEmpty && prev.NotEmpty {
 				replaced = append(replaced, changereplace{prev.Fig, next.Fig, game.Pos{i, j}})
 			} else {
-				panic([2]game.Board{*bef.Board, *aft})
+				//panic([2]game.Board{*bef.Board, *aft})
+				panic("replacementpanic1")
 			}
 		}
 	}
