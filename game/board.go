@@ -77,9 +77,12 @@ func (c Color) UInt8() uint8 {
 		return 1
 	case Color('B'), Color('b'):
 		return 2
+	case 0:
+		return 127 //Bug(ArchieT): sometimes c==byte(0)
+	default:
+		//panic(c)
+		panic(strconv.Itoa(int(uint8(byte(c)))))
 	}
-	//panic(c)
-	panic("replacementpanic2")
 }
 
 //ColorUint8 : returns White for 0, Gray for 1, Black for 2
