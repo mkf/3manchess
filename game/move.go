@@ -1,6 +1,7 @@
 package game
 
-type Move struct { //a struct describing a single move with the situation before it
+//Move :  struct describing a single move with the situation before it
+type Move struct {
 	From Pos
 	To   Pos
 	//	What        Fig
@@ -11,18 +12,22 @@ type Move struct { //a struct describing a single move with the situation before
 //func (m *Move) String() string {
 //}
 
+//What are we moving? What piece is placed in From?
 func (m *Move) What() Fig {
 	return (*(m.Before.Board))[m.From[0]][m.From[1]].Fig
 }
 
+//AlreadyHere is something? What is in To, Before?
 func (m *Move) AlreadyHere() Fig {
 	return (*(m.Before.Board))[m.To[0]][m.To[1]].Fig
 }
 
+//Possible is such a move?
 func (m *Move) Possible() bool {
 	return m.Before.AnyPiece(m.From, m.To)
 }
 
+//IsItQueenSideCastling or not?
 func (m *Move) IsItQueenSideCastling() bool {
 	if !(m.What().FigType == King) {
 		return false
@@ -33,6 +38,7 @@ func (m *Move) IsItQueenSideCastling() bool {
 	return false
 }
 
+//IsItKingSideCastling or not?
 func (m *Move) IsItKingSideCastling() bool {
 	if !(m.What().FigType == King) {
 		return false
@@ -43,6 +49,7 @@ func (m *Move) IsItKingSideCastling() bool {
 	return false
 }
 
+//IsItPawnRunningEnPassant or not?
 func (m *Move) IsItPawnRunningEnPassant() bool {
 	if !(m.What().FigType == Pawn) {
 		return false
@@ -53,6 +60,7 @@ func (m *Move) IsItPawnRunningEnPassant() bool {
 	return false
 }
 
+//IsItPawnCapturingEnPassant or not?
 func (m *Move) IsItPawnCapturingEnPassant() bool {
 	if !(m.What().FigType == Pawn) {
 		return false
@@ -63,6 +71,7 @@ func (m *Move) IsItPawnCapturingEnPassant() bool {
 	return false
 }
 
+//IllegalMoveError : error on illegal move
 type IllegalMoveError struct { //illegal move error
 	*Move              //move pointer
 	Codename    string //easy codename
@@ -73,6 +82,7 @@ func (e *IllegalMoveError) Error() string {
 	return e.Codename + e.Description
 }
 
+//CheckChecking :  is `who` in check?
 func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in check
 	var i, j int8
 	var where Pos
@@ -100,6 +110,7 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 
 //TODO: Checkmate, stalemate detection. Doing something with the halfmove timer.
 
+//After : return the gamestate afterwards, also error
 func (m *Move) After() (*State, error) { //situation after
 	var next State
 	var nextboard Board

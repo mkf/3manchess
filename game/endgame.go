@@ -1,5 +1,6 @@
 package game
 
+//CanIMoveWOCheck — is there any move that would not end up in a check?
 func (s *State) CanIMoveWOCheck(who Color) bool {
 	var i, j, k, l int8
 	for i = 0; i < 6; i++ {
@@ -25,6 +26,7 @@ func (s *State) CanIMoveWOCheck(who Color) bool {
 	return false
 }
 
+//AmIInCheck — Am I in check right now?
 func (s *State) AmIInCheck(who Color) bool {
 	return s.Board.CheckChecking(who, s.PlayersAlive)
 }
