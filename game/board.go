@@ -71,11 +71,11 @@ type Color byte
 //UInt8 : returns 0 for white, 1 for gray, 2 for black
 func (c Color) UInt8() uint8 {
 	switch c {
-	case 'W', 'w':
+	case Color('W'), Color('w'):
 		return 0
-	case 'G', 'g':
+	case Color('G'), Color('g'):
 		return 1
-	case 'B', 'b':
+	case Color('B'), Color('b'):
 		return 2
 	}
 	//panic(c)
