@@ -78,7 +78,8 @@ func (c Color) UInt8() uint8 {
 	case 'B', 'b':
 		return 2
 	}
-	panic(c)
+	//panic(c)
+	panic("replacementpanic2")
 }
 
 //ColorUint8 : returns White for 0, Gray for 1, Black for 2
