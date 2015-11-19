@@ -3,17 +3,17 @@ package game
 func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
 	var cantech, canmoat, canfig bool
 	//capcheck := true
-	if from == to {
+	if from == to { //Same square
 		//panic("Same square!")
 		return false
 	}
-	if from[0] == to[0] {
+	if from[0] == to[0] { //same rank
 		cantech = true
-		if from[0] == 0 {
+		if from[0] == 0 { //first rank
 			var mshort, mlong bool //, capcheckshort bool
 			var direcshort int8
 			var fromtominus int8
-			if from[1]/8 == to[1]/8 {
+			if from[1]/8 == to[1]/8 { //same color area
 				//capcheckshort = true
 				canmoat = true
 				mshort = true
@@ -21,7 +21,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 					mlong = true
 				}
 				direcshort = sign(to[1] - from[1])
-			} else {
+			} else { //moving to another color's area
 				//capcheckshort = false
 				fromto := [2]int8{from[1] / 8, to[1] / 8}
 				switch fromto {
@@ -42,22 +42,28 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				direcshort = sign(fromtominus)
 			}
 			canfigminus := true
+			//straight in +file direction, mod24 ofcoz
 			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfig; i = (i + 1) % 24 {
 				go func() {
+					//if something between A and B
 					if canfig && !((*b)[0][i].Empty()) {
 						canfig = false
 					}
 				}()
 			}
+			//straight in -file direction, mod24 ofcoz
 			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
 				go func() {
+					//if something is between A and B
 					if canfigminus && !((*b)[0][i].Empty()) {
 						canfigminus = false
 					}
 				}()
 			}
-			canfigplus := canfig
+			canfigplus := canfig //legacy mess, but not much
 			canfig = canfigplus || canfigminus
+
+			//as we are on the first rank && moving to another color's area, we gotta check the moats
 			if direcshort == 1 {
 				if canfigplus && mshort {
 					canmoat = true
@@ -73,9 +79,10 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			} else {
 				panic(direcshort)
 			}
-		} else {
+		} else { //if same rank, but not first rank
 			canmoat = true
 			canfig = true
+			//straight direc +file (mod24 ofcoz)
 			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfig; i = (i + 1) % 24 {
 				go func() {
 					if canfig && !((*b)[from[0]][i].Empty()) {
@@ -84,6 +91,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}()
 			}
 			canfigminus := true
+			//straight direc -file (mod24 ofcoz)
 			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
 				go func() {
 					if canfigminus && !((*b)[from[0]][i].Empty()) {
@@ -93,7 +101,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			}
 			canfig = canfig || canfigminus
 		}
-	} else if from[1] == to[1] {
+	} else if from[1] == to[1] { //if the same file, ie. no passing through center
 		cantech = true
 		canmoat = true
 		canfig = true
@@ -105,10 +113,11 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}
 			}()
 		}
-	} else if ((from[1] - 12) % 24) == to[1] {
+	} else if ((from[1] - 12) % 24) == to[1] { //if the adjacent file, passing through center
 		cantech = true
 		canmoat = true
 		canfig = true
+		//searching for collisions from both sides of the center
 		for i, j := from[0], to[0]; canfig && (i < 6 && j < 6); i, j = i+1, j+1 {
 			go func() {
 				go func() {
@@ -123,7 +132,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}()
 			}()
 		}
-	} else {
+	} else { //not the same rank and not the same file nor adjacent
 		cantech = false
 	}
 	final := cantech && canmoat && canfig
