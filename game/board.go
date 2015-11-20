@@ -62,6 +62,16 @@ func (s Square) What() FigType {
 	return s.Fig.FigType
 }
 
+func (s Square) String() string {
+	var ourbyte []byte
+	if s.NotEmpty {
+		ourbyte = []byte{byte((*b)[i][j].Fig.Color), byte((*b)[i][j].Fig.FigType), (*b)[i][j].Fig.PawnCenter.Byte()}
+	} else {
+		ourbyte = []byte{[]byte("#")[0], []byte("&")[0], []byte("#")[0]}
+	}
+	return string(ourbyte)
+}
+
 //Pos : coordinates
 type Pos [2]int8
 
@@ -72,26 +82,6 @@ func (p Pos) String() string {
 
 //Board : board array
 type Board [6][24]Square
-
-func (b *Board) StringArray() [6][24]string {
-	var our [6][24]string
-	var ourbyte []byte
-	for i := 0; i < 6; i++ {
-		for j := 0; j < 24; j++ {
-			if (*b)[i][j].NotEmpty {
-				ourbyte = []byte{byte((*b)[i][j].Fig.Color), byte((*b)[i][j].Fig.FigType), (*b)[i][j].Fig.PawnCenter.Byte()}
-			} else {
-				ourbyte = []byte{[]byte("#")[0], []byte("&")[0], []byte("#")[0]}
-			}
-			our[i][j] = string(ourbyte)
-		}
-	}
-	return our
-}
-
-func (b *Board) Stringing() interface{} {
-	return b.StringArray()
-}
 
 //Color : color type
 type Color byte
