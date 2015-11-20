@@ -30,9 +30,8 @@ type PawnCenter bool
 func (pc PawnCenter) Byte() byte {
 	if pc {
 		return []byte("Y")[0]
-	} else {
-		return []byte("N")[0]
 	}
+	return []byte("N")[0]
 }
 
 //Fig : a struct describing a single piece: it's type, it's color, and, in case of a pawn, whether is had already passed through the center
