@@ -3,11 +3,9 @@ package movedet
 import "testing"
 import "github.com/ArchieT/3manchess/game"
 
-var g []game.Move
-
 //var simplyillegal []testentity
 
-var first = game.Move{{game.Pos{1, 0}, game.Pos{3, 0}, &game.NEWGAME}}
+var first = game.Move{game.Pos{1, 0}, game.Pos{3, 0}, &game.NEWGAME}
 var temp, _ = first.After()
 var g = []game.Move{first, game.Move{From: game.Pos{3, 0}, To: game.Pos{4, 0}, Before: temp}}
 
