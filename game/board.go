@@ -143,7 +143,7 @@ func (c Color) String() string {
 	case 2:
 		return "Black"
 	default:
-		panic(c.UInt8())
+		panic(byte(c))
 	}
 }
 
