@@ -92,6 +92,7 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 			if tojefig := (*b)[i][j].Fig; tojefig.Color == who && tojefig.FigType == King {
 				where = Pos{i, j}
 				czy = true
+				MoveTrace.Println("CheckChecking: Found the ", who, " King on ", where)
 			}
 		}
 	}
@@ -101,6 +102,7 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			if !((b.AnyPiece(Pos{i, j}, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) || ((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()])) { //Bug(ArchieT): Checks color despite the fact there is nothing there.
+				MoveTrace.Println("CheckChecking: TRUE!")
 				return true
 			}
 		}
@@ -114,6 +116,7 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 func (m *Move) After() (*State, error) { //situation after
 	var next State
 	var nextboard Board
+	MoveTrace.Println("After: ", *m)
 	if m.What().Color != m.Before.MovesNext {
 		return nil, &IllegalMoveError{m, "ThatColorDoesNotMoveNow", "That is not " + m.What().Color.String() + `'` + "s move, but " + m.Before.MovesNext.String() + `'` + "s"}
 	}

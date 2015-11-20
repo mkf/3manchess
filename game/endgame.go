@@ -16,6 +16,7 @@ func (s *State) CanIMoveWOCheck(who Color) bool {
 						m := Move{from, to, s}
 						_, err := m.After()
 						if err == nil {
+							EndgameTrace.Println("Yes, you can move without check!")
 							return true
 						}
 					}
@@ -23,6 +24,7 @@ func (s *State) CanIMoveWOCheck(who Color) bool {
 			}
 		}
 	}
+	EndgameTrace.Println("No, you cannot move without check!")
 	return false
 }
 

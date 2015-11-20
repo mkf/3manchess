@@ -180,4 +180,5 @@ func boardinit() {
 			}
 		}
 	}
+	BodyTrace.Println("boardinit() complete")
 }
