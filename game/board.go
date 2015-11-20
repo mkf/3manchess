@@ -26,6 +26,15 @@ var King = FigType('k')
 //PawnCenter : whether the pawn had already passed through the center
 type PawnCenter bool
 
+//Byte returns "Y" or "N"
+func (pc PawnCenter) Byte() byte {
+	if pc {
+		return []byte("Y")[0]
+	} else {
+		return []byte("N")[0]
+	}
+}
+
 //Fig : a struct describing a single piece: it's type, it's color, and, in case of a pawn, whether is had already passed through the center
 type Fig struct {
 	FigType
@@ -64,6 +73,26 @@ func (p Pos) String() string {
 
 //Board : board array
 type Board [6][24]Square
+
+func (b *Board) StringArray() [6][24]string {
+	var our [6][24]string
+	var ourbyte []byte
+	for i := 0; i < 6; i++ {
+		for j := 0; j < 24; j++ {
+			if (*b)[i][j].NotEmpty {
+				ourbyte = []byte{byte((*b)[i][j].Fig.Color), byte((*b)[i][j].Fig.FigType), (*b)[i][j].Fig.PawnCenter.Byte()}
+			} else {
+				ourbyte = []byte{[]byte("#")[0], []byte("&")[0], []byte("#")[0]}
+			}
+			our[i][j] = string(ourbyte)
+		}
+	}
+	return our
+}
+
+func (b *Board) Stringing() interface{} {
+	return b.StringArray()
+}
 
 //Color : color type
 type Color byte
