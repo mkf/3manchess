@@ -1,5 +1,7 @@
 package game
 
+import "fmt"
+
 //MoatsState :  Black-White, White-Gray, Gray-Black  //true: bridged. Originally, true meant still active, i.e. non-bridged!!!
 type MoatsState [3]bool
 
@@ -97,6 +99,10 @@ type State struct {
 	HalfmoveClock
 	FullmoveNumber
 	PlayersAlive
+}
+
+func (s *State) String() string {
+	return fmt.Sprintln("Board: ", (*s.Board), s.MoatsState, s.MovesNext, s.Castling, s.EnPassant, s.HalfmoveClock, s.FullmoveNumber, s.PlayersAlive)
 }
 
 //AnyPiece : if a piece could move (any piece, whatever stays there)
