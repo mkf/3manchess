@@ -17,11 +17,16 @@ func TestGood(t *testing.T) {
 	for _, pair := range g {
 		temp, _ := pair.After()
 
+		t.Log("pair", pair)
+		t.Log("pair.Before", pair.Before)
+		t.Log("temp.Board", temp.Board)
 		v, w, err := WhatMove(pair.Before, temp.Board)
 		if err != nil {
 			t.Error("For", pair, "got an error", err, "and value", v, w)
 		} else if (v.From != pair.From) || (v.To != pair.To) {
 			t.Error("For", pair, "got", v, w, "expected", temp)
+		} else {
+			t.Log("For", pair, "got", v, w, "   GOOD", "  expected ", temp)
 		}
 	}
 }
