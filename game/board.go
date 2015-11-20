@@ -62,12 +62,14 @@ func (s Square) What() FigType {
 	return s.Fig.FigType
 }
 
+var EMPTYOURBYTE = []byte{[]byte("#")[0], []byte("&")[0], []byte("#")[0]}
+
 func (s Square) String() string {
 	var ourbyte []byte
 	if s.NotEmpty {
-		ourbyte = []byte{byte((*b)[i][j].Fig.Color), byte((*b)[i][j].Fig.FigType), (*b)[i][j].Fig.PawnCenter.Byte()}
+		ourbyte = []byte{byte(s.Fig.Color), byte(s.Fig.FigType), s.Fig.PawnCenter.Byte()}
 	} else {
-		ourbyte = []byte{[]byte("#")[0], []byte("&")[0], []byte("#")[0]}
+		ourbyte = EMPTYOURBYTE
 	}
 	return string(ourbyte)
 }
