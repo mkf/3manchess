@@ -187,14 +187,15 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		//sprawdzamy := to[1]
 		//}
 
-		capchecktemp := true
-		canmoattemp := true
-		var dirtemp int8
+		var dirtemp int8     // jak pojedziesz w tę stronę to wjedziesz w moat'a, jak nie wjedziesz to chyba zero
+		capchecktemp := true // czy wjedziesz w moat'a jak pojedziesz w stronę `dirtemp`, redundantne
+		canmoattemp := true  // czy ten moat jest bridged czy nie
+
 		switch sprawdzamy {
 		case 0: //cross jest jak pojedziemy na minus
-			dirtemp = -1         // jak pojedziesz w tę stronę to wjedziesz w moat'a, jak nie wjedziesz to chyba zero
-			capchecktemp = false // czy wjedziesz w moat'a jak pojedziesz w stronę `dirtemp`, redundantne
-			canmoattemp = m[0]   // czy ten moat jest bridged czy nie
+			dirtemp = -1
+			capchecktemp = false
+			canmoattemp = m[0]
 		case 23: //cross jest jak pojedziemy na plus
 			dirtemp = 1
 			capchecktemp = false
