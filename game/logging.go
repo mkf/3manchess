@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	//Debug is the only log that is always being put out on Stderr
 	Debug        = log.New(os.Stderr, "DEBUG ", log.LstdFlags)
 	BodyTrace    = log.New(ioutil.Discard, "BODY:TRACE ", log.LstdFlags)
 	EndgameTrace = log.New(ioutil.Discard, "ENDGAME:TRACE ", log.LstdFlags)
