@@ -417,13 +417,11 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 			if to[1]%8 == 0 {
 				switch from[0] {
 				case 0:
-					if to[0] == 1 {
-						//cancheck = false
+					if to[0] == 1 { //cancheck = false
 						canmoat = ourmoat
 					}
 				case 1:
-					if to[0] == 0 {
-						//cancheck = false
+					if to[0] == 0 { //cancheck = false
 						canmoat = ourmoat
 					}
 				}
@@ -432,26 +430,22 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 			if to[1]%8 == 1 {
 				switch from[0] {
 				case 0:
-					if to[0] == 1 {
-						//cancheck = false
+					if to[0] == 1 { //cancheck = false
 						canmoat = ourmoat
 					}
 				case 1:
-					if to[0] == 0 {
-						//cancheck = false
+					if to[0] == 0 { //cancheck = false
 						canmoat = ourmoat
 					}
 				}
 			} else if to[1]%8 == 0 {
 				switch from[0] {
 				case 0:
-					if to[0] == 2 {
-						//cancheck = false
+					if to[0] == 2 { //cancheck = false
 						canmoat = ourmoat
 					}
 				case 2:
-					if to[0] == 0 {
-						//cancheck = false
+					if to[0] == 0 { //cancheck = false
 						canmoat = ourmoat
 					}
 				}
@@ -460,26 +454,22 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 			if to[1]%8 == 6 {
 				switch from[0] {
 				case 0:
-					if to[0] == 1 {
-						//cancheck = false
+					if to[0] == 1 { //cancheck = false
 						canmoat = ourmoat
 					}
 				case 1:
-					if to[0] == 0 {
-						//cancheck = false
+					if to[0] == 0 { //cancheck = false
 						canmoat = ourmoat
 					}
 				}
 			} else if to[1]%8 == 7 {
 				switch from[0] {
 				case 0:
-					if to[0] == 2 {
-						//cancheck = false
+					if to[0] == 2 { //cancheck = false
 						canmoat = ourmoat
 					}
 				case 2:
-					if to[0] == 0 {
-						//cancheck = false
+					if to[0] == 0 { //cancheck = false
 						canmoat = ourmoat
 					}
 				}
@@ -488,13 +478,11 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 			if to[1]%8 == 7 {
 				switch from[0] {
 				case 0:
-					if to[0] == 1 {
-						//cancheck = false
+					if to[0] == 1 { //cancheck = false
 						canmoat = ourmoat
 					}
 				case 1:
-					if to[0] == 0 {
-						//cancheck = false
+					if to[0] == 0 { //cancheck = false
 						canmoat = ourmoat
 					}
 				}
