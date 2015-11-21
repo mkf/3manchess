@@ -4,24 +4,25 @@ import "strconv"
 
 //FigType : type of a figure
 type FigType byte //piece type
+var (
+	//Pawn FigType  const
+	Pawn = FigType('p')
 
-//Pawn FigType  const
-var Pawn = FigType('p')
+	//Rook FigType   const
+	Rook = FigType('r')
 
-//Rook FigType   const
-var Rook = FigType('r')
+	//Knight FigType   const
+	Knight = FigType('n')
 
-//Knight FigType   const
-var Knight = FigType('n')
+	//Bishop FigType   const
+	Bishop = FigType('b')
 
-//Bishop FigType   const
-var Bishop = FigType('b')
+	//Queen FigType   const
+	Queen = FigType('q')
 
-//Queen FigType   const
-var Queen = FigType('q')
-
-//King FigType    const
-var King = FigType('k')
+	//King FigType    const
+	King = FigType('k')
+)
 
 //PawnCenter : whether the pawn had already passed through the center
 type PawnCenter bool
