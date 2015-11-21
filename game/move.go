@@ -84,7 +84,7 @@ type IllegalMoveError struct { //illegal move error
 }
 
 func (e *IllegalMoveError) Error() string {
-	return e.Codename + e.Description
+	return e.Description
 }
 
 //CheckChecking :  is `who` in check?
