@@ -15,4 +15,11 @@ func TestSimpleGenNoPanic(t *testing.T) {
 	if err != nil {
 		t.Log("Error second.After ", err)
 	}
+	third := Move{From: Pos{3, 8}, To: Pos{4, 8}, Before: temp}
+	ttemp, err := third.After()
+	t.Log("third.After ", ttemp)
+	if err != nil {
+		t.Log("Error third.After ", err)
+	}
+
 }
