@@ -7,19 +7,14 @@ type FigType byte //piece type
 var (
 	//Pawn FigType  const
 	Pawn = FigType('p')
-
 	//Rook FigType   const
 	Rook = FigType('r')
-
 	//Knight FigType   const
 	Knight = FigType('n')
-
 	//Bishop FigType   const
 	Bishop = FigType('b')
-
 	//Queen FigType   const
 	Queen = FigType('q')
-
 	//King FigType    const
 	King = FigType('k')
 )
@@ -140,12 +135,14 @@ func (c Color) String() string {
 	}
 }
 
-//White color const
-var White = Color('W') //white color
-//Gray color const
-var Gray = Color('G') //gray color
-//Black color const
-var Black = Color('B') //black color
+var (
+	//White color const
+	White = Color('W') //white color
+	//Gray color const
+	Gray = Color('G') //gray color
+	//Black color const
+	Black = Color('B') //black color
+)
 
 //COLORS : array of colors, ordered	const
 var COLORS = [3]Color{White, Gray, Black}
