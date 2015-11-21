@@ -12,9 +12,14 @@ type Move struct {
 //func (m *Move) String() string {
 //}
 
+//Where gives the Square of Before.Board[From]
+func (m *Move) Where() Square {
+	return (*(m.Before.Board))[m.From[0]][m.From[1]]
+}
+
 //What are we moving? What piece is placed in From?
 func (m *Move) What() Fig {
-	return (*(m.Before.Board))[m.From[0]][m.From[1]].Fig
+	return m.Where().Fig
 }
 
 //AlreadyHere is something? What is in To, Before?
@@ -117,6 +122,9 @@ func (m *Move) After() (*State, error) { //situation after
 	var next State
 	var nextboard Board
 	MoveTrace.Println("After: ", *m)
+	if m.Where().Empty() {
+		return nil, &IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
+	}
 	if m.What().Color != m.Before.MovesNext {
 		return nil, &IllegalMoveError{m, "ThatColorDoesNotMoveNow", "That is not " + m.What().Color.String() + `'` + "s move, but " + m.Before.MovesNext.String() + `'` + "s"}
 	}
