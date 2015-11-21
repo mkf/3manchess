@@ -62,7 +62,8 @@ func (s Square) What() FigType {
 	return s.Fig.FigType
 }
 
-var EMPTYOURBYTE = []byte{[]byte("#")[0], []byte("&")[0], []byte("#")[0]}
+//EMPTYOURBYTE is a byte slice representing a string that is the value of Square.String() if Square.Empty()
+var EMPTYOURBYTE = []byte{'#', '&', '#'}
 
 func (s Square) String() string {
 	var ourbyte []byte
