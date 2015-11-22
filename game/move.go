@@ -9,6 +9,20 @@ type Move struct {
 	Before *State
 }
 
+type FromTo [2]Pos
+
+func (ft FromTo) From() Pos {
+	return ft[0]
+}
+
+func (ft FromTo) To() Pos {
+	return ft[1]
+}
+
+func (ft Fromto) Move(before *State) Move {
+	return Move{ft.From(), ft.To(), before}
+}
+
 //func (m *Move) String() string {
 //}
 
