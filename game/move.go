@@ -83,7 +83,7 @@ type IllegalMoveError struct { //illegal move error
 	Description string //what is the problem?
 }
 
-func (e *IllegalMoveError) Error() string {
+func (e IllegalMoveError) Error() string {
 	return e.Description
 }
 
@@ -123,16 +123,16 @@ func (m *Move) After() (*State, error) { //situation after
 	var nextboard Board
 	MoveTrace.Println("After: ", *m)
 	if m.Where().Empty() {
-		return nil, &IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
+		return nil, IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
 	}
 	if m.What().Color != m.Before.MovesNext {
-		return nil, &IllegalMoveError{m, "ThatColorDoesNotMoveNow", "That is not " + m.What().Color.String() + `'` + "s move, but " + m.Before.MovesNext.String() + `'` + "s"}
+		return nil, IllegalMoveError{m, "ThatColorDoesNotMoveNow", "That is not " + m.What().Color.String() + `'` + "s move, but " + m.Before.MovesNext.String() + `'` + "s"}
 	}
 	if m.What().Color == m.AlreadyHere().Color {
-		return nil, &IllegalMoveError{m, "SameColorHereAlready", "Same color on that square already!"}
+		return nil, IllegalMoveError{m, "SameColorHereAlready", "Same color on that square already!"}
 	}
 	if !(m.Possible()) {
-		return nil, &IllegalMoveError{m, "Impossible", "Illegal/impossible move"}
+		return nil, IllegalMoveError{m, "Impossible", "Illegal/impossible move"}
 	}
 	nextboard = *(m.Before.Board)
 	//nextmoves := m.Before.MovesNext.Next()
@@ -283,7 +283,7 @@ func (m *Move) After() (*State, error) { //situation after
 			next.PlayersAlive.Die(m.What().Color)
 			return &next, nil
 		}
-		return &next, &IllegalMoveError{m, "Check", "We would be in check!"}
+		return &next, IllegalMoveError{m, "Check", "We would be in check!"}
 	}
 	return &next, nil
 }
