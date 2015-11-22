@@ -16,12 +16,15 @@ func NewAI(t time.Duration) AIsettings {
 	return our
 }
 
-func Worker(thinking *[6][24][6][24]int64, mutex *sync.RWMutex, state game.State) {
-	//do I really have to do create such a dumb and ineffective AI?!
+//func Worker(thinking *[6][24][6][24]int64, mutex *sync.RWMutex, state game.State) {
+//}
+
+func Worker(thought *float64, chance float64, mutex *sync.RWMutex, state game.State) {
+
 }
 
 func (a *AIsettings) Think(s *game.State) game.Move {
-	var thinking [6][24][6][24]int64
+	var thinking [6][24][6][24]float64
 	var mutex sync.RWMutex
 	var i, j, k, l int8
 	for i = 0; i < 6; i++ {
