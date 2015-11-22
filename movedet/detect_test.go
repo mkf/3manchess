@@ -15,12 +15,21 @@ var g = []game.Move{first, game.Move{From: game.Pos{3, 0}, To: game.Pos{4, 0}, B
 
 func TestGood(t *testing.T) {
 	for _, pair := range g {
-		temp, _ := pair.After()
+		temp, err := pair.After()
 
 		t.Log("pair", pair)
 		t.Log("pair.Before", pair.Before)
-		t.Log("temp.Board", temp.Board)
-		v, w, err := WhatMove(pair.Before, temp.Board)
+		var v *game.Move
+		var w *game.State
+		if temp != nil {
+			t.Log("temp.Board", *temp.Board)
+			v, w, err = WhatMove(pair.Before, temp.Board)
+		} else {
+			t.Log("temp is nil")
+			if err == nil {
+				t.Error("Temp is nil and err is nil")
+			}
+		}
 		if err != nil {
 			t.Error("For", pair, "got an error", err, "and value", v, w)
 		} else if (v.From != pair.From) || (v.To != pair.To) {
