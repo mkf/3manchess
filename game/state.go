@@ -103,7 +103,7 @@ type State struct {
 
 func (s *State) EvalDeath() *State {
 	if !(s.CanIMoveWOCheck(s.MovesNext)) {
-		s.PlayersAlive.Die(next.MovesNext)
+		s.PlayersAlive.Die(s.MovesNext)
 	}
 	return s
 }
