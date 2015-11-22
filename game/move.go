@@ -9,16 +9,20 @@ type Move struct {
 	Before *State
 }
 
+//FromTo is a type useful for AI and tests
 type FromTo [2]Pos
 
+//From gives you the From field
 func (ft FromTo) From() Pos {
 	return ft[0]
 }
 
+//To gives you the To field
 func (ft FromTo) To() Pos {
 	return ft[1]
 }
 
+//Move gives you a Move with the given Before *State
 func (ft FromTo) Move(before *State) Move {
 	return Move{ft.From(), ft.To(), before}
 }
