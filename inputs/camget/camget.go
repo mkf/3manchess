@@ -1,6 +1,19 @@
 package camget
 
 import "github.com/lazywei/go-opencv/opencv"
+import "fmt"
+
+type NewCamError string
+
+func (nce NewCamError) Error() string {
+	return string(nce)
+}
+
+type GiveFrameError string
+
+func (gfe GiveFrameError) Error() string {
+	return string(gfe)
+}
 
 type Camera struct {
 	*opencv.Capture
@@ -26,7 +39,7 @@ func NewCam(index int) (Camera, error) {
 	src := opencv.NewCameraCapture(index)
 	cam := Camera{src, index}
 	if src == nil {
-		return cam, "It is nil!"
+		return cam, NewCamError("It is nil!")
 	}
 	go func() {
 		defer src.Release()
@@ -38,7 +51,9 @@ func NewCam(index int) (Camera, error) {
 
 func (c Camera) GiveFrame() (*opencv.IplImage, error) {
 	if c.Capture.GrabFrame() {
-		return c.Capture.RetrieveFrame(1)
+		return c.Capture.RetrieveFrame(1), nil
+	} else {
+		return c.Capture.RetrieveFrame(1), GiveFrameError("Grab failed")
 	}
 	//return c.Capture.QueryFrame(), nil
 }
@@ -49,28 +64,30 @@ func (v *View) Calibrate() {
 
 	overfunc := func(s string, index int) (string, int, func(pos int, param ...interface{})) {
 		var ours string
-		ours = s + index.String()
+		ours = fmt.Sprintf("%s%d", s, index)
+		var myf func(pos int, param ...interface{})
+		var pix int
 		switch s {
 		case "Top":
-			myf := func(pos int, param ...interface{}) {
+			myf = func(pos int, param ...interface{}) {
 				v.Calibration.Circles[index].TopTangent = pos
 			}
-			pix := 1943
+			pix = 1943
 		case "Left":
-			myf := func(pos int, param ...interface{}) {
+			myf = func(pos int, param ...interface{}) {
 				v.Calibration.Circles[index].LeftTangent = pos
 			}
-			pix := 2591
+			pix = 2591
 		case "Right":
-			myf := func(pos int, param ...interface{}) {
+			myf = func(pos int, param ...interface{}) {
 				v.Calibration.Circles[index].RightTangent = pos
 			}
-			pix := 2591
+			pix = 2591
 		case "Bottom":
-			myf := func(pos int, param ...interface{}) {
+			myf = func(pos int, param ...interface{}) {
 				v.Calibration.Circles[index].BottomTangent = pos
 			}
-			pix := 1943
+			pix = 1943
 		default:
 			panic("None of them???")
 		}
