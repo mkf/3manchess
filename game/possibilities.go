@@ -44,21 +44,17 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			canfigminus := true
 			//straight in +file direction, mod24 ofcoz
 			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfig; i = (i + 1) % 24 {
-				go func() {
-					//if something between A and B
-					if canfig && !((*b)[0][i].Empty()) {
-						canfig = false
-					}
-				}()
+				//if something between A and B
+				if !((*b)[0][i].Empty()) {
+					canfig = false
+				}
 			}
 			//straight in -file direction, mod24 ofcoz
 			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
-				go func() {
-					//if something is between A and B
-					if canfigminus && !((*b)[0][i].Empty()) {
-						canfigminus = false
-					}
-				}()
+				//if something is between A and B
+				if !((*b)[0][i].Empty()) {
+					canfigminus = false
+				}
 			}
 			canfigplus := canfig //legacy mess, but not much
 			canfig = canfigplus || canfigminus
@@ -85,20 +81,16 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			canfig = true
 			//straight direc +file (mod24 ofcoz)
 			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfig; i = (i + 1) % 24 {
-				go func() {
-					if canfig && !((*b)[from[0]][i].Empty()) {
-						canfig = false
-					}
-				}()
+				if !((*b)[from[0]][i].Empty()) {
+					canfig = false
+				}
 			}
 			canfigminus := true
 			//straight direc -file (mod24 ofcoz)
 			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
-				go func() {
-					if canfigminus && !((*b)[from[0]][i].Empty()) {
-						canfigminus = false
-					}
-				}()
+				if !((*b)[from[0]][i].Empty()) {
+					canfigminus = false
+				}
 			}
 			canfig = canfig || canfigminus
 		}
@@ -108,11 +100,9 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		canfig = true
 		sgn := sign(to[0] - from[0])
 		for i := from[0] + sgn; (sgn*i < to[0]) && canfig; i += sgn {
-			go func() {
-				if canfig && !((*b)[i][from[1]].Empty()) {
-					canfig = false
-				}
-			}()
+			if !((*b)[i][from[1]].Empty()) {
+				canfig = false
+			}
 		}
 	} else if ((from[1] - 12) % 24) == to[1] { //if the adjacent file, passing through center
 		cantech = true
@@ -120,16 +110,12 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		canfig = true
 		//searching for collisions from both sides of the center
 		for i, j := from[0], to[0]; canfig && (i < 6 && j < 6); i, j = i+1, j+1 {
-			//go func() {
 			if !((*b)[i][from[1]].Empty()) {
 				canfig = false
 			}
-			//}()
-			//go func() {
 			if !((*b)[j][to[1]].Empty()) {
 				canfig = false
 			}
-			//}()
 		}
 	} else { //not the same rank and not the same file nor adjacent
 		cantech = false
