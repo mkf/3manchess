@@ -45,8 +45,8 @@ func (m *Move) AlreadyHere() Fig {
 	return (*(m.Before.Board))[m.To[0]][m.To[1]].Fig
 }
 
-//Possible is such a move?
-func (m *Move) Possible() bool {
+//PiecePossible is such a move?
+func (m *Move) PiecePossible() bool {
 	return m.Before.AnyPiece(m.From, m.To)
 }
 
@@ -135,22 +135,29 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 
 //TODO: Checkmate, stalemate detection. Doing something with the halfmove timer.
 
-//After : return the gamestate afterwards, also error
-func (m *Move) After() (*State, error) { //situation after
-	MoveTrace.Println("After: ", *m)
+//Possible is such a move? Returns an error, same error as After() would give you, ¡¡¡except for CheckChecking!!!
+func (m *Move) Possible() error {
 	if m.Where().Empty() {
-		return nil, IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
+		return IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
 	}
 	if m.What().Color != m.Before.MovesNext {
-		return nil, IllegalMoveError{m, "ThatColorDoesNotMoveNow", "That is not " + m.What().Color.String() + `'` + "s move, but " + m.Before.MovesNext.String() + `'` + "s"}
+		return IllegalMoveError{m, "ThatColorDoesNotMoveNow", "That is not " + m.What().Color.String() + `'` + "s move, but " + m.Before.MovesNext.String() + `'` + "s"}
 	}
 	if m.What().Color == m.AlreadyHere().Color {
-		return nil, IllegalMoveError{m, "SameColorHereAlready", "Same color on that square already!"}
+		return IllegalMoveError{m, "SameColorHereAlready", "Same color on that square already!"}
 	}
-	if !(m.Possible()) {
-		return nil, IllegalMoveError{m, "Impossible", "Illegal/impossible move"}
+	if !(m.PiecePossible()) {
+		return IllegalMoveError{m, "Impossible", "Illegal/impossible move"}
 	}
+	return nil
+}
 
+//After : return the gamestate afterwards, also error
+func (m *Move) After() (*State, error) { //situation after
+	MoveTrace.Println("After: ", m.From, m.To)
+	if merr := m.Possible(); merr != nil {
+		return nil, merr
+	}
 	next := *m.Before
 	nextboard := *m.Before.Board
 	next.Board = &nextboard
@@ -282,10 +289,6 @@ func (m *Move) After() (*State, error) { //situation after
 			next.MoatsState[m.From[1]/8] = true
 			next.MoatsState[m.From[1]/8+1] = true
 		}
-	}
-
-	if !next.CanIMoveWOCheck(next.MovesNext) {
-		next.PlayersAlive.Die(next.MovesNext)
 	}
 
 	if next.AmIInCheck(m.What().Color) {
