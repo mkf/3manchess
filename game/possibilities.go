@@ -121,16 +121,14 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		//searching for collisions from both sides of the center
 		for i, j := from[0], to[0]; canfig && (i < 6 && j < 6); i, j = i+1, j+1 {
 			go func() {
-				go func() {
-					if canfig && !((*b)[i][from[1]].Empty()) {
-						canfig = false
-					}
-				}()
-				go func() {
-					if canfig && !((*b)[j][to[1]].Empty()) {
-						canfig = false
-					}
-				}()
+				if canfig && !((*b)[i][from[1]].Empty()) {
+					canfig = false
+				}
+			}()
+			go func() {
+				if canfig && !((*b)[j][to[1]].Empty()) {
+					canfig = false
+				}
 			}()
 		}
 	} else { //not the same rank and not the same file nor adjacent
