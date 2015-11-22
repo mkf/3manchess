@@ -152,11 +152,9 @@ func (m *Move) After() (*State, error) { //situation after
 	}
 
 	next := *m.Before
+	nextboard := *m.Before.Board
+	next.Board = &nextboard
 	next.MovesNext = next.MovesNext.Next()
-	if !m.Before.CanIMoveWOCheck(m.Before.MovesNext) {
-		next.PlayersAlive.Die(m.Before.MovesNext)
-		return &next, nil
-	}
 
 	if m.IsItKingSideCastling() {
 		empty := next.Board[0][m.From[1]+2]
@@ -199,9 +197,9 @@ func (m *Move) After() (*State, error) { //situation after
 		next.Board[m.From[0]][m.From[1]] = empty
 		if m.From[0] == 0 {
 			if m.From[1]%8 == 0 {
-				next.Castling = next.Castling.OffRook(m.What().Color, 'Q')
+				next.Castling = next.Castling.OffRook(m.Before.MovesNext, 'Q')
 			} else if m.From[1]%8 == 7 {
-				next.Castling = next.Castling.OffRook(m.What().Color, 'K')
+				next.Castling = next.Castling.OffRook(m.Before.MovesNext, 'K')
 			}
 		}
 		if czyempty {
@@ -226,7 +224,7 @@ func (m *Move) After() (*State, error) { //situation after
 		czyempty := next.Board[m.To[0]][m.To[1]].Empty()
 		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]]
 		next.Board[m.From[0]][m.From[1]] = empty
-		next.Castling = next.Castling.OffKing(m.What().Color)
+		next.Castling = next.Castling.OffKing(m.Before.MovesNext)
 		if czyempty {
 			next.HalfmoveClock++
 		} else {
@@ -286,8 +284,13 @@ func (m *Move) After() (*State, error) { //situation after
 		}
 	}
 
+	if !next.CanIMoveWOCheck(next.MovesNext) {
+		next.PlayersAlive.Die(next.MovesNext)
+	}
+
 	if next.AmIInCheck(m.What().Color) {
 		return &next, IllegalMoveError{m, "Check", "We would be in check!"}
 	}
+
 	return &next, nil
 }
