@@ -19,7 +19,7 @@ func (ft FromTo) To() Pos {
 	return ft[1]
 }
 
-func (ft Fromto) Move(before *State) Move {
+func (ft FromTo) Move(before *State) Move {
 	return Move{ft.From(), ft.To(), before}
 }
 
