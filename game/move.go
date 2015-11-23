@@ -292,7 +292,7 @@ func (m *Move) After() (*State, error) { //situation after
 	}
 
 	if next.AmIInCheck(m.What().Color) {
-		return &next, IllegalMoveError{m, "Check", "We would be in check!"}
+		return &next, IllegalMoveError{m, "Check", "We would be in check!"} //Bug(ArchieT): returns it even if we would not
 	}
 
 	return &next, nil
