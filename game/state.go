@@ -101,6 +101,13 @@ type State struct {
 	PlayersAlive
 }
 
+func (s *State) EvalDeath() *State {
+	if !(s.CanIMoveWOCheck(s.MovesNext)) {
+		s.PlayersAlive.Die(s.MovesNext)
+	}
+	return s
+}
+
 func (s *State) String() string {
 	return fmt.Sprintln("Board: ", (*s.Board), s.MoatsState, s.MovesNext, s.Castling, s.EnPassant, s.HalfmoveClock, s.FullmoveNumber, s.PlayersAlive)
 }

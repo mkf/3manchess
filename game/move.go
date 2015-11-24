@@ -45,8 +45,8 @@ func (m *Move) AlreadyHere() Fig {
 	return (*(m.Before.Board))[m.To[0]][m.To[1]].Fig
 }
 
-//Possible is such a move?
-func (m *Move) Possible() bool {
+//PiecePossible is such a move?
+func (m *Move) PiecePossible() bool {
 	return m.Before.AnyPiece(m.From, m.To)
 }
 
@@ -122,10 +122,12 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 	if !czy {
 		panic("King not found!!!")
 	}
+	var ourpos Pos
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
-			if !((b.AnyPiece(Pos{i, j}, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) || ((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()])) {
-				MoveTrace.Println("CheckChecking: TRUE!")
+			ourpos = Pos{i, j}
+			if !((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()]) && (b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) {
+				MoveTrace.Println("CheckChecking: TRUE!", ourpos, (*b)[i][j])
 				return true
 			}
 		}
@@ -135,173 +137,165 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 
 //TODO: Checkmate, stalemate detection. Doing something with the halfmove timer.
 
-//After : return the gamestate afterwards, also error
-func (m *Move) After() (*State, error) { //situation after
-	var next State
-	var nextboard Board
-	MoveTrace.Println("After: ", *m)
+//Possible is such a move? Returns an error, same error as After() would give you, ¡¡¡except for CheckChecking!!!
+func (m *Move) Possible() error {
 	if m.Where().Empty() {
-		return nil, IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
+		return IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
 	}
 	if m.What().Color != m.Before.MovesNext {
-		return nil, IllegalMoveError{m, "ThatColorDoesNotMoveNow", "That is not " + m.What().Color.String() + `'` + "s move, but " + m.Before.MovesNext.String() + `'` + "s"}
+		return IllegalMoveError{m, "ThatColorDoesNotMoveNow", "That is not " + m.What().Color.String() + `'` + "s move, but " + m.Before.MovesNext.String() + `'` + "s"}
 	}
 	if m.What().Color == m.AlreadyHere().Color {
-		return nil, IllegalMoveError{m, "SameColorHereAlready", "Same color on that square already!"}
+		return IllegalMoveError{m, "SameColorHereAlready", "Same color on that square already!"}
 	}
-	if !(m.Possible()) {
-		return nil, IllegalMoveError{m, "Impossible", "Illegal/impossible move"}
+	if !(m.PiecePossible()) {
+		return IllegalMoveError{m, "Impossible", "Illegal/impossible move"}
 	}
-	nextboard = *(m.Before.Board)
-	//nextmoves := m.Before.MovesNext.Next()
-	nextcastling := m.Before.Castling
-	nextmoats := m.Before.MoatsState
-	nextpassant := m.Before.EnPassant
-	nexthalfmoveclock := m.Before.HalfmoveClock
-	nextfullmove := m.Before.FullmoveNumber
-	nextplayersalive := m.Before.PlayersAlive
+	return nil
+}
+
+//After : return the gamestate afterwards, also error
+func (m *Move) After() (*State, error) { //situation after
+	MoveTrace.Println("After: ", m.From, m.To)
+	if merr := m.Possible(); merr != nil {
+		return nil, merr
+	}
+	next := *m.Before
+	nextboard := *m.Before.Board
+	next.Board = &nextboard
+	next.MovesNext = next.MovesNext.Next()
+
 	if m.IsItKingSideCastling() {
-		empty := nextboard[0][m.From[1]+2]
-		nextboard[0][m.From[1]+2] = nextboard[0][m.From[1]]
-		nextboard[0][m.From[1]+1] = nextboard[0][m.From[1]+3]
-		nextboard[0][m.From[1]] = empty
-		nextboard[0][m.From[1]+3] = empty
-		nextcastling = nextcastling.OffKing(m.What().Color)
-		nexthalfmoveclock++
-		nextfullmove++
-		nextpassant = nextpassant.Nothing()
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
+		empty := next.Board[0][m.From[1]+2]
+		next.Board[0][m.From[1]+2] = next.Board[0][m.From[1]]
+		next.Board[0][m.From[1]+1] = next.Board[0][m.From[1]+3]
+		next.Board[0][m.From[1]] = empty
+		next.Board[0][m.From[1]+3] = empty
+		next.Castling = next.Castling.OffKing(m.What().Color)
+		next.HalfmoveClock++
+		next.FullmoveNumber++
+		next.EnPassant = next.EnPassant.Nothing()
 	} else if m.IsItQueenSideCastling() {
-		empty := nextboard[0][m.From[1]-2]
-		nextboard[0][m.From[1]-2] = nextboard[0][m.From[1]]
-		nextboard[0][m.From[1]-1] = nextboard[0][m.From[1]+4]
-		nextboard[0][m.From[1]] = empty
-		nextboard[0][m.From[1]+4] = empty
-		nextcastling = nextcastling.OffKing(m.What().Color)
-		nexthalfmoveclock++
-		nextfullmove++
-		nextpassant = nextpassant.Nothing()
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
+		empty := next.Board[0][m.From[1]-2]
+		next.Board[0][m.From[1]-2] = next.Board[0][m.From[1]]
+		next.Board[0][m.From[1]-1] = next.Board[0][m.From[1]+4]
+		next.Board[0][m.From[1]] = empty
+		next.Board[0][m.From[1]+4] = empty
+		next.Castling = next.Castling.OffKing(m.What().Color)
+		next.HalfmoveClock++
+		next.FullmoveNumber++
+		next.EnPassant = next.EnPassant.Nothing()
 	} else if m.IsItPawnRunningEnPassant() {
-		nextboard[3][m.From[1]] = nextboard[1][m.From[1]]
-		nextboard[1][m.From[1]] = nextboard[2][m.From[1]]
-		nexthalfmoveclock = HalfmoveClock(0)
-		nextfullmove++
-		nextpassant = nextpassant.Appeared(Pos{2, m.From[1]})
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
+		next.Board[3][m.From[1]] = next.Board[1][m.From[1]]
+		next.Board[1][m.From[1]] = next.Board[2][m.From[1]]
+		next.HalfmoveClock = HalfmoveClock(0)
+		next.FullmoveNumber++
+		next.EnPassant = next.EnPassant.Appeared(Pos{2, m.From[1]})
 	} else if m.IsItPawnCapturingEnPassant() {
-		nextboard[3][m.To[1]] = nextboard[2][m.To[1]]
-		empty := nextboard[2][m.To[1]]
-		nextboard[2][m.To[1]] = nextboard[3][m.From[1]]
-		nextboard[3][m.From[1]] = empty
-		nexthalfmoveclock = HalfmoveClock(0)
-		nextfullmove++
-		nextpassant = nextpassant.Nothing()
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
+		next.Board[3][m.To[1]] = next.Board[2][m.To[1]]
+		empty := next.Board[2][m.To[1]]
+		next.Board[2][m.To[1]] = next.Board[3][m.From[1]]
+		next.Board[3][m.From[1]] = empty
+		next.HalfmoveClock = HalfmoveClock(0)
+		next.FullmoveNumber++
+		next.EnPassant = next.EnPassant.Nothing()
 	} else if m.What().FigType == Rook {
 		var empty Square
-		czyempty := nextboard[m.To[0]][m.To[1]].Empty()
-		nextboard[m.To[0]][m.To[1]] = nextboard[m.From[0]][m.From[1]]
-		nextboard[m.From[0]][m.From[1]] = empty
+		czyempty := next.Board[m.To[0]][m.To[1]].Empty()
+		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]]
+		next.Board[m.From[0]][m.From[1]] = empty
 		if m.From[0] == 0 {
 			if m.From[1]%8 == 0 {
-				nextcastling = nextcastling.OffRook(m.What().Color, 'Q')
+				next.Castling = next.Castling.OffRook(m.Before.MovesNext, 'Q')
 			} else if m.From[1]%8 == 7 {
-				nextcastling = nextcastling.OffRook(m.What().Color, 'K')
+				next.Castling = next.Castling.OffRook(m.Before.MovesNext, 'K')
 			}
 		}
 		if czyempty {
-			nexthalfmoveclock++
+			next.HalfmoveClock++
 		} else {
-			nexthalfmoveclock = HalfmoveClock(0)
+			next.HalfmoveClock = HalfmoveClock(0)
 		}
-		nextfullmove++
-		nextpassant = nextpassant.Nothing()
+		next.FullmoveNumber++
+		next.EnPassant = next.EnPassant.Nothing()
 		moatbridging := true
 		for i := (m.From[1] / 8) * 8; i < ((m.From[1]/8)*8)+8; i++ {
-			if nextboard[0][i].NotEmpty {
+			if next.Board[0][i].NotEmpty {
 				moatbridging = false
 			}
 		}
 		if moatbridging {
-			nextmoats[m.From[1]/8] = true
-			nextmoats[m.From[1]/8+1] = true
+			next.MoatsState[m.From[1]/8] = true
+			next.MoatsState[m.From[1]/8+1] = true
 		}
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	} else if m.What().FigType == King {
 		var empty Square
-		czyempty := nextboard[m.To[0]][m.To[1]].Empty()
-		nextboard[m.To[0]][m.To[1]] = nextboard[m.From[0]][m.From[1]]
-		nextboard[m.From[0]][m.From[1]] = empty
-		nextcastling = nextcastling.OffKing(m.What().Color)
+		czyempty := next.Board[m.To[0]][m.To[1]].Empty()
+		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]]
+		next.Board[m.From[0]][m.From[1]] = empty
+		next.Castling = next.Castling.OffKing(m.Before.MovesNext)
 		if czyempty {
-			nexthalfmoveclock++
+			next.HalfmoveClock++
 		} else {
-			nexthalfmoveclock = HalfmoveClock(0)
+			next.HalfmoveClock = HalfmoveClock(0)
 		}
-		nextfullmove++
-		nextpassant = nextpassant.Nothing()
+		next.FullmoveNumber++
+		next.EnPassant = next.EnPassant.Nothing()
 		moatbridging := true
 		for i := (m.From[1] / 8) * 8; i < ((m.From[1]/8)*8)+8; i++ {
-			if nextboard[0][i].NotEmpty {
+			if next.Board[0][i].NotEmpty {
 				moatbridging = false
 			}
 		}
 		if moatbridging {
-			nextmoats[m.From[1]/8] = true
-			nextmoats[m.From[1]/8+1] = true
+			next.MoatsState[m.From[1]/8] = true
+			next.MoatsState[m.From[1]/8+1] = true
 		}
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	} else if m.What().FigType == Pawn {
 		var empty Square
 		//czyempty := nextboard[m.To[0]][m.To[1]].Empty()
-		nextboard[m.To[0]][m.To[1]] = nextboard[m.From[0]][m.From[1]]
-		nextboard[m.From[0]][m.From[1]] = empty
-		nexthalfmoveclock = HalfmoveClock(0)
-		nextfullmove++
-		nextpassant = nextpassant.Nothing()
+		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]]
+		next.Board[m.From[0]][m.From[1]] = empty
+		next.HalfmoveClock = HalfmoveClock(0)
+		next.FullmoveNumber++
+		next.EnPassant = next.EnPassant.Nothing()
 		moatbridging := true
 		for i := (m.From[1] / 8) * 8; i < ((m.From[1]/8)*8)+8; i++ {
-			if nextboard[0][i].NotEmpty {
+			if next.Board[0][i].NotEmpty {
 				moatbridging = false
 			}
 		}
 		if moatbridging {
-			nextmoats[m.From[1]/8] = true
-			nextmoats[m.From[1]/8+1] = true
+			next.MoatsState[m.From[1]/8] = true
+			next.MoatsState[m.From[1]/8+1] = true
 		}
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	} else {
 		var empty Square
-		czyempty := nextboard[m.To[0]][m.To[1]].Empty()
-		nextboard[m.To[0]][m.To[1]] = nextboard[m.From[0]][m.From[1]]
-		nextboard[m.From[0]][m.From[1]] = empty
+		czyempty := next.Board[m.To[0]][m.To[1]].Empty()
+		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]]
+		next.Board[m.From[0]][m.From[1]] = empty
 		if czyempty {
-			nexthalfmoveclock++
+			next.HalfmoveClock++
 		} else {
-			nexthalfmoveclock = HalfmoveClock(0)
+			next.HalfmoveClock = HalfmoveClock(0)
 		}
-		nextfullmove++
-		nextpassant = nextpassant.Nothing()
+		next.FullmoveNumber++
+		next.EnPassant = next.EnPassant.Nothing()
 		moatbridging := true
 		for i := (m.From[1] / 8) * 8; i < ((m.From[1]/8)*8)+8; i++ {
-			if nextboard[0][i].NotEmpty {
+			if next.Board[0][i].NotEmpty {
 				moatbridging = false
 			}
 		}
 		if moatbridging {
-			nextmoats[m.From[1]/8] = true
-			nextmoats[m.From[1]/8+1] = true
+			next.MoatsState[m.From[1]/8] = true
+			next.MoatsState[m.From[1]/8+1] = true
 		}
-		next = State{&nextboard, nextmoats, m.Before.MovesNext.Next(), nextcastling, nextpassant, nexthalfmoveclock, nextfullmove, nextplayersalive}
 	}
-	//	if next.Board.CheckChecking(m.What().Color, m.Before.PlayersAlive) {
+
 	if next.AmIInCheck(m.What().Color) {
-		if !next.CanIMoveWOCheck(m.What().Color) {
-			next.PlayersAlive.Die(m.What().Color)
-			return &next, nil
-		}
-		return &next, IllegalMoveError{m, "Check", "We would be in check!"}
+		return &next, IllegalMoveError{m, "Check", "We would be in check!"} //Bug(ArchieT): returns it even if we would not
 	}
+
 	return &next, nil
 }
