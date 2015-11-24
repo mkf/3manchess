@@ -52,15 +52,16 @@ func Worker(thought *float64, chance float64, mutex *sync.RWMutex, state game.St
 		}
 	}
 	wg1.Wait()
-	newchance := chance / len(possib)
+	var newchance float64
+	newchance = chance / float64(len(possib))
 	for _, m := range possib {
 		go Worker(thought, newchance, mutex, *m, whoarewe)
 	}
 }
 
-func (a *AIsettings) Think(s *game.State) game.Move {
+func (a *AIsettings) Think(s *game.State) { //game.Move {
 	//var thinking [6][24][6][24]float64
-	thinking := make(map[game.FromTo]float64)
+	thinking := make(map[game.FromTo]*float64)
 	states := make(map[game.FromTo]*game.State)
 	var mutex, possibmutex, statesmutex sync.RWMutex
 	var i, j, k, l int8
@@ -73,13 +74,14 @@ func (a *AIsettings) Think(s *game.State) game.Move {
 				for l = 0; l < 24; l++ {
 					wg1.Add(1)
 					go func(i, j, k, l int8) {
-						ourft := game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
+						ourft = game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
 						if v, err := ourft.Move(s).After(); err == nil {
 							possibmutex.Lock()
 							possib++
 							possibmutex.Unlock()
 							mutex.Lock()
-							thinking[ourft] = 0
+							zerofloat := float64(0)
+							thinking[ourft] = &zerofloat
 							mutex.Unlock()
 							statesmutex.Lock()
 							states[ourft] = v
@@ -94,8 +96,9 @@ func (a *AIsettings) Think(s *game.State) game.Move {
 	wg1.Wait()
 	for n := range thinking {
 		go func(n game.FromTo) {
-			newchance := 1.0 / possib
-			Worker(&(thinking[n]), newchance, mutex, *(states[n]), s.MovesNext)
+			var newchance float64
+			newchance = 1.0 / float64(possib)
+			Worker((thinking[n]), newchance, mutex, *(states[n]), s.MovesNext)
 		}(n)
 	}
 }
