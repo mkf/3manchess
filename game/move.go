@@ -122,10 +122,12 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 	if !czy {
 		panic("King not found!!!")
 	}
+	var ourpos Pos
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
-			if !((b.AnyPiece(Pos{i, j}, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) || ((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()])) {
-				MoveTrace.Println("CheckChecking: TRUE!")
+			ourpos = Pos{i, j}
+			if !((b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) || ((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()])) {
+				MoveTrace.Println("CheckChecking: TRUE!", ourpos, (*b)[i][j])
 				return true
 			}
 		}
