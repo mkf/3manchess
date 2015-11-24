@@ -45,8 +45,8 @@ func (m *Move) AlreadyHere() Fig {
 	return (*(m.Before.Board))[m.To[0]][m.To[1]].Fig
 }
 
-//Possible is such a move?
-func (m *Move) Possible() bool {
+//PiecePossible is such a move?
+func (m *Move) PiecePossible() bool {
 	return m.Before.AnyPiece(m.From, m.To)
 }
 
@@ -122,10 +122,12 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 	if !czy {
 		panic("King not found!!!")
 	}
+	var ourpos Pos
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
-			if !((b.AnyPiece(Pos{i, j}, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) || ((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()])) {
-				MoveTrace.Println("CheckChecking: TRUE!")
+			ourpos = Pos{i, j}
+			if !((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()]) && (b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) {
+				MoveTrace.Println("CheckChecking: TRUE!", ourpos, (*b)[i][j])
 				return true
 			}
 		}
@@ -135,28 +137,33 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 
 //TODO: Checkmate, stalemate detection. Doing something with the halfmove timer.
 
-//After : return the gamestate afterwards, also error
-func (m *Move) After() (*State, error) { //situation after
-	MoveTrace.Println("After: ", *m)
+//Possible is such a move? Returns an error, same error as After() would give you, ¡¡¡except for CheckChecking!!!
+func (m *Move) Possible() error {
 	if m.Where().Empty() {
-		return nil, IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
+		return IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
 	}
 	if m.What().Color != m.Before.MovesNext {
-		return nil, IllegalMoveError{m, "ThatColorDoesNotMoveNow", "That is not " + m.What().Color.String() + `'` + "s move, but " + m.Before.MovesNext.String() + `'` + "s"}
+		return IllegalMoveError{m, "ThatColorDoesNotMoveNow", "That is not " + m.What().Color.String() + `'` + "s move, but " + m.Before.MovesNext.String() + `'` + "s"}
 	}
 	if m.What().Color == m.AlreadyHere().Color {
-		return nil, IllegalMoveError{m, "SameColorHereAlready", "Same color on that square already!"}
+		return IllegalMoveError{m, "SameColorHereAlready", "Same color on that square already!"}
 	}
-	if !(m.Possible()) {
-		return nil, IllegalMoveError{m, "Impossible", "Illegal/impossible move"}
+	if !(m.PiecePossible()) {
+		return IllegalMoveError{m, "Impossible", "Illegal/impossible move"}
 	}
+	return nil
+}
 
-	next := *m.Before
-	next.MovesNext = next.MovesNext.Next()
-	if !m.Before.CanIMoveWOCheck(m.Before.MovesNext) {
-		next.PlayersAlive.Die(m.Before.MovesNext)
-		return &next, nil
+//After : return the gamestate afterwards, also error
+func (m *Move) After() (*State, error) { //situation after
+	MoveTrace.Println("After: ", m.From, m.To)
+	if merr := m.Possible(); merr != nil {
+		return nil, merr
 	}
+	next := *m.Before
+	nextboard := *m.Before.Board
+	next.Board = &nextboard
+	next.MovesNext = next.MovesNext.Next()
 
 	if m.IsItKingSideCastling() {
 		empty := next.Board[0][m.From[1]+2]
@@ -199,9 +206,9 @@ func (m *Move) After() (*State, error) { //situation after
 		next.Board[m.From[0]][m.From[1]] = empty
 		if m.From[0] == 0 {
 			if m.From[1]%8 == 0 {
-				next.Castling = next.Castling.OffRook(m.What().Color, 'Q')
+				next.Castling = next.Castling.OffRook(m.Before.MovesNext, 'Q')
 			} else if m.From[1]%8 == 7 {
-				next.Castling = next.Castling.OffRook(m.What().Color, 'K')
+				next.Castling = next.Castling.OffRook(m.Before.MovesNext, 'K')
 			}
 		}
 		if czyempty {
@@ -226,7 +233,7 @@ func (m *Move) After() (*State, error) { //situation after
 		czyempty := next.Board[m.To[0]][m.To[1]].Empty()
 		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]]
 		next.Board[m.From[0]][m.From[1]] = empty
-		next.Castling = next.Castling.OffKing(m.What().Color)
+		next.Castling = next.Castling.OffKing(m.Before.MovesNext)
 		if czyempty {
 			next.HalfmoveClock++
 		} else {
@@ -287,7 +294,8 @@ func (m *Move) After() (*State, error) { //situation after
 	}
 
 	if next.AmIInCheck(m.What().Color) {
-		return &next, IllegalMoveError{m, "Check", "We would be in check!"}
+		return &next, IllegalMoveError{m, "Check", "We would be in check!"} //Bug(ArchieT): returns it even if we would not
 	}
+
 	return &next, nil
 }
