@@ -1,7 +1,7 @@
 package ai
 
 import "testing"
-import "github.comArchieT/3manchess/game"
+import "github.com/ArchieT/3manchess/game"
 
 func TestSimpleGenNoPanic(t *testing.T) {
 	var a AIsettings
