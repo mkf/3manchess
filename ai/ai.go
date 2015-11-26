@@ -43,7 +43,8 @@ func Worker(thought *float64, chance float64, mutex *sync.RWMutex, state game.St
 					wg1.Add(1)
 					go func(i, j, k, l int8) {
 						ourft = game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
-						if v, err := ourft.Move(&state).After(); err == nil {
+						sv := ourft.Move(&state)
+						if v, err := sv.After(); err == nil {
 							possibmutex.Lock()
 							possib = append(possib, v)
 							possibmutex.Unlock()
@@ -79,7 +80,8 @@ func (a *AIsettings) Think(s *game.State) { //game.Move {
 					wg1.Add(1)
 					go func(i, j, k, l int8) {
 						ourft = game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
-						if v, err := ourft.Move(s).After(); err == nil {
+						sv := ourft.Move(states[ourft])
+						if v, err := sv.After(); err == nil {
 							possibmutex.Lock()
 							possib++
 							possibmutex.Unlock()
