@@ -4,12 +4,14 @@ import "github.com/ArchieT/3manchess/game"
 import "time"
 import "sync"
 
+//AIsettings is a struct of AI settings; Think is it's method.
 type AIsettings struct {
 	Time time.Duration
 	//thinking [6][24][6][24]int64
 	//mutex RWMutex
 }
 
+//NewAI returns a new AI; may be unneeded
 func NewAI(t time.Duration) AIsettings {
 	var our AIsettings
 	our.Time = t
@@ -19,6 +21,7 @@ func NewAI(t time.Duration) AIsettings {
 //func Worker(thinking *[6][24][6][24]int64, mutex *sync.RWMutex, state game.State) {
 //}
 
+//Worker is the routine behind the Think; exported just in case
 func Worker(thought *float64, chance float64, mutex *sync.RWMutex, state game.State, whoarewe game.Color) {
 	var wg1 sync.WaitGroup
 	var i, j, k, l int8
@@ -59,6 +62,7 @@ func Worker(thought *float64, chance float64, mutex *sync.RWMutex, state game.St
 	}
 }
 
+//Think is the function generating the Move; atm it does not return anything, but will return game.Move
 func (a *AIsettings) Think(s *game.State) { //game.Move {
 	//var thinking [6][24][6][24]float64
 	thinking := make(map[game.FromTo]*float64)
@@ -98,7 +102,7 @@ func (a *AIsettings) Think(s *game.State) { //game.Move {
 		go func(n game.FromTo) {
 			var newchance float64
 			newchance = 1.0 / float64(possib)
-			Worker((thinking[n]), newchance, mutex, *(states[n]), s.MovesNext)
+			Worker((thinking[n]), newchance, &mutex, *(states[n]), s.MovesNext)
 		}(n)
 	}
 }
