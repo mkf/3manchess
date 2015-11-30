@@ -1,5 +1,30 @@
 language: go
 
 go:
+        #  - 1.4
   - 1.5
-  - tip
+
+install:
+        #        - rm -rf $GOPATH/src/github.com/ArchieT
+          #        - mkdir -p $GOPATH/src/github.com/ArchieT
+        - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
+        - go get -v -t github.com/ArchieT/3manchess/movedet
+          #- cd $GOPATH
+
+script:
+        - go get -v -t github.com/ArchieT/3manchess/movedet
+        - go install -v -t github.com/ArchieT/3manchess/movedet
+
+script:
+        - go test -v github.com/ArchieT/3manchess/game
+        - go test -v github.com/ArchieT/3manchess/movedet
+
+script:
+        #        - go test -v github.com/ArchieT/3manchess -covermode=count -coverprofile=coverage.out
+        - go test -v github.com/ArchieT/3manchess/game -covermode=count -coverprofile=tmp.out
+        - tail -n +2 tmp.out >> coverage.out
+        - go test -v github.com/ArchieT/3manchess/movedet -covermode=count -coverprofile=tmp.out
+        - tail -n +2 tmp.out >> coverage.out
+
+after_success:
+          - bash <(curl -s https://codecov.io/bash)
