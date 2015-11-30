@@ -6,13 +6,13 @@ go:
 
 install:
         - rm -rf $GOPATH/src/github.com/ArchieT
-        - mkdir -p $GOPATH/src/github.com/ArchieT
-        - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
-        - go get -v -t ./...
+          #        - mkdir -p $GOPATH/src/github.com/ArchieT
+          #        - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
+        - go get -v -t github.com/ArchieT/3manchess/movedet
 
 script:
-        - go test -v game
-        - go test -v movedet
+        - go test -v github.com/ArchieT/3manchess/game
+        - go test -v github.com/ArchieT/3manchess/movedet
 
 script:
           - go test -v github.com/ArchieT/3manchess -covermode=count -coverprofile=coverage.out
