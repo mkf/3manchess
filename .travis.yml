@@ -1,30 +1,16 @@
 language: go
-
 go:
-        #  - 1.4
-  - 1.5
-
+- 1.5
 install:
-        #        - rm -rf $GOPATH/src/github.com/ArchieT
-          #        - mkdir -p $GOPATH/src/github.com/ArchieT
-        - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
-        - go get -v -t github.com/ArchieT/3manchess/movedet
-          #- cd $GOPATH
-
+- ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
+- go get -v -t github.com/ArchieT/3manchess/movedet
 script:
-        - go get -v -t github.com/ArchieT/3manchess/movedet
-        - go install -v -t github.com/ArchieT/3manchess/movedet
-
-script:
-        - go test -v github.com/ArchieT/3manchess/game
-        - go test -v github.com/ArchieT/3manchess/movedet
-
-script:
-        #        - go test -v github.com/ArchieT/3manchess -covermode=count -coverprofile=coverage.out
-        - go test -v github.com/ArchieT/3manchess/game -covermode=count -coverprofile=tmp.out
-        - tail -n +2 tmp.out >> coverage.out
-        - go test -v github.com/ArchieT/3manchess/movedet -covermode=count -coverprofile=tmp.out
-        - tail -n +2 tmp.out >> coverage.out
-
+- go test -v github.com/ArchieT/3manchess/game -covermode=count -coverprofile=tmp.out
+- tail -n +2 tmp.out >> coverage.out
+- go test -v github.com/ArchieT/3manchess/movedet -covermode=count -coverprofile=tmp.out
+- tail -n +2 tmp.out >> coverage.out
 after_success:
-          - bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.io/bash)
+notifications:
+  slack:
+    secure: igB8y+vprHoTX+JA9Phf3caJRJg/81wiRgcHbaC6OKUlsushz89IbzE3WAWbhJPDlAwR8pcLKbC3CKvJ0BABedZAdmssF0sMX8NeKbeWPTDPzIHCKxcSsaBAzr0lnTTyU6uajd0HsXliidUUP1wfWE8J/SvdShI3BOcd8+F6/YiIqmqwSA5mYjapD+XKKwu4SiZGhic2UHBHB+n1xHk9MSpUq1clNk+19uG2sZG+tMjFEDKmyhZCBEa1jzYBzbW7Ka5RI4et8ua70I3w8W/PKI5nrYAcEIkpBZZpzNRZNN+Koo+vPfN6FHQGbQhPHSxsqsji0/iB3hDAB2Et5KeDFDHUK+XBNBLXUNs+2ZhFndVDvMCfMI2W7YuwYlydes73Si3EZyQhewPvxwNJBWVvWRChbGAOo8iDyFYhCVaOcAIE1HcKuFp2dC3hIjbZKsaKhGFpXyC++rKDTzyHQ46EsBXvV0oi6NToiNWnTUwwW10fwXnRteU/XJ3YikS5LY2fnTuGr218jXZlIuUgpa55jFSnFf4omgFSjrAzNKoe+fNXOnU3d8DEn3zOcI87LJBN7U2yY6Y+pBQH9HIK+Bx0XxDqlkXQIZ5a/KpqAZoKtRmazTgbVBfKxdmC/UEgyfS9ZqhrbXbxnwsTbPkKJza3K/OlXyfL9A/oN6wVbxhCaPw=
