@@ -2,4 +2,4 @@
 
 GoDoc references in the README.md files in the directories of packages.
 
-[*Taiga.io board*](https://tree.taiga.io/project/archiet-3manchess-robot/)
+[**Taiga.io board**](https://tree.taiga.io/project/archiet-3manchess-robot/)
