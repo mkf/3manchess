@@ -166,67 +166,70 @@ func (m *Move) After() (*State, error) { //situation after
 	next.MovesNext = next.MovesNext.Next()
 
 	if m.IsItKingSideCastling() {
-		empty := next.Board[0][m.From[1]+2]
-		next.Board[0][m.From[1]+2] = next.Board[0][m.From[1]]
-		next.Board[0][m.From[1]+1] = next.Board[0][m.From[1]+3]
-		next.Board[0][m.From[1]] = empty
-		next.Board[0][m.From[1]+3] = empty
+		empty := next.Board[0][m.From[1]+2]                     //rather senseless, a lazy definition of an empty square
+		next.Board[0][m.From[1]+2] = next.Board[0][m.From[1]]   //moving the king to his side
+		next.Board[0][m.From[1]+1] = next.Board[0][m.From[1]+3] //moving the rook
+		next.Board[0][m.From[1]] = empty                        //emptying king's square
+		next.Board[0][m.From[1]+3] = empty                      //emptying rook's square
 		next.Castling = next.Castling.OffKing(m.What().Color)
 		next.HalfmoveClock++
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
 	} else if m.IsItQueenSideCastling() {
-		empty := next.Board[0][m.From[1]-2]
-		next.Board[0][m.From[1]-2] = next.Board[0][m.From[1]]
-		next.Board[0][m.From[1]-1] = next.Board[0][m.From[1]+4]
-		next.Board[0][m.From[1]] = empty
-		next.Board[0][m.From[1]+4] = empty
+		empty := next.Board[0][m.From[1]-2]                     //rather senseless, a lazy definition of an empty square
+		next.Board[0][m.From[1]-2] = next.Board[0][m.From[1]]   //moving the king
+		next.Board[0][m.From[1]-1] = next.Board[0][m.From[1]+4] //moving the rook
+		next.Board[0][m.From[1]] = empty                        //emptying the king's square
+		next.Board[0][m.From[1]+4] = empty                      //emptying the rook's square
 		next.Castling = next.Castling.OffKing(m.What().Color)
 		next.HalfmoveClock++
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
 	} else if m.IsItPawnRunningEnPassant() {
-		next.Board[3][m.From[1]] = next.Board[1][m.From[1]]
-		next.Board[1][m.From[1]] = next.Board[2][m.From[1]]
-		next.HalfmoveClock = HalfmoveClock(0)
+		next.Board[3][m.From[1]] = next.Board[1][m.From[1]] //moving the pawn
+		next.Board[1][m.From[1]] = next.Board[2][m.From[1]] //emptying the pawn's square
+		next.HalfmoveClock = HalfmoveClock(0)               //zeroing half-move clock
 		next.FullmoveNumber++
-		next.EnPassant = next.EnPassant.Appeared(Pos{2, m.From[1]})
+		next.EnPassant = next.EnPassant.Appeared(Pos{2, m.From[1]}) //a new possibility to capture enpassant
 	} else if m.IsItPawnCapturingEnPassant() {
-		next.Board[3][m.To[1]] = next.Board[2][m.To[1]]
 		empty := next.Board[2][m.To[1]]
-		next.Board[2][m.To[1]] = next.Board[3][m.From[1]]
-		next.Board[3][m.From[1]] = empty
-		next.HalfmoveClock = HalfmoveClock(0)
+		next.Board[3][m.To[1]] = empty                    //removing the captured pawn
+		next.Board[2][m.To[1]] = next.Board[3][m.From[1]] //moving the capturing pawn
+		next.Board[3][m.From[1]] = empty                  //emptying the square of capturing pawn
+		next.HalfmoveClock = HalfmoveClock(0)             //zeroing the half-move clock
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
 	} else if m.What().FigType == Rook {
-		var empty Square
-		czyempty := next.Board[m.To[0]][m.To[1]].Empty()
-		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]]
-		next.Board[m.From[0]][m.From[1]] = empty
-		if m.From[0] == 0 {
-			if m.From[1]%8 == 0 {
+		var empty Square                                                //this time, we had to declare empty Square literally ;)
+		czyempty := next.Board[m.To[0]][m.To[1]].Empty()                //check if the target square is empty
+		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]] //move the piece
+		next.Board[m.From[0]][m.From[1]] = empty                        //empty the piece's square
+		if m.From[0] == 0 {                                             //if you start from the first rank
+			if m.From[1]%8 == 0 { //if you are queenside by the moat
 				next.Castling = next.Castling.OffRook(m.Before.MovesNext, 'Q')
-			} else if m.From[1]%8 == 7 {
+			} else if m.From[1]%8 == 7 { //if you are kingside by the moat
 				next.Castling = next.Castling.OffRook(m.Before.MovesNext, 'K')
 			}
 		}
-		if czyempty {
+		if czyempty { //if the target square is empty
 			next.HalfmoveClock++
 		} else {
-			next.HalfmoveClock = HalfmoveClock(0)
+			next.HalfmoveClock = HalfmoveClock(0) //capturing sth
 		}
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
 		moatbridging := true
-		for i := (m.From[1] / 8) * 8; i < ((m.From[1]/8)*8)+8; i++ {
-			if next.Board[0][i].NotEmpty {
-				moatbridging = false
+		if !next.MoatsState[m.From[1]/8] || !next.MoatsState[m.From[1]/8+1] {
+			for i := (m.From[1] / 8) * 8; i < ((m.From[1]/8)*8)+8; i++ { //check if all of the color's rank0 is empty
+				if next.Board[0][i].NotEmpty { //if one of the squares is not empty
+					moatbridging = false //then it is false
+					break
+				}
 			}
 		}
-		if moatbridging {
-			next.MoatsState[m.From[1]/8] = true
-			next.MoatsState[m.From[1]/8+1] = true
+		if moatbridging { //if all of the color's rank0 is empty
+			next.MoatsState[m.From[1]/8] = true   //bridge queenside
+			next.MoatsState[m.From[1]/8+1] = true //bridge kingside
 		}
 	} else if m.What().FigType == King {
 		var empty Square
