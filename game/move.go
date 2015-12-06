@@ -9,6 +9,32 @@ type Move struct {
 	Before *State
 }
 
+//Move2String : convert move to string
+func Move2String(move Move) string {
+	return string(uint8(move.From[0] + 'a') + uint8(move.From[1] + '1') + '-' + uint8(move.To[0] + 'a') + uint8(move.To[1] + '1'))
+}
+
+//String2Move : convert string to move
+func String2Move(s string) Move {
+	in := func(x, min, max uint8) bool {
+		if x < min || x > max {
+			return false
+		} else {
+			return true
+		}
+	}
+	var move Move
+	if len(s) == 5 && in(s[0], 'a', 'y') && in(s[1], '1', '6') && in(s[3], 'a', 'y') && in(s[4], '1', '6') {
+		move.From[0] = int8(s[0] - 'a')
+		move.From[1] = int8(s[1] - '0')
+		move.From[0] = int8(s[3] - 'a')
+		move.From[1] = int8(s[4] - '0')
+		return move
+	} else {
+		panic("String2Move: Invalid string given")
+	}
+}
+
 //FromTo is a type useful for AI and tests
 type FromTo [2]Pos
 

@@ -13,6 +13,13 @@ var DEFMOATSSTATE = MoatsState{false, false, false} //are they bridged?
 //Castling : White,Gray,Black King-side,Queen-side
 type Castling [3][2]bool
 
+const (
+	OK = iota
+	INVALID
+	ENDGAME_HUMAN
+	ENDGAME
+)
+
 func forcastlingconv(c Color, b byte) (uint8, uint8) {
 	col := c.UInt8()
 	var ct uint8
@@ -137,9 +144,11 @@ var FALSECASTLING = [3][2]bool{
 //NEWGAME : gamestate of a new game   const
 var NEWGAME State
 
-func init() {
-	boardinit()
-	NEWGAME = State{&BOARDFORNEWGAME, DEFMOATSSTATE, Color('W'), DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
+func InitializeNewGame() *State {
+	BOARDFORNEWGAME := new(Board)
+	boardinit(BOARDFORNEWGAME)
+	NEWGAME = State{BOARDFORNEWGAME, DEFMOATSSTATE, White, DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
+	return &NEWGAME
 }
 
 //func (s *State) String() string {   // returns FEN

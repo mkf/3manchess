@@ -1,6 +1,6 @@
 package movedet
 
-import "github.com/ArchieT/3manchess/game"
+import "../game"
 
 type changeempty struct {
 	what  game.Fig

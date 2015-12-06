@@ -32,3 +32,29 @@ func (s *State) CanIMoveWOCheck(who Color) bool {
 func (s *State) AmIInCheck(who Color) bool {
 	return s.Board.CheckChecking(who, s.PlayersAlive)
 }
+
+//Winner : return a string with a brief description of the result
+func Winner(state *State) string {
+	var number_of_winners, last_winner, first_winner uint8
+	first_winner = 9
+	number_of_winners = 0
+	for i := 0 ; i < len(state.PlayersAlive); i++ {
+		if state.PlayersAlive[i] {
+			number_of_winners++
+			if first_winner == 9 {
+				first_winner = uint8(i)
+			}
+			last_winner = uint8(i)
+		}
+	}
+	var answer string
+	switch number_of_winners {
+	case 1:
+		answer = ColorUint8(last_winner).String() + " wins"
+	case 2:
+		answer = ColorUint8(first_winner).String() + " and " + ColorUint8(last_winner).String() + " tie"
+	default:
+		panic("Game isn't finished.")
+	}
+	return answer
+}
