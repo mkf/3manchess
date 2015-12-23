@@ -138,12 +138,12 @@ var FALSECASTLING = [3][2]bool{
 //NEWGAME : gamestate of a new game   const
 var NEWGAME State
 
-func init() {
+func init() { //initialize module pseudoconstants
 	boardinit()
-	NEWGAME = State{&BOARDFORNEWGAME, DEFMOATSSTATE, Color('W'), DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
+	NEWGAME = State{&BOARDFORNEWGAME, DEFMOATSSTATE, White, DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
 }
 
-//func (s *State) String() string {   // returns FEN
+//func (s *State) String() string {   // returns some kind of string that is also parsable
 //}
 
 //func ParsBoard3FEN([]byte) *[8][24][2]byte {

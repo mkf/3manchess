@@ -19,15 +19,73 @@ var (
 	King = FigType('k')
 )
 
+//Rune : Unicode representation of a piece
+func (f *Fig) Rune() rune {
+	switch f.Color {
+	case White:
+		switch f.FigType {
+		case Pawn:
+			return 'P'
+		case Rook:
+			return 'R'
+		case Knight:
+			return 'N'
+		case Bishop:
+			return 'B'
+		case Queen:
+			return 'Q'
+		case King:
+			return 'K'
+		}
+	case Gray:
+		switch f.FigType {
+		case Pawn:
+			return '♙'
+		case Rook:
+			return '♖'
+		case Knight:
+			return '♘'
+		case Bishop:
+			return '♗'
+		case Queen:
+			return '♕'
+		case King:
+			return '♔'
+		}
+	case Black:
+		switch f.FigType {
+		case Pawn:
+			return 'p'
+		case Rook:
+			return 'r'
+		case Knight:
+			return 'n'
+		case Bishop:
+			return 'b'
+		case Queen:
+			return 'q'
+		case King:
+			return 'k'
+		}
+	}
+	return '?'
+}
+
+func (f *Fig) String() string {
+	r := f.Rune()
+	otoczka := "_"
+	if f.PawnCenter {
+		otoczka = "="
+	}
+	return otoczka + string(r) + otoczka
+}
+
 //PawnCenter : whether the pawn had already passed through the center
 type PawnCenter bool
 
 //Byte returns "Y" or "N"
 func (pc PawnCenter) Byte() byte {
-	if pc {
-		return []byte("Y")[0]
-	}
-	return []byte("N")[0]
+	return ynbool(bool(pc))
 }
 
 //Fig : a struct describing a single piece: it's type, it's color, and, in case of a pawn, whether is had already passed through the center
@@ -59,16 +117,14 @@ func (s Square) What() FigType {
 }
 
 //EMPTYOURBYTE is a byte slice representing a string that is the value of Square.String() if Square.Empty()
-var EMPTYOURBYTE = []byte{'#', '&', '#'}
+var EMPTYOURSTR = "___"
 
 func (s Square) String() string {
-	var ourbyte []byte
 	if s.NotEmpty {
-		ourbyte = []byte{byte(s.Fig.Color), byte(s.Fig.FigType), s.Fig.PawnCenter.Byte()}
-	} else {
-		ourbyte = EMPTYOURBYTE
+		//ourbyte = []byte{byte(s.Fig.Color), byte(s.Fig.FigType), s.Fig.PawnCenter.Byte()}
+		return s.Fig.String()
 	}
-	return string(ourbyte)
+	return EMPTYOURSTR
 }
 
 //Pos : coordinates
@@ -153,7 +209,7 @@ var FIRSTRANKNEWGAME = [8]FigType{Rook, Knight, Bishop, Queen, King, Bishop, Kni
 //BOARDFORNEWGAME — a newgame board
 var BOARDFORNEWGAME Board //newgame board
 
-func boardinit() {
+func boardinit() { //initialize BOARDFORNEWGAME module pseudoconstant
 	for ci, c := range COLORS {
 		for fi, f := range FIRSTRANKNEWGAME {
 			a := ci*8 + fi

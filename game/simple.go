@@ -33,3 +33,10 @@ func max(i int8, j int8) int8 {
 	}
 	return j
 }
+
+func ynbool(b bool) byte {
+	if b {
+		return 'Y'
+	}
+	return 'N'
+}
