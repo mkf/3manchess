@@ -101,6 +101,7 @@ type State struct {
 	PlayersAlive
 }
 
+//EvalDeath evaluates the death of whom is about to move next and returns the same pointer it got
 func (s *State) EvalDeath() *State {
 	if !(s.CanIMoveWOCheck(s.MovesNext)) {
 		s.PlayersAlive.Die(s.MovesNext)
