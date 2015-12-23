@@ -1,6 +1,6 @@
 package ai
 
-import "../game"
+import "github.com/ArchieT/3manchess/game"
 import "time"
 import "sync"
 
