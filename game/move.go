@@ -9,11 +9,6 @@ type Move struct {
 	Before *State
 }
 
-//Move2String : convert move to string
-func Move2String(move Move) string {
-	return string(uint8(move.From[0] + 'a') + uint8(move.From[1] + '1') + '-' + uint8(move.To[0] + 'a') + uint8(move.To[1] + '1'))
-}
-
 //String2Move : convert string to move
 func String2Move(s string) Move {
 	in := func(x, min, max uint8) bool {
