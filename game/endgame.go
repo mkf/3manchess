@@ -54,7 +54,7 @@ func Winner(state *State) string {
 	case 2:
 		answer = ColorUint8(first_winner).String() + " and " + ColorUint8(last_winner).String() + " tie"
 	default:
-		panic("Game isn't finished.")
+		answer = "All players tie"
 	}
 	return answer
 }
