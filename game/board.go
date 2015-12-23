@@ -116,7 +116,7 @@ func (s Square) What() FigType {
 	return s.Fig.FigType
 }
 
-//EMPTYOURBYTE is a byte slice representing a string that is the value of Square.String() if Square.Empty()
+//EMPTYOURSTR is the value of Square.String() if Square.Empty()
 var EMPTYOURSTR = "___"
 
 func (s Square) String() string {
