@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/ArchieT/3manchess/ai"
 	"github.com/ArchieT/3manchess/game"
+	"os"
 )
 
 func main() {
@@ -16,7 +17,7 @@ For now only 3 humans (hhh) are supported`)
 	fmt.Scanf("%s", &input_players)
 	if len(input_players) != 3 {
 		fmt.Println("Invalid number of players (%d given).", len(input_players))
-		return
+		os.Exit(1)
 	}
 	players := ai.InitPlayers(input_players)
 	game_state := game.InitializeNewGame()
