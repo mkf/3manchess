@@ -4,6 +4,7 @@ go:
 install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
 - go get -v -t github.com/ArchieT/3manchess/movedet
+- go get -v -t github.com/ArchieT/3manchess/human
 script:
 - go test -v github.com/ArchieT/3manchess/game -covermode=count -coverprofile=tmp.out
 - tail -n +2 tmp.out >> coverage.out
