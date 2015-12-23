@@ -23,7 +23,7 @@ func Worker(thought *float64, chance float64, mutex *sync.RWMutex, state game.St
 
 }
 
-/*func (a *AIsettings) Think(s *game.State) game.Move {
+func (a *AIsettings) Think(s *game.State) game.Move {
 	var thinking [6][24][6][24]float64
 	var mutex sync.RWMutex
 	var i, j, k, l int8
@@ -43,4 +43,4 @@ func Worker(thought *float64, chance float64, mutex *sync.RWMutex, state game.St
 		}
 	}
 
-}*/
+}
