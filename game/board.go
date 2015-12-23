@@ -116,7 +116,7 @@ func (s Square) What() FigType {
 	return s.Fig.FigType
 }
 
-//EMPTYOURSTR is the value of Square.String() if Square.Empty()
+//EMPTYOURSTR is the string that is the value of Square.String() if Square.Empty()
 var EMPTYOURSTR = "___"
 
 func (s Square) String() string {
