@@ -64,7 +64,7 @@ func Worker(thought *float64, chance float64, mutex *sync.RWMutex, state game.St
 }
 
 //Think is the function generating the Move; atm it does not return anything, but will return game.Move
-func (a *AIsettings) Think(s *game.State) { //game.Move {
+func (a *AIsettings) Think(s *game.State, hurryup <-chan bool) *game.Move {
 	//var thinking [6][24][6][24]float64
 	thinking := make(map[game.FromTo]*float64)
 	states := make(map[game.FromTo]*game.State)
@@ -107,4 +107,8 @@ func (a *AIsettings) Think(s *game.State) { //game.Move {
 			Worker((thinking[n]), newchance, &mutex, *(states[n]), s.MovesNext)
 		}(n)
 	}
+}
+
+func (a *AIsettings) HeyItsYourMove(m *game.Move, s *game.State, hurryup <-chan bool) *game.Move {
+	return Think(s, hurryup)
 }
