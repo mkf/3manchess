@@ -52,6 +52,7 @@ func (f *Fig) Rune() rune {
 	return '?'
 }
 
+//FromRune parses a rune into FigType and Color
 func FromRune(r rune) (FigType, Color) {
 	switch r {
 	case 'P':
