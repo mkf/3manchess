@@ -17,7 +17,8 @@ type Gameplay struct {
 
 //Human implements Player and some more, UI-oriented options
 type Human interface {
-	HeyItsYourMove(*game.State) *game.Move
+	HeyItsYourMove(*game.Move) *game.Move
+	HeySituationChanges(*game.Move)
 	HeyYouLost(*game.State)
 	HeyYouWonOrDrew(*game.State)
 	AreYouGivinUp(*game.State) bool
