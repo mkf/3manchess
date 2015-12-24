@@ -91,8 +91,8 @@ func FromRune(r rune) (FigType, Color) {
 	case '♔':
 		return King, Gray
 	default:
-		var FigType a
-		var Color b
+		var a FigType
+		var b Color
 		return a, b
 	}
 }
