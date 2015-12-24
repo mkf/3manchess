@@ -24,6 +24,8 @@ type Human interface {
 	AreYouGivinUp(*game.State) bool
 }
 
-func NewGame(w *Player, g *Player, b *Player) {
-	return Gameplay{w, g, b, game.NEWGAME}
+//NewGame returns a new Gameplay
+func NewGame(w *Player, g *Player, b *Player) Gameplay {
+	ns := game.NewState()
+	return Gameplay{w, g, b, &ns}
 }

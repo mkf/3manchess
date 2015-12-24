@@ -135,12 +135,18 @@ var FALSECASTLING = [3][2]bool{
 	{false, false},
 }
 
-//NEWGAME : gamestate of a new game   const
+//NEWGAME : !!!LEGACY — use NewState() instead!!!  gamestate of a new game   const
 var NEWGAME State
 
 func init() { //initialize module pseudoconstants
 	boardinit()
 	NEWGAME = State{&BOARDFORNEWGAME, DEFMOATSSTATE, White, DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
+}
+
+//NewState returns a newgame State
+func NewState() State {
+	nb := NewBoard()
+	return State{&nb, DEFMOATSSTATE, White, DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
 }
 
 //func (s *State) String() string {   // returns some kind of string that is also parsable
