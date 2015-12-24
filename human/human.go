@@ -4,7 +4,7 @@ import "github.com/ArchieT/3manchess/game"
 
 //Player is either AI or a human via some UI
 type Player interface {
-	HeyItsYourMove(*game.Move) *game.Move
+	HeyItsYourMove(*game.Move, <-chan bool) *game.Move //that channel is for signalling to hurry up
 }
 
 //Gameplay is a list of players and the current gamestate pointer
@@ -17,7 +17,7 @@ type Gameplay struct {
 
 //Human implements Player and some more, UI-oriented options
 type Human interface {
-	HeyItsYourMove(*game.Move) *game.Move
+	HeyItsYourMove(*game.Move, <-chan bool) *game.Move
 	HeySituationChanges(*game.Move)
 	HeyYouLost(*game.State)
 	HeyYouWonOrDrew(*game.State)
