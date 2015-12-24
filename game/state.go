@@ -86,6 +86,17 @@ func (pa PlayersAlive) Die(who Color) PlayersAlive {
 	return pan
 }
 
+//ListEm is simplified Subc2's Winner(*State) from e396e2b & 17685ad
+func (pa PlayersAlive) ListEm() []Color {
+	to := make([]Color, 0, 3)
+	for _, j := range COLORS {
+		if pa[j] {
+			to = append(to, j)
+		}
+	}
+	return to
+}
+
 //DEFPLAYERSALIVE : true,true,true const
 var DEFPLAYERSALIVE = [3]bool{true, true, true}
 
