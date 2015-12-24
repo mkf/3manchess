@@ -73,11 +73,11 @@ func (f *Fig) Rune() rune {
 
 func (f *Fig) String() string {
 	r := f.Rune()
-	otoczka := "_"
+	otoczka := "."
 	if f.PawnCenter {
-		otoczka = "="
+		otoczka = "!"
 	}
-	return otoczka + string(r) + otoczka
+	return otoczka + string(r)
 }
 
 //PawnCenter : whether the pawn had already passed through the center
@@ -117,7 +117,7 @@ func (s Square) What() FigType {
 }
 
 //EMPTYOURSTR is the string that is the value of Square.String() if Square.Empty()
-var EMPTYOURSTR = "___"
+var EMPTYOURSTR = "__"
 
 func (s Square) String() string {
 	if s.NotEmpty {
