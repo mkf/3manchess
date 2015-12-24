@@ -19,65 +19,13 @@ var (
 	King = FigType('k')
 )
 
-//Rune : Unicode representation of a piece
-func (f *Fig) Rune() rune {
-	switch f.Color {
-	case White:
-		switch f.FigType {
-		case Pawn:
-			return 'P'
-		case Rook:
-			return 'R'
-		case Knight:
-			return 'N'
-		case Bishop:
-			return 'B'
-		case Queen:
-			return 'Q'
-		case King:
-			return 'K'
-		}
-	case Gray:
-		switch f.FigType {
-		case Pawn:
-			return '♙'
-		case Rook:
-			return '♖'
-		case Knight:
-			return '♘'
-		case Bishop:
-			return '♗'
-		case Queen:
-			return '♕'
-		case King:
-			return '♔'
-		}
-	case Black:
-		switch f.FigType {
-		case Pawn:
-			return 'p'
-		case Rook:
-			return 'r'
-		case Knight:
-			return 'n'
-		case Bishop:
-			return 'b'
-		case Queen:
-			return 'q'
-		case King:
-			return 'k'
-		}
-	}
-	return '?'
-}
-
 func (f *Fig) String() string {
 	r := f.Rune()
-	otoczka := "_"
+	otoczka := "."
 	if f.PawnCenter {
-		otoczka = "="
+		otoczka = "!"
 	}
-	return otoczka + string(r) + otoczka
+	return otoczka + string(r)
 }
 
 //PawnCenter : whether the pawn had already passed through the center
@@ -117,7 +65,7 @@ func (s Square) What() FigType {
 }
 
 //EMPTYOURSTR is the string that is the value of Square.String() if Square.Empty()
-var EMPTYOURSTR = "___"
+var EMPTYOURSTR = "__"
 
 func (s Square) String() string {
 	if s.NotEmpty {
