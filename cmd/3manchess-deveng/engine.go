@@ -2,27 +2,19 @@ package main
 
 import (
 	"fmt"
-	"github.com/ArchieT/3manchess/ai"
 	"github.com/ArchieT/3manchess/game"
-	"os"
+	"github.com/ArchieT/3manchess/interface/deveng"
+	"github.com/ArchieT/3manchess/player"
+	//	"os"
 )
 
 func main() {
-	fmt.Println(`3manchess experimental engine
-Please add required players. Options are as follows:
-h - human    c - computer
-w,g,b - computer especially disliking White, Grey and Black player respectively
-For now only 3 humans (hhh) are supported`)
-	var input_players string
-	fmt.Scanf("%s", &input_players)
-	if len(input_players) != 3 {
-		fmt.Println("Invalid number of players (%d given).", len(input_players))
-		os.Exit(1)
-	}
-	players := ai.InitPlayers(input_players)
-	game_state := game.InitializeNewGame()
-	var input_move string
-	var exit_code int
+	fmt.Println("3manchess experimental engine")
+	var players [3]player.Player
+	players[0].Name = "Whitey"
+	players[1].Name = "Greyey"
+	players[2].Name = "Blackey"
+	gameplay := player.NewGame(&players[0], &players[1], &players[2])
 	for !game.IsItEndOfGame(game_state) { // TODO: implement
 		if players.PlayerType(game_state.MovesNext) == ai.HUMAN { // human's move
 			for {

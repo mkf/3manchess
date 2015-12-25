@@ -5,20 +5,28 @@ import "github.com/ArchieT/3manchess/player"
 import "fmt"
 
 type Developer struct {
-	string
-	errchan chan<- error
+	Name      string
+	errchan   chan<- error
+	ErrorChan <-chan error
+	gp        *player.Gameplay
 }
 
-func (p *Developer) Initialize(*player.Gameplay) <-chan error {
+func (p *Developer) Initialize(gp *player.Gameplay) {
 	errchan := make(chan error)
 	p.errchan = errchan
-	fmt.Printf("%s initialized\n", p)
-
-	return errchan
+	fmt.Printf("%s initialized with Gameplay:\n", p)
+	fmt.Println(gp)
+	fmt.Println("")
+	p.gp = gp
+	p.ErrorChan = errchan
 }
 
 func (p *Developer) String() string {
-	return p.string
+	return p.Name
+}
+
+func (p *Developer) ErrorChannel() <-chan error {
+	return p.ErrorChan
 }
 
 func (p *Developer) HeyItsYourMove(s *game.State, hurry <-chan bool) *game.Move {
