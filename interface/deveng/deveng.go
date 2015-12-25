@@ -27,7 +27,7 @@ func (p *Developer) HeyItsYourMove(s *game.State, hurry <-chan bool) *game.Move 
 	fmt.Println("from_rank from_file to_rank to_file")
 	fmt.Printf("%s:", p)
 	var fr, ff, tr, tf int8
-	_, err := fmt.Scanf("%d %d %d %d", &ft, &ff, &tr, &tf)
+	_, err := fmt.Scanf("%d %d %d %d", &fr, &ff, &tr, &tf)
 	if err != nil {
 		p.errchan <- err
 	}
@@ -39,7 +39,7 @@ func (p *Developer) HeyItsYourMove(s *game.State, hurry <-chan bool) *game.Move 
 func (p *Developer) HeySituationChanges(m *game.Move, aft *game.State) {
 	fmt.Printf("%s, situation changed: \n", p)
 	fmt.Println(m)
-	fmt.Println(s)
+	fmt.Println(aft)
 }
 
 func (p *Developer) HeyYouLost(*game.State) {
