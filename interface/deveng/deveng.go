@@ -4,29 +4,46 @@ import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
 import "fmt"
 
-type Developer string
+type Developer struct {
+	string
+	errchan <-chan error
+}
 
 func (p *Developer) Initialize(*player.Gameplay) <-chan error {
 	errchan := make(chan error)
+	p.errchan = errchan
+	fmt.Printf("%s initialized\n", *p)
 
 	return errchan
 }
 
 func (p *Developer) HeyItsYourMove(s *game.State, hurry <-chan bool) *game.Move {
-
-	return
+	fmt.Printf("%s, it's your move\n", *p)
+	fmt.Println(s)
+	fmt.Println("from_rank from_file to_rank to_file")
+	fmt.Printf("%s:", *p)
+	var fr, ff, tr, tf int8
+	_, err := fmt.Scanf("%d %d %d %d", &ft, &ff, &tr, &tf)
+	if err != nil {
+		p.errchan <- err
+	}
+	fromto := game.FromTo{game.Pos{fr, ff}, game.Pos{tr, tf}}
+	move := fromto.Move(s)
+	return &move
 }
 
 func (p *Developer) HeySituationChanges(m *game.Move, aft *game.State) {
-	return
+	fmt.Printf("%s, situation changed: \n", *p)
+	fmt.Println(m)
+	fmt.Println(s)
 }
 
 func (p *Developer) HeyYouLost(*game.State) {
-	fmt.Println("%s has lost", *p)
+	fmt.Printf("%s has lost\n", *p)
 }
 
 func (p *Developer) HeyYouWonOrDrew(*game.State) {
-	fmt.Println("%s has won/drew", *p)
+	fmt.Printf("%s has won/drew\n", *p)
 }
 
 type GivingUpError string
