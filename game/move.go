@@ -9,6 +9,21 @@ type Move struct {
 	Before *State
 }
 
+type IncorrectPos struct {
+	Pos
+}
+
+func (ip IncorrectPos) Error() string {
+	return ip.Pos.String()
+}
+
+func (p Pos) Correct() error {
+	if (p[0] < 0) || (p[0] > 5) || (p[1] < 0) || (p[1] > 23) {
+		return IncorrectPos{p}
+	}
+	return nil
+}
+
 //FromTo is a type useful for AI and tests
 type FromTo [2]Pos
 
@@ -25,6 +40,13 @@ func (ft FromTo) To() Pos {
 //Move gives you a Move with the given Before *State
 func (ft FromTo) Move(before *State) Move {
 	return Move{ft.From(), ft.To(), before}
+}
+
+func (ft FromTo) Correct() error {
+	if err := ft[0].Correct(); err != nil {
+		return err
+	}
+	return ft[1].Correct()
 }
 
 //func (m *Move) String() string {
@@ -156,6 +178,12 @@ func (m *Move) Possible() error {
 
 //After : return the gamestate afterwards, also error
 func (m *Move) After() (*State, error) { //situation after
+	if err := m.From.Correct(); err != nil {
+		return nil, err
+	}
+	if err := m.To.Correct(); err != nil {
+		return nil, err
+	}
 	MoveTrace.Println("After: ", m.From, m.To)
 	if merr := m.Possible(); merr != nil {
 		return nil, merr
