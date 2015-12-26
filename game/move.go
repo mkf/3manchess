@@ -18,7 +18,7 @@ func (ip IncorrectPos) Error() string {
 }
 
 func (p Pos) Correct() error {
-	if !(0 >= p[0] < 6) || !(0 >= p[1] < 24) {
+	if (p[0] < 0) || (p[0] > 5) || (p[1] < 0) || (p[1] > 23) {
 		return IncorrectPos{p}
 	}
 	return nil
