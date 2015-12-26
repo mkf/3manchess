@@ -3,6 +3,7 @@ package deveng
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
 import "fmt"
+import "log"
 
 type Developer struct {
 	Name      string
@@ -19,13 +20,22 @@ func (p *Developer) Initialize(gp *player.Gameplay) {
 	fmt.Println("")
 	p.gp = gp
 	p.ErrorChan = errchan
+	go p.logger()
+}
+
+func (p *Developer) logger() {
+	var err error
+	for {
+		err = <-p.errchan
+		log.Println(err)
+	}
 }
 
 func (p *Developer) String() string {
 	return p.Name
 }
 
-func (p *Developer) ErrorChannel() <-chan error {
+func (p *Developer) ErrorChannel() chan<- error {
 	return p.ErrorChan
 }
 
