@@ -19,7 +19,6 @@ script:
 - go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmp2.out
 - cat tmp2.out >> coverage.txt
 after_success:
-- cat coverage.txt
 - bash <(curl -s https://codecov.io/bash)
 notifications:
   slack:
