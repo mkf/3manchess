@@ -67,6 +67,9 @@ func (gp *Gameplay) Procedure(end chan<- bool) {
 			continue
 		}
 		gp.State = after
+		for _, ci := range game.COLORS {
+			gp.Players[ci].HeySituationChanges(move, after)
+		}
 	}
 	end <- false
 }
