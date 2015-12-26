@@ -178,6 +178,12 @@ func (m *Move) Possible() error {
 
 //After : return the gamestate afterwards, also error
 func (m *Move) After() (*State, error) { //situation after
+	if err := m.From.Correct(); err != nil {
+		return nil, err
+	}
+	if err := m.To.Correct(); err != nil {
+		return nil, err
+	}
 	MoveTrace.Println("After: ", m.From, m.To)
 	if merr := m.Possible(); merr != nil {
 		return nil, merr
