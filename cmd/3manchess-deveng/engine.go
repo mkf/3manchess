@@ -15,5 +15,9 @@ func main() {
 	players[game.Gray].Name = "Greyey"
 	players[game.Black].Name = "Blackey"
 	proceed := make(chan bool)
-	gameplay := player.NewGame(map[game.Color]player.Player(players), proceed)
+	var interplayers map[game.Color]player.Player
+	for _, ci := range game.COLORS {
+		interplayers[ci] = player.Player(players[ci])
+	}
+	player.NewGame(interplayers, proceed)
 }
