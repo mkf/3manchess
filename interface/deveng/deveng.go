@@ -6,8 +6,8 @@ import "fmt"
 
 type Developer struct {
 	Name      string
-	errchan   chan<- error
-	ErrorChan <-chan error
+	errchan   chan error
+	ErrorChan chan<- error
 	gp        *player.Gameplay
 }
 
