@@ -2,4 +2,4 @@
 
 ![codecov.io](https://codecov.io/github/ArchieT/3manchess/branch.svg?branch=master)
 
-[**Taiga.io board**](https://tree.taiga.io/project/archiet-3manchess-robot/)
+[**Our Taiga.io board**](https://tree.taiga.io/project/archiet-3manchess-robot/)
