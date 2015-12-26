@@ -10,14 +10,12 @@ import (
 
 func main() {
 	fmt.Println("3manchess experimental engine")
-	var players map[game.Color]*deveng.Developer
-	players[game.White].Name = "Whitey"
-	players[game.Gray].Name = "Greyey"
-	players[game.Black].Name = "Blackey"
-	proceed := make(chan bool)
-	var interplayers map[game.Color]player.Player
-	for _, ci := range game.COLORS {
-		interplayers[ci] = player.Player(players[ci])
-	}
-	player.NewGame(interplayers, proceed)
+	var white, grey, black deveng.Developer
+	white.Name = "Whitey"
+	grey.Name = "Greyey"
+	black.Name = "Blackey"
+	players := map[game.Color]player.Player{game.White: player.Player(&white), game.Gray: player.Player(&grey), game.Black: player.Player(&black)}
+	end := make(chan bool)
+	player.NewGame(players, end)
+	_ = <-end
 }

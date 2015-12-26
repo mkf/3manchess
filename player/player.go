@@ -25,17 +25,17 @@ type GivingUpError interface {
 }
 
 //NewGame returns a new Gameplay
-func NewGame(ourplayers map[game.Color]Player, proceed <-chan bool) *Gameplay {
+func NewGame(ourplayers map[game.Color]Player, end chan<- bool) *Gameplay {
 	ns := game.NewState()
 	gp := Gameplay{ourplayers, &ns}
 	for _, ci := range game.COLORS {
 		ourplayers[ci].Initialize(&gp)
 	}
-	go gp.Procedure(proceed)
+	go gp.Procedure(end)
 	return &gp
 }
 
-func (gp *Gameplay) Procedure(proceed <-chan bool) {
+func (gp *Gameplay) Procedure(end chan<- bool) {
 	var move *game.Move
 	var after *game.State
 	var hurry chan bool
@@ -68,4 +68,5 @@ func (gp *Gameplay) Procedure(proceed <-chan bool) {
 		}
 		gp.State = after
 	}
+	end <- false
 }
