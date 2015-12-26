@@ -52,12 +52,13 @@ func (gp *Gameplay) Procedure(proceed <-chan bool) {
 		listem = gp.State.PlayersAlive.ListEm()
 		if len(listem) == 1 {
 			gp.Players[listem[0]].HeyYouWonOrDrew(gp.State)
-			return
+			break
 		}
 		if len(listem) == 0 {
 			for _, ci := range game.COLORS {
 				gp.Players[ci].HeyYouWonOrDrew(gp.State)
 			}
+			break
 		}
 		move = gp.Players[gp.State.MovesNext].HeyItsYourMove(gp.State, hurry)
 		after, err = move.After()
