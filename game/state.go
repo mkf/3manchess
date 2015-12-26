@@ -90,7 +90,7 @@ func (pa PlayersAlive) Die(who Color) PlayersAlive {
 func (pa PlayersAlive) ListEm() []Color {
 	to := make([]Color, 0, 3)
 	for _, j := range COLORS {
-		if pa[j] {
+		if pa.give(j) {
 			to = append(to, j)
 		}
 	}
