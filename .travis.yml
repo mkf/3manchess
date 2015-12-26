@@ -1,6 +1,10 @@
 language: go
 go:
 - 1.5
+before_install:
+- go get github.com/onsi/gomega
+- go get github.com/onsi/ginkgo
+- go get code.google.com/p/go.tools/cmd/cover
 install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
 - go get -v -t github.com/ArchieT/3manchess/movedet
@@ -9,10 +13,10 @@ install:
 - go get -v -t github.com/ArchieT/3manchess/cmd/3manchess-deveng
 - go get -v -t github.com/ArchieT/3manchess/interface/web
 script:
-- go test -v github.com/ArchieT/3manchess/game -covermode=count -coverprofile=tmp.out
-- tail -n +2 tmp.out >> coverage.out
-- go test -v github.com/ArchieT/3manchess/movedet -covermode=count -coverprofile=tmp.out
-- tail -n +2 tmp.out >> coverage.out
+- go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp.out
+- tail -n +2 tmp.out >> coverage.txt
+- go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmp.out
+- tail -n +2 tmp.out >> coverage.txt
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 notifications:
