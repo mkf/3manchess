@@ -9,17 +9,22 @@ type Developer struct {
 	Name      string
 	errchan   chan error
 	ErrorChan chan<- error
+	HurryChan chan<- bool
+	hurry     chan bool
 	gp        *player.Gameplay
 }
 
 func (p *Developer) Initialize(gp *player.Gameplay) {
 	errchan := make(chan error)
 	p.errchan = errchan
+	hurry := make(chan bool)
+	p.hurry = hurry
 	fmt.Printf("%s initialized with Gameplay:\n", p)
 	fmt.Println(gp)
 	fmt.Println("")
 	p.gp = gp
 	p.ErrorChan = errchan
+	p.HurryChan = hurry
 	go p.logger()
 }
 
@@ -39,7 +44,12 @@ func (p *Developer) ErrorChannel() chan<- error {
 	return p.ErrorChan
 }
 
-func (p *Developer) HeyItsYourMove(s *game.State, hurry <-chan bool) *game.Move {
+func (p *Developer) HurryChannel() chan<- bool {
+	return p.HurryChan
+}
+
+func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move {
+	hurry := merge(hurryi, p.hurry)
 	fmt.Printf("%s, it's your move\n", p)
 	fmt.Println(s)
 	fmt.Println("from_rank from_file to_rank to_file")
