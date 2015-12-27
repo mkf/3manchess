@@ -18,7 +18,7 @@ type AIPlayer struct {
 	hurry          chan bool
 	HurryChan      chan<- bool
 	FixedPrecision float64
-	gp             *player.Player
+	gp             *player.Gameplay
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
@@ -28,7 +28,7 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 	hurry := make(chan bool)
 	a.hurry = hurry
 	a.HurryChan = hurry
-	p.gp = gp
+	a.gp = gp
 	go func() {
 		for b := range a.errchan {
 			panic(b)
