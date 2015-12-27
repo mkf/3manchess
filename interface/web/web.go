@@ -82,6 +82,8 @@ type WebPlayer struct {
 	port            string
 	errchan         chan error
 	ErrorChan       chan<- error
+	hurry           chan bool
+	HurryChan       chan<- bool
 	awaitingmove    chan *game.State
 	givemethefromto chan game.FromTo
 	happened        chan *game.Move
@@ -109,7 +111,12 @@ func (p *WebPlayer) ErrorChannel() chan<- error {
 	return p.ErrorChan
 }
 
-func (p *WebPlayer) HeyItsYourMove(s *game.State, hurry <-chan bool) *game.Move {
+func (p *WebPlayer) HurryChannel() chan<- bool {
+	return p.HurryChan
+}
+
+func (p *WebPlayer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move {
+	hurry := merge(hurryi, p.hurry)
 	for i := range p.wsl {
 		go func(i int) {
 			var err error
