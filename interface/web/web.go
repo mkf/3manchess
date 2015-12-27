@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/ArchieT/3manchess/game"
 	"github.com/ArchieT/3manchess/player"
+	"github.com/ArchieT/3manchess/simple"
 	"golang.org/x/net/websocket"
 	"log"
 	"net/http"
@@ -116,7 +117,7 @@ func (p *WebPlayer) HurryChannel() chan<- bool {
 }
 
 func (p *WebPlayer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move {
-	hurry := merge(hurryi, p.hurry)
+	hurry := simple.MergeBool(hurryi, p.hurry)
 	for i := range p.wsl {
 		go func(i int) {
 			var err error
