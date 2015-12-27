@@ -52,7 +52,8 @@ func (p *Developer) HurryChannel() chan<- bool {
 func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move {
 	hurry := simple.MergeBool(hurryi, p.hurry)
 	go func() {
-		for i := range hurry {
+		for {
+			<-hurry
 			fmt.Print("@")
 		}
 	}()
