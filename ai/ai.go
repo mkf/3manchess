@@ -138,7 +138,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 }
 
 //HeyItsYourMove works as specified in github.com/ArchieT/3manchess/player; here it just calls Think
-func (a *AIPlayer) HeyItsYourMove(m *game.Move, s *game.State, hurryup <-chan bool) *game.Move {
+func (a *AIPlayer) HeyItsYourMove(s *game.State, hurryup <-chan bool) *game.Move {
 	return a.Think(s, hurryup)
 }
 
