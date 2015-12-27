@@ -13,6 +13,7 @@ import (
 type Entity struct {
 	*game.State
 	AwaitingMove bool
+	Hurry        bool
 	Happened     []*game.Move
 }
 
@@ -118,6 +119,11 @@ func (p *WebPlayer) HurryChannel() chan<- bool {
 
 func (p *WebPlayer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move {
 	hurry := simple.MergeBool(hurryi, p.hurry)
+	go func() {
+		for {
+			<-hurry
+		}
+	}()
 	for i := range p.wsl {
 		go func(i int) {
 			var err error
