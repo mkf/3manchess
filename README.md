@@ -2,4 +2,6 @@
 
 ![codecov.io](https://codecov.io/github/ArchieT/3manchess/branch.svg?branch=master)
 
-[**Our Taiga.io board**](https://tree.taiga.io/project/archiet-3manchess-robot/)
+[**Our Taiga.io board**](https://tree.taiga.io/project/archiet-3manchess-robot/) (task organization) (public readonly, [ask for write access](mailto:archiet@platinum.edu.pl))
+
+[**3manchess.slack.com**](https://3manchess.slack.com/) ([ask for access](mailto:archiet@platinum.edu.pl))
