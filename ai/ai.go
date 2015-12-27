@@ -8,7 +8,24 @@ import "sync/atomic"
 
 //AIPlayer is a struct of AI settings; Think is it's method.
 type AIPlayer struct {
+	errchan        chan error
+	ErrorChan      chan<- error
+	hurry          chan bool
+	HurryChan      chan<- bool
 	FixedPrecision float64
+}
+
+func (a *AIPlayer) HurryChannel() chan<- bool {
+	return a.HurryChan
+}
+
+func (a *AIPlayer) ErrorChannel() chan<- error {
+	go func() {
+		for b := range a.errchan {
+			panic(b)
+		}
+	}()
+	return a.ErrorChan
 }
 
 //func Worker(thinking *[6][24][6][24]int64, mutex *sync.RWMutex, state game.State) {
@@ -54,8 +71,13 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 }
 
 //Think is the function generating the Move; atm it does not return anything, but will return game.Move
-func (a *AIPlayer) Think(s *game.State, hurryup <-chan bool) *game.Move {
+func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	//var thinking [6][24][6][24]float64
+	hurryup := merge(hurry, a.hurry)
+	if len(hurryup) > 0 {
+		for _ := range hurryup {
+		}
+	}
 	thoughts := make(map[game.FromTo]*float64)
 	var i, j, k, l int8
 	var ourft game.FromTo
