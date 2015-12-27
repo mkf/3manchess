@@ -51,6 +51,11 @@ func (p *Developer) HurryChannel() chan<- bool {
 
 func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move {
 	hurry := simple.MergeBool(hurryi, p.hurry)
+	go func() {
+		for i := range hurry {
+			fmt.Print("@")
+		}
+	}()
 	fmt.Printf("%s, it's your move\n", p)
 	fmt.Println(s)
 	fmt.Println("from_rank from_file to_rank to_file")
