@@ -1,10 +1,15 @@
 package ai
 
 import "github.com/ArchieT/3manchess/game"
+import "github.com/ArchieT/3manchess/simple"
 
 //import "github.com/ArchieT/3manchess/player"
 import "sync"
 import "sync/atomic"
+
+import "fmt"
+
+//import "log"
 
 //AIPlayer is a struct of AI settings; Think is it's method.
 type AIPlayer struct {
@@ -73,10 +78,9 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 //Think is the function generating the Move; atm it does not return anything, but will return game.Move
 func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	//var thinking [6][24][6][24]float64
-	hurryup := merge(hurry, a.hurry)
-	if len(hurryup) > 0 {
-		for _ := range hurryup {
-		}
+	hurryup := simple.MergeBool(hurry, a.hurry)
+	for i := len(hurryup); i > 0; i-- {
+		<-hurryup
 	}
 	thoughts := make(map[game.FromTo]*float64)
 	var i, j, k, l int8
@@ -145,5 +149,5 @@ func (a *AIPlayer) HeyYouLost(_ *game.State) {}
 func (a *AIPlayer) HeyYouWonOrDrew(_ *game.State) {}
 
 func (a *AIPlayer) String() string {
-	return a.FixedPrecision.String()
+	return fmt.Sprintf("%s%e", "BotPrec", a.FixedPrecision)
 }
