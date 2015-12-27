@@ -2,6 +2,7 @@ package deveng
 
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
+import "github.com/ArchieT/3manchess/simple"
 import "fmt"
 import "log"
 
@@ -49,7 +50,7 @@ func (p *Developer) HurryChannel() chan<- bool {
 }
 
 func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move {
-	hurry := merge(hurryi, p.hurry)
+	hurry := simple.MergeBool(hurryi, p.hurry)
 	fmt.Printf("%s, it's your move\n", p)
 	fmt.Println(s)
 	fmt.Println("from_rank from_file to_rank to_file")
