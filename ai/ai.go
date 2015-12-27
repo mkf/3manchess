@@ -3,7 +3,7 @@ package ai
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/simple"
 
-//import "github.com/ArchieT/3manchess/player"
+import "github.com/ArchieT/3manchess/player"
 import "sync"
 import "sync/atomic"
 
@@ -18,6 +18,22 @@ type AIPlayer struct {
 	hurry          chan bool
 	HurryChan      chan<- bool
 	FixedPrecision float64
+	gp             *player.Player
+}
+
+func (a *AIPlayer) Initialize(gp *player.Gameplay) {
+	errchan := make(chan error)
+	a.errchan = errchan
+	a.ErrorChan = errchan
+	hurry := make(chan bool)
+	a.hurry = hurry
+	a.HurryChan = hurry
+	p.gp = gp
+	go func() {
+		for b := range a.errchan {
+			panic(b)
+		}
+	}()
 }
 
 func (a *AIPlayer) HurryChannel() chan<- bool {
@@ -25,11 +41,6 @@ func (a *AIPlayer) HurryChannel() chan<- bool {
 }
 
 func (a *AIPlayer) ErrorChannel() chan<- error {
-	go func() {
-		for b := range a.errchan {
-			panic(b)
-		}
-	}()
 	return a.ErrorChan
 }
 
