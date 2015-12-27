@@ -137,3 +137,13 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 func (a *AIPlayer) HeyItsYourMove(m *game.Move, s *game.State, hurryup <-chan bool) *game.Move {
 	return a.Think(s, hurryup)
 }
+
+func (a *AIPlayer) HeySituationChanges(_ *game.Move, _ *game.State) {}
+
+func (a *AIPlayer) HeyYouLost(_ *game.State) {}
+
+func (a *AIPlayer) HeyYouWonOrDrew(_ *game.State) {}
+
+func (a *AIPlayer) String() string {
+	return a.FixedPrecision.String()
+}
