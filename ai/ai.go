@@ -91,7 +91,7 @@ func (a *AIPlayer) Think(s *game.State, hurryup <-chan bool) *game.Move {
 		}
 	}
 	wg1.Done()
-	<-hurryup
+	_ = <-hurryup
 	var max float64
 	for i := range thoughts {
 		if *(thoughts[i]) > max {
