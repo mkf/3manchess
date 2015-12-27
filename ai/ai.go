@@ -1,21 +1,12 @@
 package ai
 
 import "github.com/ArchieT/3manchess/game"
-import "time"
+import "github.com/ArchieT/3manchess/player"
 import "sync"
 
 //AIsettings is a struct of AI settings; Think is it's method.
-type AIsettings struct {
-	Time time.Duration
-	//thinking [6][24][6][24]int64
-	//mutex RWMutex
-}
-
-//NewAI returns a new AI; may be unneeded
-func NewAI(t time.Duration) AIsettings {
-	var our AIsettings
-	our.Time = t
-	return our
+type AIPlayer struct {
+	FixedPrecision float64
 }
 
 //func Worker(thinking *[6][24][6][24]int64, mutex *sync.RWMutex, state game.State) {
