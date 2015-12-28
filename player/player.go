@@ -22,6 +22,11 @@ type Gameplay struct {
 	*game.State
 }
 
+type SituationChange struct {
+	*game.Move
+	After *game.State
+}
+
 type GivingUpError interface {
 	error
 	IGaveUp() string
