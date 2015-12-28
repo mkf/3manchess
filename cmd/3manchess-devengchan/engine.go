@@ -7,6 +7,7 @@ import (
 	deveng "github.com/ArchieT/3manchess/interface/devengchan"
 	"github.com/ArchieT/3manchess/player"
 	//	"os"
+	"time"
 )
 
 func main() {
@@ -48,15 +49,67 @@ func main() {
 	end := make(chan bool)
 	gp := player.NewGame(players, end)
 	fmt.Println("NEW GAME:", gp)
-	go func() {
+	sitchacol := func(col *deveng.Developer) {
 		for {
-			var heyhurry bool
-			fmt.Scanf("%t", &heyhurry)
-			for _, icol := range game.COLORS {
-				go func() {
-					players[icol].HurryChannel() <- heyhurry
-					recover()
-				}()
+			fmt.Println(col, ", situation changed: ", <-col.SituationCh)
+		}
+	}
+	go sitchacol(&white)
+	go sitchacol(&grey)
+	go sitchacol(&black)
+	hurchacol := func(col *deveng.Developer) {
+		for {
+			fmt.Println(col, ", hurryup! ", <-col.HurryChan)
+		}
+	}
+	go hurchacol(&white)
+	go hurchacol(&grey)
+	go hurchacol(&black)
+	winchacol := func(col *deveng.Developer) {
+		switch <-col.Result {
+		case deveng.WIN:
+			fmt.Println(col, "WON")
+		case deveng.LOSE:
+			fmt.Println(col, "LOST")
+		case deveng.DRAW:
+			fmt.Println(col, "DREW")
+		case deveng.UNDEFRESULT:
+			panic(fmt.Sprintln(col, "RESULT UNDEFINED"))
+		}
+	}
+	go winchacol(&white)
+	go winchacol(&grey)
+	go winchacol(&black)
+
+	go func() {
+		var ff, ft, tf, tt int8
+		for {
+			select {
+			case saskin := <-white.AskinForMove:
+				fmt.Println(white, "is being asked for a move (ff ft tf tt): ")
+				fmt.Scanf("%d %d %d %d", &ff, &ft, &tf, &tt)
+				saskfto := game.FromTo{game.Pos{ff, ft}, game.Pos{tf, tt}}
+				saskmov := saskfto.Move(saskin)
+				white.HereRMoves <- &saskmov
+			case saskin := <-grey.AskinForMove:
+				fmt.Println(grey, "is being asked for a move (ff ft tf tt): ")
+				fmt.Scanf("%d %d %d %d", &ff, &ft, &tf, &tt)
+				saskfto := game.FromTo{game.Pos{ff, ft}, game.Pos{tf, tt}}
+				saskmov := saskfto.Move(saskin)
+				grey.HereRMoves <- &saskmov
+			case saskin := <-black.AskinForMove:
+				fmt.Println(black, "is being asked for a move (ff ft tf tt): ")
+				fmt.Scanf("%d %d %d %d", &ff, &ft, &tf, &tt)
+				saskfto := game.FromTo{game.Pos{ff, ft}, game.Pos{tf, tt}}
+				saskmov := saskfto.Move(saskin)
+				black.HereRMoves <- &saskmov
+			case <-time.After(time.Second * 20):
+				var saskinrune rune = 0
+				fmt.Print("hurry[y]?")
+				fmt.Scanf("%c", &saskinrune)
+				if saskinrune == 'y' {
+					gp.HurryUpWhoever()
+				}
 			}
 		}
 	}()
