@@ -4,7 +4,6 @@ import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
 
 //import "github.com/ArchieT/3manchess/simple"
-import "fmt"
 import "log"
 
 type ResultCode int8
@@ -47,9 +46,6 @@ func (p *Developer) Initialize(gp *player.Gameplay) {
 	p.errchan = errchan
 	hurry := make(chan bool)
 	p.hurry = hurry
-	fmt.Printf("%s initialized with Gameplay:\n", p)
-	fmt.Println(gp)
-	fmt.Println("")
 	p.gp = gp
 	p.ErrorChan = errchan
 	p.HurryChan = hurry
