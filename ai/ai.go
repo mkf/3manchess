@@ -19,6 +19,7 @@ type AIPlayer struct {
 	HurryChan      chan<- bool
 	FixedPrecision float64
 	gp             *player.Gameplay
+	waiting        bool
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
@@ -129,6 +130,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	}
 	wg1.Done()
 	_ = <-hurryup
+	a.HeyWeWaitingForYou(false)
 	var max float64
 	for i := range thoughts {
 		if *(thoughts[i]) > max {
@@ -161,4 +163,12 @@ func (a *AIPlayer) HeyYouWonOrDrew(_ *game.State) {}
 
 func (a *AIPlayer) String() string {
 	return fmt.Sprintf("%s%e", "BotPrec", a.FixedPrecision)
+}
+
+func (a *AIPlayer) AreWeWaitingForYou() bool {
+	return a.waiting
+}
+
+func (a *AIPlayer) HeyWeWaitingForYou(b bool) {
+	a.waiting = b
 }

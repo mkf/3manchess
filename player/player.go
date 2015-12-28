@@ -11,6 +11,8 @@ type Player interface {
 	HeySituationChanges(*game.Move, *game.State)
 	HeyYouLost(*game.State)
 	HeyYouWonOrDrew(*game.State)
+	AreWeWaitingForYou() bool
+	HeyWeWaitingForYou(bool)
 	String() string
 }
 
@@ -61,6 +63,7 @@ func (gp *Gameplay) Procedure(end chan<- bool) {
 			}
 			break
 		}
+		gp.Players.HeyWeWaitingForYou(true)
 		move = gp.Players[gp.State.MovesNext].HeyItsYourMove(gp.State, hurry)
 		after, err = move.After()
 		if err != nil {

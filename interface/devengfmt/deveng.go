@@ -13,6 +13,7 @@ type Developer struct {
 	HurryChan chan<- bool
 	hurry     chan bool
 	gp        *player.Gameplay
+	waiting   bool
 }
 
 func (p *Developer) Initialize(gp *player.Gameplay) {
@@ -68,6 +69,7 @@ func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move
 	}
 	fromto := game.FromTo{game.Pos{fr, ff}, game.Pos{tr, tf}}
 	move := fromto.Move(s)
+	p.HeyWeWaitingForYou(false)
 	return &move
 }
 
@@ -83,6 +85,14 @@ func (p *Developer) HeyYouLost(*game.State) {
 
 func (p *Developer) HeyYouWonOrDrew(*game.State) {
 	fmt.Printf("%s has won/drew\n", p)
+}
+
+func (p *Developer) HeyWeWaitingForYou(b bool) {
+	p.waiting = b
+}
+
+func (p *Developer) AreWeWaitingForYou() bool {
+	return p.waiting
 }
 
 type GivingUpError string
