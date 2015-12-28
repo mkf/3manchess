@@ -151,30 +151,16 @@ func (p *WebPlayer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move
 	return &ourmove
 }
 
-func (p *WebPlayer) HeySituationChanges(m *game.Move, aft *game.State) {
-	p.happened <- m
-}
+func (p *WebPlayer) HeySituationChanges(m *game.Move, aft *game.State) { p.happened <- m }
 
-func (p *WebPlayer) HeyYouLost(*game.State) {
-}
+func (p *WebPlayer) HeyYouLost(*game.State) {}
+func (p *WebPlayer) HeyYouWon(*game.State)  {}
+func (p *WebPlayer) HeyYouDrew(*game.State) {}
 
-func (p *WebPlayer) HeyYouWonOrDrew(*game.State) {
-}
-
-func (p *WebPlayer) AreWeWaitingForYou() bool {
-	return p.waiting
-}
-
-func (p *WebPlayer) HeyWeAreWaitingForYou(b bool) {
-	p.waiting = b
-}
+func (p *WebPlayer) AreWeWaitingForYou() bool     { return p.waiting }
+func (p *WebPlayer) HeyWeAreWaitingForYou(b bool) { p.waiting = b }
 
 type GivingUpError string
 
-func (g GivingUpError) Error() string {
-	return string(g)
-}
-
-func (g GivingUpError) IGaveUp() string {
-	return string(g)
-}
+func (g GivingUpError) Error() string   { return string(g) }
+func (g GivingUpError) IGaveUp() string { return string(g) }

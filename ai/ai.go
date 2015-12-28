@@ -156,10 +156,9 @@ func (a *AIPlayer) HeyItsYourMove(s *game.State, hurryup <-chan bool) *game.Move
 }
 
 func (a *AIPlayer) HeySituationChanges(_ *game.Move, _ *game.State) {}
-
-func (a *AIPlayer) HeyYouLost(_ *game.State) {}
-
-func (a *AIPlayer) HeyYouWonOrDrew(_ *game.State) {}
+func (a *AIPlayer) HeyYouLost(_ *game.State)                        {}
+func (a *AIPlayer) HeyYouWon(_ *game.State)                         {}
+func (a *AIPlayer) HeyYouDrew(_ *game.State)                        {}
 
 func (a *AIPlayer) String() string {
 	return fmt.Sprintf("%s%e", "BotPrec", a.FixedPrecision)

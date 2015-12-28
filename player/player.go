@@ -10,7 +10,8 @@ type Player interface {
 	HeyItsYourMove(*game.State, <-chan bool) *game.Move //that channel is for signalling to hurry up
 	HeySituationChanges(*game.Move, *game.State)
 	HeyYouLost(*game.State)
-	HeyYouWonOrDrew(*game.State)
+	HeyYouWon(*game.State)
+	HeyYouDrew(*game.State)
 	AreWeWaitingForYou() bool
 	HeyWeWaitingForYou(bool)
 	String() string
@@ -59,12 +60,12 @@ func (gp *Gameplay) Procedure(end chan<- bool) {
 		}
 		listem = gp.State.PlayersAlive.ListEm()
 		if len(listem) == 1 {
-			gp.Players[listem[0]].HeyYouWonOrDrew(gp.State)
+			gp.Players[listem[0]].HeyYouWon(gp.State)
 			break
 		}
 		if len(listem) == 0 {
 			for _, ci := range game.COLORS {
-				gp.Players[ci].HeyYouWonOrDrew(gp.State)
+				gp.Players[ci].HeyYouDrew(gp.State)
 			}
 			break
 		}

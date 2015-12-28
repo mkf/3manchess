@@ -67,17 +67,11 @@ func (p *Developer) logger() {
 	}
 }
 
-func (p *Developer) String() string {
-	return p.Name
-}
+func (p *Developer) String() string { return p.Name }
 
-func (p *Developer) ErrorChannel() chan<- error {
-	return p.ErrorChan
-}
+func (p *Developer) ErrorChannel() chan<- error { return p.ErrorChan }
 
-func (p *Developer) HurryChannel() chan<- bool {
-	return p.HurryChan
-}
+func (p *Developer) HurryChannel() chan<- bool { return p.HurryChan }
 
 func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move {
 	go func() {
@@ -98,28 +92,18 @@ func (p *Developer) HeySituationChanges(m *game.Move, aft *game.State) {
 	p.sitchan <- player.SituationChange{m, aft}
 }
 
-func (p *Developer) HeyYouLost(*game.State) {
-	p.sendresult <- LOSE
-}
+func (p *Developer) HeyYouLost(_ *game.State) { p.sendresult <- LOSE }
 
-func (p *Developer) HeyYouWonOrDrew(*game.State) {
-	p.sendresult <- ResultCode(-1) //Bug: TODO: Obvious.
-}
+func (p *Developer) HeyYouWon(_ *game.State) { p.sendresult <- WIN }
 
-func (p *Developer) HeyWeWaitingForYou(b bool) {
-	p.waiting = b
-}
+func (p *Developer) HeyYouDrew(_ *game.State) { p.sendresult <- DRAW }
 
-func (p *Developer) AreWeWaitingForYou() bool {
-	return p.waiting
-}
+func (p *Developer) HeyWeWaitingForYou(b bool) { p.waiting = b }
+
+func (p *Developer) AreWeWaitingForYou() bool { return p.waiting }
 
 type GivingUpError string
 
-func (g GivingUpError) Error() string {
-	return string(g)
-}
+func (g GivingUpError) Error() string { return string(g) }
 
-func (g GivingUpError) IGaveUp() string {
-	return string(g)
-}
+func (g GivingUpError) IGaveUp() string { return string(g) }

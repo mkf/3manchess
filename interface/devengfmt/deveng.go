@@ -83,9 +83,8 @@ func (p *Developer) HeyYouLost(*game.State) {
 	fmt.Printf("%s has lost\n", p)
 }
 
-func (p *Developer) HeyYouWonOrDrew(*game.State) {
-	fmt.Printf("%s has won/drew\n", p)
-}
+func (p *Developer) HeyYouWon(*game.State)  { fmt.Printf("%s has won\n", p) }
+func (p *Developer) HeyYouDrew(*game.State) { fmt.Printf("%s has drew\n", p) }
 
 func (p *Developer) HeyWeWaitingForYou(b bool) {
 	p.waiting = b
