@@ -13,6 +13,6 @@ func TestSimpleGenNoPanic(t *testing.T) {
 		time.Sleep(time.Minute)
 		hurry <- true
 	}()
-	move := a.HeyItsYourMove(nil, &newgame, hurry)
+	move := a.HeyItsYourMove(&newgame, hurry)
 	log.Println(move)
 }
