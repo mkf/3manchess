@@ -63,7 +63,7 @@ func (gp *Gameplay) Procedure(end chan<- bool) {
 			}
 			break
 		}
-		gp.Players.HeyWeWaitingForYou(true)
+		gp.Players[gp.State.MovesNext].HeyWeWaitingForYou(true)
 		move = gp.Players[gp.State.MovesNext].HeyItsYourMove(gp.State, hurry)
 		after, err = move.After()
 		if err != nil {
