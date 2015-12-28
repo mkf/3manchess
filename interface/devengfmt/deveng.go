@@ -1,4 +1,4 @@
-package deveng
+package devengfmt
 
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
