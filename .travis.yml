@@ -1,15 +1,25 @@
 language: go
 go:
 - 1.5
+before_install:
+- echo "" > coverage.txt
+- go get github.com/onsi/gomega
+- go get github.com/onsi/ginkgo
+- go get golang.org/x/tools/cmd/cover
 install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
 - go get -v -t github.com/ArchieT/3manchess/movedet
+- go get -v -t github.com/ArchieT/3manchess/player
+- go get -v -t github.com/ArchieT/3manchess/interface/deveng
+- go get -v -t github.com/ArchieT/3manchess/cmd/3manchess-deveng
+- go get -v -t github.com/ArchieT/3manchess/interface/web
 script:
-- go test -v github.com/ArchieT/3manchess/game -covermode=count -coverprofile=tmp.out
-- tail -n +2 tmp.out >> coverage.out
-- go test -v github.com/ArchieT/3manchess/movedet -covermode=count -coverprofile=tmp.out
-- tail -n +2 tmp.out >> coverage.out
+- go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp1.out
+- cat tmp1.out >> coverage.txt
+- go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmp2.out
+- cat tmp2.out >> coverage.txt
 after_success:
+- cat coverage.txt
 - bash <(curl -s https://codecov.io/bash)
 notifications:
   slack:
