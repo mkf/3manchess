@@ -23,6 +23,14 @@ type Gameplay struct {
 	*game.State
 }
 
+func (gp *Gameplay) HurryUpWhoever() {
+	for _, color := range game.COLORS {
+		if gp.Players[color].AreWeWaitingForYou() {
+			gp.Players[color].HurryChannel() <- true
+		}
+	}
+}
+
 type SituationChange struct {
 	*game.Move
 	After *game.State
