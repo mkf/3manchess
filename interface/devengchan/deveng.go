@@ -56,6 +56,15 @@ func (p *Developer) Initialize(gp *player.Gameplay) {
 	sres := make(chan ResultCode)
 	p.Result = sres
 	p.sendresult = sres
+	afm := make(chan *game.State)
+	p.askformove = afm
+	p.AskinForMove = afm
+	hrm := make(chan *game.Move)
+	p.heremoves = hrm
+	p.HereRMoves = hrm
+	sch := make(chan player.SituationChange)
+	p.SituationCh = sch
+	p.sitchan = sch
 	go p.logger()
 }
 
