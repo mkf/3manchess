@@ -46,6 +46,19 @@ func main() {
 		players[game.Black] = player.Player(&ablack)
 	}
 	end := make(chan bool)
-	player.NewGame(players, end)
+	gp := player.NewGame(players, end)
+	fmt.Println("NEW GAME:", gp)
+	go func() {
+		for {
+			var heyhurry bool
+			fmt.Scanf("%t", &heyhurry)
+			for _, icol := range game.COLORS {
+				go func() {
+					players[icol].HurryChannel() <- heyhurry
+					recover()
+				}()
+			}
+		}
+	}()
 	_ = <-end
 }
