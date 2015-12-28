@@ -10,8 +10,9 @@ install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
 - go get -v -t github.com/ArchieT/3manchess/movedet
 - go get -v -t github.com/ArchieT/3manchess/player
-- go get -v -t github.com/ArchieT/3manchess/interface/deveng
-- go get -v -t github.com/ArchieT/3manchess/cmd/3manchess-deveng
+- go get -v -t github.com/ArchieT/3manchess/interface/devengfmt
+- go get -v -t github.com/ArchieT/3manchess/cmd/3manchess-devengfmt
+- go get -v -t github.com/ArchieT/3manchess/cmd/3manchess-devengchan
 - go get -v -t github.com/ArchieT/3manchess/interface/web
 - go get -v -t github.com/ArchieT/3manchess/ai
 script:

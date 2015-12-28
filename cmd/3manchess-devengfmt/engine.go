@@ -4,7 +4,7 @@ import (
 	"fmt"
 	//	"github.com/ArchieT/3manchess/ai"
 	"github.com/ArchieT/3manchess/game"
-	"github.com/ArchieT/3manchess/interface/deveng"
+	deveng "github.com/ArchieT/3manchess/interface/devengfmt"
 	"github.com/ArchieT/3manchess/player"
 	//	"os"
 )

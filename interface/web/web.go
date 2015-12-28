@@ -91,6 +91,7 @@ type WebPlayer struct {
 	happened        chan *game.Move
 	gp              *player.Gameplay
 	wsl             []*websocket.Conn
+	waiting         bool
 }
 
 func (p *WebPlayer) Initialize(gp *player.Gameplay) {
@@ -146,25 +147,20 @@ func (p *WebPlayer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move
 	}
 	ourfromto := <-p.givemethefromto
 	ourmove := ourfromto.Move(s)
+	p.HeyWeAreWaitingForYou(false)
 	return &ourmove
 }
 
-func (p *WebPlayer) HeySituationChanges(m *game.Move, aft *game.State) {
-	p.happened <- m
-}
+func (p *WebPlayer) HeySituationChanges(m *game.Move, aft *game.State) { p.happened <- m }
 
-func (p *WebPlayer) HeyYouLost(*game.State) {
-}
+func (p *WebPlayer) HeyYouLost(*game.State) {}
+func (p *WebPlayer) HeyYouWon(*game.State)  {}
+func (p *WebPlayer) HeyYouDrew(*game.State) {}
 
-func (p *WebPlayer) HeyYouWonOrDrew(*game.State) {
-}
+func (p *WebPlayer) AreWeWaitingForYou() bool     { return p.waiting }
+func (p *WebPlayer) HeyWeAreWaitingForYou(b bool) { p.waiting = b }
 
 type GivingUpError string
 
-func (g GivingUpError) Error() string {
-	return string(g)
-}
-
-func (g GivingUpError) IGaveUp() string {
-	return string(g)
-}
+func (g GivingUpError) Error() string   { return string(g) }
+func (g GivingUpError) IGaveUp() string { return string(g) }
