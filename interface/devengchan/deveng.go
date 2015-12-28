@@ -2,7 +2,8 @@ package devengchan
 
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
-import "github.com/ArchieT/3manchess/simple"
+
+//import "github.com/ArchieT/3manchess/simple"
 import "fmt"
 import "log"
 
