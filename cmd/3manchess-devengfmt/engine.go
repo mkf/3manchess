@@ -25,7 +25,6 @@ func main() {
 	white.Name = "Whitey"
 	grey.Name = "Greyey"
 	black.Name = "Blackey"
-	//players := map[game.Color]player.Player{game.White: player.Player(&white), game.Gray: player.Player(&grey), game.Black: player.Player(&black)}
 	players := make(map[game.Color]player.Player)
 	switch ww {
 	case 'h':
