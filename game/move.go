@@ -1,5 +1,7 @@
 package game
 
+import "log"
+
 //Move :  struct describing a single move with the situation before it
 type Move struct {
 	From Pos
@@ -389,6 +391,7 @@ func (m *Move) After() (*State, error) { //situation after
 	}
 
 	if heyitscheck := next.AmIInCheck(m.What().Color); heyitscheck.If {
+		log.Println("AfterRet")
 		return &next, IllegalMoveError{m, "Check", "We would be in check! (checking " + heyitscheck.From.String()} //Bug(ArchieT): returns it even if we would not
 	}
 
