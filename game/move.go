@@ -153,7 +153,7 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) bool {
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			ourpos = Pos{i, j}
-			if (*b)[i][j].NotEmpty && (*b)[i][j].Color() != who && pa.Give((*b)[i][j].Color()) &&
+			if (*b)[i][j].NotEmpty && ((*b)[i][j].Color() != who) && pa.Give((*b)[i][j].Color()) &&
 				(b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, ep)) {
 				return true
 			}
