@@ -117,7 +117,6 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 					go func(i, j, k, l int8) {
 						ourft = game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
 						sv := ourft.Move(s)
-						log.Println("BEFAFT")
 						if v, err := sv.After(); err == nil {
 							gwg.Add(1)
 							go func(n game.FromTo) {
