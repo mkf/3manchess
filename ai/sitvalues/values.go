@@ -12,7 +12,7 @@ var VALUES = map[game.FigType]int32{
 }
 
 func SitValue(s *game.State) int32 {
-	nasze := s.Board.FriendsNAllies(s.MovesNext, s.PlayersAlive)
+	nasze, _ := s.Board.FriendsNAllies(s.MovesNext, s.PlayersAlive)
 	myatakujem := s.Board.WeAreThreateningTypes(s.MovesNext, s.PlayersAlive, s.EnPassant)
 	nasatakujo := s.Board.WeAreThreatened(s.MovesNext, s.PlayersAlive, s.EnPassant)
 	var own, myich, oninas, ostatecznie int32
