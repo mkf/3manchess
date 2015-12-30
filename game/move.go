@@ -149,7 +149,7 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in c
 func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 	var ourpos Pos
 	var i, j int8
-	who := (*b)[ourpos[0]][ourpos[1]].Color()
+	who := (*b)[where[0]][where[1]].Color()
 	var heyitscheck Check
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
