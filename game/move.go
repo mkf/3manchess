@@ -128,7 +128,7 @@ func (e IllegalMoveError) Error() string {
 }
 
 //CheckChecking :  is `who` in check?
-func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in check
+func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in check
 	var i, j int8
 	var where Pos
 	var czy bool
@@ -146,20 +146,21 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 	return b.ThreatChecking(where, pa, DEFENPASSANT)
 }
 
-func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) bool {
+func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 	var ourpos Pos
 	var i, j int8
 	who := (*b)[ourpos[0]][ourpos[1]].Color()
+	var heyitscheck Check
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			ourpos = Pos{i, j}
 			if (*b)[i][j].NotEmpty && ((*b)[i][j].Color() != who) && pa.Give((*b)[i][j].Color()) &&
 				(b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, ep)) {
-				return true
+				return Check{If: true, From: ourpos}
 			}
 		}
 	}
-	return false
+	return heyitscheck
 }
 
 func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
@@ -380,8 +381,8 @@ func (m *Move) After() (*State, error) { //situation after
 		}
 	}
 
-	if next.AmIInCheck(m.What().Color) {
-		return &next, IllegalMoveError{m, "Check", "We would be in check!"} //Bug(ArchieT): returns it even if we would not
+	if heyitscheck := next.AmIInCheck(m.What().Color); heyitscheck.If {
+		return &next, IllegalMoveError{m, "Check", "We would be in check! (checking " + heyitscheck.From.String()} //Bug(ArchieT): returns it even if we would not
 	}
 
 	return &next, nil
