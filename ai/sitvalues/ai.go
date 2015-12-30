@@ -1,4 +1,4 @@
-package sitweights
+package sitvalues
 
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/simple"
