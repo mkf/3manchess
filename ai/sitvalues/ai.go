@@ -7,6 +7,8 @@ import "sync"
 import "sync/atomic"
 import "fmt"
 
+import "log"
+
 const DEFFIXPREC float64 = 0.0002
 
 type AIPlayer struct {
@@ -48,6 +50,7 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 }
 
 func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State, whoarewe game.Color) {
+	log.Println(chance)
 	state.EvalDeath()
 	if !(state.PlayersAlive.Give(whoarewe)) {
 		give <- a.SitValue(state) * chance
