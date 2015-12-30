@@ -157,6 +157,7 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 	var i, j int8
 	who := (*b)[where[0]][where[1]].Color()
 	var heyitscheck Check
+	log.Println("STRTDThrCh")
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			ourpos = Pos{i, j}
