@@ -102,6 +102,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	for i := len(hurryup); i > 0; i-- {
 		<-hurryup
 	}
+	log.Println("ALONG")
 	thoughts := make(map[game.FromTo]*float64)
 	var i, j, k, l int8
 	var ourft game.FromTo
