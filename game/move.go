@@ -369,6 +369,7 @@ func (m *Move) After() (*State, error) { //situation after
 			next.MoatsState[m.From[1]/8+1] = true
 		}
 	} else {
+		log.Println("OtherFig")
 		var empty Square
 		czyempty := next.Board[m.To[0]][m.To[1]].Empty()
 		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]]
@@ -381,11 +382,13 @@ func (m *Move) After() (*State, error) { //situation after
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
 		moatbridging := true
+		log.Println("PREPCHKBETW")
 		for i := (m.From[1] / 8) * 8; i < ((m.From[1]/8)*8)+8; i++ {
 			if next.Board[0][i].NotEmpty {
 				moatbridging = false
 			}
 		}
+		log.Println("CHKDBTWN")
 		if moatbridging {
 			next.MoatsState[m.From[1]/8] = true
 			next.MoatsState[m.From[1]/8+1] = true
