@@ -174,7 +174,6 @@ func boardinit() { //initialize BOARDFORNEWGAME module pseudoconstant
 			}
 		}
 	}
-	BodyTrace.Println("boardinit() complete")
 }
 
 //NewBoard is a replacement for NEWBOARD
