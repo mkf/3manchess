@@ -1,7 +1,5 @@
 package game
 
-import "log"
-
 //CanIMoveWOCheck — is there any move that would not end up in a check?
 func (s *State) CanIMoveWOCheck(who Color) bool {
 	var i, j, k, l int8
