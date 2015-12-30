@@ -271,7 +271,7 @@ func (m *Move) After() (*State, error) { //situation after
 		next.HalfmoveClock++
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
-	} else if m.IsItQueenSideCastling() {
+	} else if log.Println("CheckedCKing"); m.IsItQueenSideCastling() {
 		empty := next.Board[0][m.From[1]-2]                     //rather senseless, a lazy definition of an empty square
 		next.Board[0][m.From[1]-2] = next.Board[0][m.From[1]]   //moving the king
 		next.Board[0][m.From[1]-1] = next.Board[0][m.From[1]+4] //moving the rook
