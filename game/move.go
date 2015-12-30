@@ -137,7 +137,6 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 			if tojefig := (*b)[i][j].Fig; tojefig.Color == who && tojefig.FigType == King {
 				where = Pos{i, j}
 				czy = true
-				MoveTrace.Println("CheckChecking: Found the ", who, " King on ", where)
 			}
 		}
 	}
@@ -149,7 +148,6 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 		for j = 0; j < 24; j++ {
 			ourpos = Pos{i, j}
 			if !((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()]) && (b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) {
-				MoveTrace.Println("CheckChecking: TRUE!", ourpos, (*b)[i][j])
 				return true
 			}
 		}
@@ -184,7 +182,6 @@ func (m *Move) After() (*State, error) { //situation after
 	if err := m.To.Correct(); err != nil {
 		return nil, err
 	}
-	MoveTrace.Println("After: ", m.From, m.To)
 	if merr := m.Possible(); merr != nil {
 		return nil, merr
 	}
