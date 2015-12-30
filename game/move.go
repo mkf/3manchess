@@ -259,6 +259,8 @@ func (m *Move) After() (*State, error) { //situation after
 	next.Board = &nextboard
 	next.MovesNext = next.MovesNext.Next()
 
+	log.Println("BEFTHEIFS")
+
 	if m.IsItKingSideCastling() {
 		empty := next.Board[0][m.From[1]+2]                     //rather senseless, a lazy definition of an empty square
 		next.Board[0][m.From[1]+2] = next.Board[0][m.From[1]]   //moving the king to his side
