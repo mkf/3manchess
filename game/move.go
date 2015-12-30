@@ -165,6 +165,7 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 				(b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, ep)) {
 				return Check{If: true, From: ourpos}
 			}
+			log.Println("ThrChNope")
 		}
 	}
 	return heyitscheck
