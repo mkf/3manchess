@@ -1,4 +1,4 @@
-package ai
+package bruteforce
 
 import "testing"
 import "github.com/ArchieT/3manchess/game"

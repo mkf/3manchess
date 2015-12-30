@@ -1,4 +1,4 @@
-package ai
+package bruteforce
 
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/simple"
