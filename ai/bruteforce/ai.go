@@ -11,6 +11,8 @@ import "fmt"
 
 //import "log"
 
+const DEFFIXPREC float64 = 0.0002
+
 //AIPlayer is a struct of AI settings; Think is it's method.
 type AIPlayer struct {
 	errchan        chan error
@@ -23,6 +25,9 @@ type AIPlayer struct {
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
+	if a.FixedPrecision == 0.0 {
+		a.FixedPrecision = DEFFIXPREC
+	}
 	errchan := make(chan error)
 	a.errchan = errchan
 	a.ErrorChan = errchan

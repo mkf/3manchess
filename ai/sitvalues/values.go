@@ -15,12 +15,13 @@ var VALUES = map[game.FigType]int32{
 	game.King:   2400,
 }
 
-func SitValue(s *game.State) float64 {
+func (a *AIPlayer) SitValue(s *game.State) float64 {
 	who := s.MovesNext.Next().Next()
 	nasze, _ := s.Board.FriendsNAllies(who, s.PlayersAlive)
 	myatakujem := s.Board.WeAreThreateningTypes(who, s.PlayersAlive, s.EnPassant)
 	nasatakujo := s.Board.WeAreThreatened(who, s.PlayersAlive, s.EnPassant)
-	var own, myich, oninas, ostatecznie int32
+	var own, myich, oninas int32
+	var zyjacy float64
 	for _, o := range nasze {
 		own += VALUES[(*s.Board)[o[0]][o[1]].FigType]
 	}
@@ -30,8 +31,7 @@ func SitValue(s *game.State) float64 {
 	for n := range nasatakujo {
 		oninas += VALUES[n]
 	}
-	ostatecznie = own + myich - oninas
-	zyjacy := float64(ostatecznie)
+	zyjacy = float64(own)*(a.OwnedToThreatened) + float64(myich-oninas)
 	if !s.PlayersAlive.Give(who) {
 		return -DEATH
 	}
