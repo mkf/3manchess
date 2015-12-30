@@ -1,7 +1,10 @@
 package game
 
+import "log"
+
 //CanIMoveWOCheck — is there any move that would not end up in a check?
 func (s *State) CanIMoveWOCheck(who Color) bool {
+	log.Println("STRTDCANI")
 	var i, j, k, l int8
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
@@ -40,4 +43,5 @@ func (c Check) Bool() bool {
 //AmIInCheck — Am I in check right now?
 func (s *State) AmIInCheck(who Color) Check {
 	return s.Board.CheckChecking(who, s.PlayersAlive)
+
 }
