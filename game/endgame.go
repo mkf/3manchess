@@ -26,7 +26,16 @@ func (s *State) CanIMoveWOCheck(who Color) bool {
 	return false
 }
 
+type Check struct {
+	If   bool
+	From Pos
+}
+
+func (c Check) Bool() bool {
+	return c.If
+}
+
 //AmIInCheck — Am I in check right now?
-func (s *State) AmIInCheck(who Color) bool {
+func (s *State) AmIInCheck(who Color) Check {
 	return s.Board.CheckChecking(who, s.PlayersAlive)
 }

@@ -128,7 +128,7 @@ func (e IllegalMoveError) Error() string {
 }
 
 //CheckChecking :  is `who` in check?
-func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in check
+func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in check
 	var i, j int8
 	var where Pos
 	var czy bool
@@ -143,16 +143,76 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 	if !czy {
 		panic("King not found!!!")
 	}
+	return b.ThreatChecking(where, pa, DEFENPASSANT)
+}
+
+func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 	var ourpos Pos
+	var i, j int8
+	who := (*b)[where[0]][where[1]].Color()
+	var heyitscheck Check
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			ourpos = Pos{i, j}
-			if !((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()]) && (b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) {
-				return true
+			if (*b)[i][j].NotEmpty && ((*b)[i][j].Color() != who) && pa.Give((*b)[i][j].Color()) &&
+				(b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, ep)) {
+				return Check{If: true, From: ourpos}
 			}
 		}
 	}
-	return false
+	return heyitscheck
+}
+
+func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
+	var ourpos Pos
+	var i, j int8
+	my := make([]Pos, 0, 16)
+	oni := make(chan Pos, 32)
+	if pa[who] {
+		for i = 0; i < 6; i++ {
+			for j = 0; j < 24; j++ {
+				ourpos = Pos{i, j}
+				if (*b)[i][j].Color() == who {
+					my = append(my, ourpos)
+				} else if (*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()] {
+					oni <- ourpos
+				}
+			}
+		}
+	}
+	return my, oni
+}
+
+func (b *Board) WeAreThreateningTypes(who Color, pa PlayersAlive, ep EnPassant) <-chan FigType {
+	ret := make(chan FigType, 32)
+	my, oni := b.FriendsNAllies(who, pa)
+	for ich := range oni {
+		for _, nasz := range my {
+			if b.AnyPiece(nasz, ich, DEFMOATSSTATE, FALSECASTLING, ep) {
+				ret <- (*b)[ich[0]][ich[1]].Fig.FigType
+				break
+			}
+		}
+	}
+	return ret
+}
+
+func (b *Board) WeAreThreatened(who Color, pa PlayersAlive, ep EnPassant) <-chan FigType {
+	ret := make(chan FigType, 16)
+	my, onichan := b.FriendsNAllies(who, pa)
+	oni := make([]Pos, 0, len(onichan))
+	for ich := range onichan {
+		oni = append(oni, ich)
+	}
+	for _, nasz := range my {
+		for _, ich := range oni {
+			if b.AnyPiece(ich, nasz, DEFMOATSSTATE, FALSECASTLING, ep) {
+				ret <- (*b)[nasz[0]][nasz[1]].Fig.FigType
+				break
+			}
+		}
+	}
+	return ret
 }
 
 //TODO: Checkmate, stalemate detection. Doing something with the halfmove timer.
@@ -321,8 +381,8 @@ func (m *Move) After() (*State, error) { //situation after
 		}
 	}
 
-	if next.AmIInCheck(m.What().Color) {
-		return &next, IllegalMoveError{m, "Check", "We would be in check!"} //Bug(ArchieT): returns it even if we would not
+	if heyitscheck := next.AmIInCheck(m.What().Color); heyitscheck.If {
+		return &next, IllegalMoveError{m, "Check", "We would be in check! (checking " + heyitscheck.From.String()} //Bug(ArchieT): returns it even if we would not
 	}
 
 	return &next, nil
