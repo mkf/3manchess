@@ -98,6 +98,7 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	a.curfixprec = a.FixedPrecision
 	hurryup := simple.MergeBool(hurry, a.hurry)
+	log.Println("Started thinking")
 	for i := len(hurryup); i > 0; i-- {
 		<-hurryup
 	}
@@ -118,9 +119,11 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 						if v, err := sv.After(); err == nil {
 							gwg.Add(1)
 							go func(n game.FromTo) {
+								log.Println("Yeah")
 								atomic.AddUint32(countem, 1)
 								var newchance float64
 								wg.Wait()
+								log.Println("GotChance")
 								newchance = 1.0 / float64(*countem)
 								ourchan := make(chan float64, 100)
 								makefloat := new(float64)
