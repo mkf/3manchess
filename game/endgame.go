@@ -26,11 +26,13 @@ func (s *State) CanIMoveWOCheck(who Color) bool {
 	return false
 }
 
+//Check type contains the important thing, that is If/Bool(), and a descriptive field From [Pos]
 type Check struct {
 	If   bool
 	From Pos
 }
 
+//Bool returns the If fields, who knows if it will work with bool(Check)
 func (c Check) Bool() bool {
 	return c.If
 }

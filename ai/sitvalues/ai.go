@@ -1,28 +1,30 @@
-package ai
+package sitvalues
 
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/simple"
-
 import "github.com/ArchieT/3manchess/player"
 import "sync"
 import "sync/atomic"
-
 import "fmt"
 
-//import "log"
+const DEFFIXPREC float64 = 0.0002
 
-//AIPlayer is a struct of AI settings; Think is it's method.
 type AIPlayer struct {
-	errchan        chan error
-	ErrorChan      chan<- error
-	hurry          chan bool
-	HurryChan      chan<- bool
-	FixedPrecision float64
-	gp             *player.Gameplay
-	waiting        bool
+	errchan           chan error
+	ErrorChan         chan<- error
+	hurry             chan bool
+	HurryChan         chan<- bool
+	FixedPrecision    float64
+	curfixprec        float64
+	OwnedToThreatened float64
+	gp                *player.Gameplay
+	waiting           bool
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
+	if a.FixedPrecision == 0.0 {
+		a.FixedPrecision = DEFFIXPREC
+	}
 	errchan := make(chan error)
 	a.errchan = errchan
 	a.ErrorChan = errchan
@@ -45,20 +47,18 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 	return a.ErrorChan
 }
 
-//func Worker(thinking *[6][24][6][24]int64, mutex *sync.RWMutex, state game.State) {
-//}
-
-//Worker is the routine behind the Think; exported just in case
 func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State, whoarewe game.Color) {
-	if state.EvalDeath(); !(state.PlayersAlive.Give(whoarewe)) {
-		give <- -chance
+	state.EvalDeath()
+	if !(state.PlayersAlive.Give(whoarewe)) {
+		give <- a.SitValue(state) * chance
 		return
 	}
-	if chance < a.FixedPrecision {
+	if chance < a.curfixprec {
+		give <- a.SitValue(state) * chance
 		return
 	}
-	var wg1 sync.WaitGroup //whole thread waitgroup
-	var i, j, k, l int8    //pos int8s
+	var wg sync.WaitGroup
+	var i, j, k, l int8
 	possib := make(chan *game.State, 2050)
 	var ourft game.FromTo
 
@@ -66,30 +66,34 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 		for j = 0; j < 24; j++ {
 			for k = 0; k < 6; k++ {
 				for l = 0; l < 24; l++ {
-					wg1.Add(1)
+					wg.Add(1)
 					go func(i, j, k, l int8) {
 						ourft = game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
 						sv := ourft.Move(state)
 						if v, err := sv.After(); err == nil {
 							possib <- v
 						}
-						wg1.Done()
+						wg.Done()
 					}(i, j, k, l)
 				}
 			}
 		}
 	}
-	wg1.Wait()
+	wg.Wait()
 	var newchance float64
 	newchance = chance / float64(len(possib))
 	for m := range possib {
-		go a.Worker(newchance, give, m, whoarewe)
+		wg.Add(1)
+		go func(mgiving *game.State) {
+			a.Worker(newchance, give, mgiving, whoarewe)
+			wg.Done()
+		}(m)
 	}
+	wg.Wait()
 }
 
-//Think is the function generating the Move; atm it does not return anything, but will return game.Move
 func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
-	//var thinking [6][24][6][24]float64
+	a.curfixprec = a.FixedPrecision
 	hurryup := simple.MergeBool(hurry, a.hurry)
 	for i := len(hurryup); i > 0; i-- {
 		<-hurryup
@@ -99,8 +103,8 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	var ourft game.FromTo
 	countem := new(uint32)
 	atomic.StoreUint32(countem, 0)
-	var wg1 sync.WaitGroup
-	wg1.Add(1)
+	var wg, gwg sync.WaitGroup
+	wg.Add(1)
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			for k = 0; k < 6; k++ {
@@ -109,18 +113,20 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 						ourft = game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
 						sv := ourft.Move(s)
 						if v, err := sv.After(); err == nil {
+							gwg.Add(1)
 							go func(n game.FromTo) {
 								atomic.AddUint32(countem, 1)
 								var newchance float64
-								wg1.Wait()
+								wg.Wait()
 								newchance = 1.0 / float64(*countem)
 								ourchan := make(chan float64, 100)
 								makefloat := new(float64)
 								thoughts[n] = makefloat
-								a.Worker(newchance, ourchan, v, s.MovesNext)
 								go func(ch <-chan float64, ou *float64) {
 									*ou += <-ch
 								}(ourchan, makefloat)
+								a.Worker(newchance, ourchan, v, s.MovesNext)
+								gwg.Done()
 							}(ourft)
 						}
 					}(i, j, k, l)
@@ -128,8 +134,14 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 			}
 		}
 	}
-	wg1.Done()
-	_ = <-hurryup
+	wg.Done()
+	go func() {
+		for {
+			<-hurryup
+			a.curfixprec *= 2
+		}
+	}()
+	gwg.Wait()
 	a.HeyWeWaitingForYou(false)
 	var max float64
 	for i := range thoughts {
@@ -144,13 +156,12 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 		}
 	}
 	if len(ourfts) == 0 {
-		panic("len(ourfts)==0 !!!")
+		panic("len(ourfts)==0 !!!!")
 	}
-	ormov := ourfts[0].Move(s)
+	ormov := ourfts[9].Move(s)
 	return &ormov
 }
 
-//HeyItsYourMove works as specified in github.com/ArchieT/3manchess/player; here it just calls Think
 func (a *AIPlayer) HeyItsYourMove(s *game.State, hurryup <-chan bool) *game.Move {
 	return a.Think(s, hurryup)
 }
@@ -161,7 +172,7 @@ func (a *AIPlayer) HeyYouWon(_ *game.State)                         {}
 func (a *AIPlayer) HeyYouDrew(_ *game.State)                        {}
 
 func (a *AIPlayer) String() string {
-	return fmt.Sprintf("%s%e", "BotPrec", a.FixedPrecision)
+	return fmt.Sprintf("%s%e", "SVBotPrec", a.FixedPrecision)
 }
 
 func (a *AIPlayer) AreWeWaitingForYou() bool {

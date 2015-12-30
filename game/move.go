@@ -9,6 +9,7 @@ type Move struct {
 	Before *State
 }
 
+//IncorrectPos error
 type IncorrectPos struct {
 	Pos
 }
@@ -17,6 +18,7 @@ func (ip IncorrectPos) Error() string {
 	return ip.Pos.String()
 }
 
+//Correct checks if the Pos is 0≤r≤5 and 0≤f≤23, and returns IncorrectPos{Pos} if it is not
 func (p Pos) Correct() error {
 	if (p[0] < 0) || (p[0] > 5) || (p[1] < 0) || (p[1] > 23) {
 		return IncorrectPos{p}
@@ -42,6 +44,7 @@ func (ft FromTo) Move(before *State) Move {
 	return Move{ft.From(), ft.To(), before}
 }
 
+//Correct checks if the FromTo is Pos.Correct
 func (ft FromTo) Correct() error {
 	if err := ft[0].Correct(); err != nil {
 		return err
@@ -146,6 +149,7 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in c
 	return b.ThreatChecking(where, pa, DEFENPASSANT)
 }
 
+//ThreatChecking checks if the piece on where Pos is 'in check'
 func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 	var ourpos Pos
 	var i, j int8
@@ -163,6 +167,7 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 	return heyitscheck
 }
 
+//FriendsNAllies returns positions of our pieces and their pieces
 func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
 	var ourpos Pos
 	var i, j int8
@@ -183,6 +188,7 @@ func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
 	return my, oni
 }
 
+//WeAreThreateningTypes returns a list (not a set, dupicates included) of FigTypes we are 'checking'
 func (b *Board) WeAreThreateningTypes(who Color, pa PlayersAlive, ep EnPassant) <-chan FigType {
 	ret := make(chan FigType, 32)
 	my, oni := b.FriendsNAllies(who, pa)
@@ -197,6 +203,7 @@ func (b *Board) WeAreThreateningTypes(who Color, pa PlayersAlive, ep EnPassant) 
 	return ret
 }
 
+//WeAreThreatened returns a list (not a set, dups included) of our FigTypes they are 'checking'
 func (b *Board) WeAreThreatened(who Color, pa PlayersAlive, ep EnPassant) <-chan FigType {
 	ret := make(chan FigType, 16)
 	my, onichan := b.FriendsNAllies(who, pa)
