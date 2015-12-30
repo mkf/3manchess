@@ -143,16 +143,74 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 	if !czy {
 		panic("King not found!!!")
 	}
+	return b.ThreatChecking(where, pa, DEFENPASSANT)
+}
+
+func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) bool {
 	var ourpos Pos
+	var i, j int8
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			ourpos = Pos{i, j}
-			if !((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()]) && (b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) {
+			if (*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()] &&
+				(b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, ep)) {
 				return true
 			}
 		}
 	}
 	return false
+}
+
+func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
+	var outpos Pos
+	var i, j int8
+	my := make([]Pos, 0, 16)
+	oni := make(chan Pos, 32)
+	if pa[who] {
+		for i = 0; i < 6; i++ {
+			for j = 0; j < 24; j++ {
+				ourpos = Pos{i, j}
+				if (*b)[i][j].Color() == who {
+					my = append(my, ourpos)
+				} else if (*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()] {
+					oni <- ourpos
+				}
+			}
+		}
+	}
+	return my, oni
+}
+
+func (b *Board) WeAreThreateningTypes(who Color, pa PlayersAlive, ep EnPassant) <-chan FigType {
+	ret := make(chan FigType, 32)
+	my, oni := b.FriendsNAllies(who, pa)
+	for ich := range oni {
+		for _, nasz := range my {
+			if b.AnyPiece(nasz, ich, DEFMOATSSTATE, FALSECASTLING, ep) {
+				ret <- (*b)[ich[0]][ich[1]].FigType()
+				break
+			}
+		}
+	}
+	return ret
+}
+
+func (b *Board) WeAreThreatened(who Color, pa PlayersAlive, ep EnPassant) <-chan FigType {
+	ret := make(chan FigType, 16)
+	my, onichan := b.FriendsNAllies(who, pa)
+	oni := make([]FigType, 0, len(onichan))
+	for ich := range onichan {
+		oni = append(oni, ich)
+	}
+	for _, nasz := range my {
+		for _, ich := range oni {
+			if b.AnyPiece(ich, nasz, DEFMOATSSTATE, FALSECASTLING, ep) {
+				ret <- (*b)[nasz[0]][nasz[1]].FigType()
+				break
+			}
+		}
+	}
+	return ret
 }
 
 //TODO: Checkmate, stalemate detection. Doing something with the halfmove timer.
