@@ -149,10 +149,11 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) bool {
 	var ourpos Pos
 	var i, j int8
+	who := (*b)[ourpos[0]][ourpos[1]].Color()
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			ourpos = Pos{i, j}
-			if ((*b)[i][j].NotEmpty && pa.Give((*b)[i][j].Color())) &&
+			if (*b)[i][j].NotEmpty && (*b)[i][j].Color() != who && pa.Give((*b)[i][j].Color()) &&
 				(b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, ep)) {
 				return true
 			}
