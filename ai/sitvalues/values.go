@@ -2,13 +2,13 @@ package sitvalues
 
 import "github.com/ArchieT/3manchess/game"
 
-var VALUES = map[game.FigType]int8{
+var VALUES = map[game.FigType]int32{
 	game.Pawn:   1,
 	game.Knight: 3,
 	game.Bishop: 6,
 	game.Rook:   5,
 	game.Queen:  10,
-	game.King:   240,
+	game.King:   2400,
 }
 
 func SitValue(s *game.State) int32 {
