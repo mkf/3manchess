@@ -162,7 +162,7 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) bool {
 }
 
 func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
-	var outpos Pos
+	var ourpos Pos
 	var i, j int8
 	my := make([]Pos, 0, 16)
 	oni := make(chan Pos, 32)
@@ -187,7 +187,7 @@ func (b *Board) WeAreThreateningTypes(who Color, pa PlayersAlive, ep EnPassant) 
 	for ich := range oni {
 		for _, nasz := range my {
 			if b.AnyPiece(nasz, ich, DEFMOATSSTATE, FALSECASTLING, ep) {
-				ret <- (*b)[ich[0]][ich[1]].FigType()
+				ret <- (*b)[ich[0]][ich[1]].Fig.FigType
 				break
 			}
 		}
@@ -198,14 +198,14 @@ func (b *Board) WeAreThreateningTypes(who Color, pa PlayersAlive, ep EnPassant) 
 func (b *Board) WeAreThreatened(who Color, pa PlayersAlive, ep EnPassant) <-chan FigType {
 	ret := make(chan FigType, 16)
 	my, onichan := b.FriendsNAllies(who, pa)
-	oni := make([]FigType, 0, len(onichan))
+	oni := make([]Pos, 0, len(onichan))
 	for ich := range onichan {
 		oni = append(oni, ich)
 	}
 	for _, nasz := range my {
 		for _, ich := range oni {
 			if b.AnyPiece(ich, nasz, DEFMOATSSTATE, FALSECASTLING, ep) {
-				ret <- (*b)[nasz[0]][nasz[1]].FigType()
+				ret <- (*b)[nasz[0]][nasz[1]].Fig.FigType
 				break
 			}
 		}
