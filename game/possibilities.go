@@ -80,11 +80,11 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			}
 		} else { //if same rank, but not first rank
 			canmoat = true
-			canfig = true
+			canfigplus := true
 			//straight direc +file (mod24 ofcoz)
-			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfig; i = (i + 1) % 24 {
+			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfigplus; i = (i + 1) % 24 {
 				if !((*b)[from[0]][i].Empty()) {
-					canfig = false
+					canfigplus = false
 				}
 			}
 			canfigminus := true
@@ -94,7 +94,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 					canfigminus = false
 				}
 			}
-			canfig = canfig || canfigminus
+			canfig = canfigplus || canfigminus
 		}
 	} else if from[1] == to[1] { //if the same file, ie. no passing through center
 		cantech = true
@@ -302,7 +302,7 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 			cantech = true
 			canfig = (*b)[to[0]][from[1]].Empty()
 		}
-	} else if ((from[1]-12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !p {
+	} else if ((from[1]-12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) {
 		cantech = true
 		canfig = (*b)[5][to[1]].Empty()
 		//pc = true
@@ -357,7 +357,7 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	} else {
 		sgn = int8(1)
 	}
-	if from[0] == 5 && !p && to[0] == 5 && (to[1] == ((from[1]-10)%24) || to[1] == ((from[1]+10)%24)) && (*b)[to[0]][to[1]].Color() != nasz.Color() {
+	if from[0] == 5 && !bool(p) && to[0] == 5 && (to[1] == ((from[1]-10)%24) || to[1] == ((from[1]+10)%24)) && (*b)[to[0]][to[1]].Color() != nasz.Color() {
 		return true
 	}
 	if (e[0] == to || e[1] == to) && (*b)[3][to[1]].What() == Pawn && (*b)[3][to[1]].Color() != nasz.Color() && (*b)[2][to[1]].Empty() {
