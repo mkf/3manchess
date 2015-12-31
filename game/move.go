@@ -402,6 +402,7 @@ func (m *Move) After() (*State, error) { //situation after
 		log.Println("AfterRet")
 		return &next, IllegalMoveError{m, "Check", "We would be in check! (checking " + heyitscheck.From.String()} //Bug(ArchieT): returns it even if we would not
 	}
+	log.Println("AAFFTERRET")
 
 	return &next, nil
 }
