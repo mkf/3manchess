@@ -1,7 +1,9 @@
-package camget
+package reality
 
 import "github.com/lazywei/go-opencv/opencv"
 import "fmt"
+
+//import "log"
 
 type NewCamError string
 

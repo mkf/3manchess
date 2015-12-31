@@ -1,7 +1,7 @@
 package movedet
 
 import "testing"
-import "../game"
+import "github.com/ArchieT/3manchess/game"
 
 //var simplyillegal []testentity
 

@@ -13,13 +13,6 @@ var DEFMOATSSTATE = MoatsState{false, false, false} //are they bridged?
 //Castling : White,Gray,Black King-side,Queen-side
 type Castling [3][2]bool
 
-const (
-	OK = iota
-	INVALID
-	ENDGAME_HUMAN
-	ENDGAME
-)
-
 func forcastlingconv(c Color, b byte) (uint8, uint8) {
 	col := c.UInt8()
 	var ct uint8
@@ -93,6 +86,17 @@ func (pa PlayersAlive) Die(who Color) PlayersAlive {
 	return pan
 }
 
+//ListEm is simplified Subc2's Winner(*State) from e396e2b & 17685ad
+func (pa PlayersAlive) ListEm() []Color {
+	to := make([]Color, 0, 3)
+	for _, j := range COLORS {
+		if pa.Give(j) {
+			to = append(to, j)
+		}
+	}
+	return to
+}
+
 //DEFPLAYERSALIVE : true,true,true const
 var DEFPLAYERSALIVE = [3]bool{true, true, true}
 
@@ -108,6 +112,7 @@ type State struct {
 	PlayersAlive
 }
 
+//EvalDeath evaluates the death of whom is about to move next and returns the same pointer it got
 func (s *State) EvalDeath() *State {
 	if !(s.CanIMoveWOCheck(s.MovesNext)) {
 		s.PlayersAlive.Die(s.MovesNext)
@@ -141,17 +146,21 @@ var FALSECASTLING = [3][2]bool{
 	{false, false},
 }
 
-//NEWGAME : gamestate of a new game   const
+//NEWGAME : !!!LEGACY — use NewState() instead!!!  gamestate of a new game   const
 var NEWGAME State
 
-func InitializeNewGame() *State {
-	BOARDFORNEWGAME := new(Board)
-	boardinit(BOARDFORNEWGAME)
-	NEWGAME = State{BOARDFORNEWGAME, DEFMOATSSTATE, White, DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
-	return &NEWGAME
+func init() { //initialize module pseudoconstants
+	boardinit()
+	NEWGAME = State{&BOARDFORNEWGAME, DEFMOATSSTATE, White, DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
 }
 
-//func (s *State) String() string {   // returns FEN
+//NewState returns a newgame State
+func NewState() State {
+	nb := NewBoard()
+	return State{&nb, DEFMOATSSTATE, White, DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
+}
+
+//func (s *State) String() string {   // returns some kind of string that is also parsable
 //}
 
 //func ParsBoard3FEN([]byte) *[8][24][2]byte {

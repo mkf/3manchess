@@ -9,30 +9,21 @@ type Move struct {
 	Before *State
 }
 
-//Move2String : convert move to string
-func Move2String(move Move) string {
-	return string(uint8(move.From[0] + 'a') + uint8(move.From[1] + '1') + '-' + uint8(move.To[0] + 'a') + uint8(move.To[1] + '1'))
+//IncorrectPos error
+type IncorrectPos struct {
+	Pos
 }
 
-//String2Move : convert string to move
-func String2Move(s string) Move {
-	in := func(x, min, max uint8) bool {
-		if x < min || x > max {
-			return false
-		} else {
-			return true
-		}
+func (ip IncorrectPos) Error() string {
+	return ip.Pos.String()
+}
+
+//Correct checks if the Pos is 0≤r≤5 and 0≤f≤23, and returns IncorrectPos{Pos} if it is not
+func (p Pos) Correct() error {
+	if (p[0] < 0) || (p[0] > 5) || (p[1] < 0) || (p[1] > 23) {
+		return IncorrectPos{p}
 	}
-	var move Move
-	if len(s) == 5 && in(s[0], 'a', 'y') && in(s[1], '1', '6') && in(s[3], 'a', 'y') && in(s[4], '1', '6') {
-		move.From[0] = int8(s[0] - 'a')
-		move.From[1] = int8(s[1] - '0')
-		move.From[0] = int8(s[3] - 'a')
-		move.From[1] = int8(s[4] - '0')
-		return move
-	} else {
-		panic("String2Move: Invalid string given")
-	}
+	return nil
 }
 
 //FromTo is a type useful for AI and tests
@@ -51,6 +42,14 @@ func (ft FromTo) To() Pos {
 //Move gives you a Move with the given Before *State
 func (ft FromTo) Move(before *State) Move {
 	return Move{ft.From(), ft.To(), before}
+}
+
+//Correct checks if the FromTo is Pos.Correct
+func (ft FromTo) Correct() error {
+	if err := ft[0].Correct(); err != nil {
+		return err
+	}
+	return ft[1].Correct()
 }
 
 //func (m *Move) String() string {
@@ -132,7 +131,7 @@ func (e IllegalMoveError) Error() string {
 }
 
 //CheckChecking :  is `who` in check?
-func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in check
+func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in check
 	var i, j int8
 	var where Pos
 	var czy bool
@@ -141,24 +140,86 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) bool { //true if in ch
 			if tojefig := (*b)[i][j].Fig; tojefig.Color == who && tojefig.FigType == King {
 				where = Pos{i, j}
 				czy = true
-				MoveTrace.Println("CheckChecking: Found the ", who, " King on ", where)
 			}
 		}
 	}
 	if !czy {
 		panic("King not found!!!")
 	}
+	return b.ThreatChecking(where, pa, DEFENPASSANT)
+}
+
+//ThreatChecking checks if the piece on where Pos is 'in check'
+func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 	var ourpos Pos
+	var i, j int8
+	who := (*b)[where[0]][where[1]].Color()
+	var heyitscheck Check
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			ourpos = Pos{i, j}
-			if !((*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()]) && (b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, DEFENPASSANT)) {
-				MoveTrace.Println("CheckChecking: TRUE!", ourpos, (*b)[i][j])
-				return true
+			if (*b)[i][j].NotEmpty && ((*b)[i][j].Color() != who) && pa.Give((*b)[i][j].Color()) &&
+				(b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, ep)) {
+				return Check{If: true, From: ourpos}
 			}
 		}
 	}
-	return false
+	return heyitscheck
+}
+
+//FriendsNAllies returns positions of our pieces and their pieces
+func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
+	var ourpos Pos
+	var i, j int8
+	my := make([]Pos, 0, 16)
+	oni := make(chan Pos, 32)
+	if pa[who] {
+		for i = 0; i < 6; i++ {
+			for j = 0; j < 24; j++ {
+				ourpos = Pos{i, j}
+				if (*b)[i][j].Color() == who {
+					my = append(my, ourpos)
+				} else if (*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()] {
+					oni <- ourpos
+				}
+			}
+		}
+	}
+	return my, oni
+}
+
+//WeAreThreateningTypes returns a list (not a set, dupicates included) of FigTypes we are 'checking'
+func (b *Board) WeAreThreateningTypes(who Color, pa PlayersAlive, ep EnPassant) <-chan FigType {
+	ret := make(chan FigType, 32)
+	my, oni := b.FriendsNAllies(who, pa)
+	for ich := range oni {
+		for _, nasz := range my {
+			if b.AnyPiece(nasz, ich, DEFMOATSSTATE, FALSECASTLING, ep) {
+				ret <- (*b)[ich[0]][ich[1]].Fig.FigType
+				break
+			}
+		}
+	}
+	return ret
+}
+
+//WeAreThreatened returns a list (not a set, dups included) of our FigTypes they are 'checking'
+func (b *Board) WeAreThreatened(who Color, pa PlayersAlive, ep EnPassant) <-chan FigType {
+	ret := make(chan FigType, 16)
+	my, onichan := b.FriendsNAllies(who, pa)
+	oni := make([]Pos, 0, len(onichan))
+	for ich := range onichan {
+		oni = append(oni, ich)
+	}
+	for _, nasz := range my {
+		for _, ich := range oni {
+			if b.AnyPiece(ich, nasz, DEFMOATSSTATE, FALSECASTLING, ep) {
+				ret <- (*b)[nasz[0]][nasz[1]].Fig.FigType
+				break
+			}
+		}
+	}
+	return ret
 }
 
 //TODO: Checkmate, stalemate detection. Doing something with the halfmove timer.
@@ -182,7 +243,12 @@ func (m *Move) Possible() error {
 
 //After : return the gamestate afterwards, also error
 func (m *Move) After() (*State, error) { //situation after
-	MoveTrace.Println("After: ", m.From, m.To)
+	if err := m.From.Correct(); err != nil {
+		return nil, err
+	}
+	if err := m.To.Correct(); err != nil {
+		return nil, err
+	}
 	if merr := m.Possible(); merr != nil {
 		return nil, merr
 	}
@@ -322,8 +388,8 @@ func (m *Move) After() (*State, error) { //situation after
 		}
 	}
 
-	if next.AmIInCheck(m.What().Color) {
-		return &next, IllegalMoveError{m, "Check", "We would be in check!"} //Bug(ArchieT): returns it even if we would not
+	if heyitscheck := next.AmIInCheck(m.What().Color); heyitscheck.If {
+		return &next, IllegalMoveError{m, "Check", "We would be in check! (checking " + heyitscheck.From.String()} //Bug(ArchieT): returns it even if we would not
 	}
 
 	return &next, nil
