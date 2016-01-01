@@ -561,7 +561,7 @@ func (b *Board) pawn(from Pos, to Pos, e EnPassant) bool { //whether a pawn coul
 
 //AnyPiece : tell whether the piece being in 'from' could move like that
 func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant) bool {
-	log.Println("APCstart_" + (*b)[from[0]][from[1]].What().String())
+	log.Println("APCstart_" + (*b)[from[0]][from[1]].String())
 	switch (*b)[from[0]][from[1]].What() {
 	case Pawn:
 		return b.pawn(from, to, e)
