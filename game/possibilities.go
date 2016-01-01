@@ -529,20 +529,8 @@ func (b *Board) king(from Pos, to Pos, m MoatsState, cs Castling) bool { //wheth
 }
 func (b *Board) queen(from Pos, to Pos, m MoatsState) bool { //whether a queen could move like that (concurrency, yay!)
 	var whether chan bool
-	go func() {
-		my := b.straight(from, to, m)
-		if my {
-			whether <- true
-		}
-		whether <- false
-	}()
-	go func() {
-		my := b.diagonal(from, to, m)
-		if my {
-			whether <- true
-		}
-		whether <- false
-	}()
+	go func() { whether <- b.straight(from, to, m) }()
+	go func() { whether <- b.diagonal(from, to, m) }()
 	if <-whether {
 		return true
 	}
