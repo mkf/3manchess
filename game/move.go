@@ -166,7 +166,7 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 				log.Println("thrChYESS")
 				return Check{If: true, From: ourpos}
 			}
-			log.Println("ThrChNope")
+			//log.Println("ThrChNope")
 		}
 	}
 	return heyitscheck
