@@ -11,14 +11,14 @@ before_install:
 - go get golang.org/x/tools/cmd/cover
 install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
-- go get -v -t github.com/ArchieT/3manchess/movedet
-- go get -v -t github.com/ArchieT/3manchess/player
-- go get -v -t github.com/ArchieT/3manchess/interface/devengfmt
-- go get -v -t github.com/ArchieT/3manchess/cmd/3manchess-devengfmt
-- go get -v -t github.com/ArchieT/3manchess/cmd/3manchess-devengchan
-- go get -v -t github.com/ArchieT/3manchess/interface/web
-- go get -v -t github.com/ArchieT/3manchess/ai/bruteforce
-- go get -v -t github.com/ArchieT/3manchess/ai/sitvalues
+- go get -v -t -race github.com/ArchieT/3manchess/movedet
+- go get -v -t -race github.com/ArchieT/3manchess/player
+- go get -v -t -race github.com/ArchieT/3manchess/interface/devengfmt
+- go get -v -t -race github.com/ArchieT/3manchess/cmd/3manchess-devengfmt
+- go get -v -t -race github.com/ArchieT/3manchess/cmd/3manchess-devengchan
+- go get -v -t -race github.com/ArchieT/3manchess/interface/web
+- go get -v -t -race github.com/ArchieT/3manchess/ai/bruteforce
+- go get -v -t -race github.com/ArchieT/3manchess/ai/sitvalues
 script:
 - go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp1.out
 - cat tmp1.out >> coverage.txt
