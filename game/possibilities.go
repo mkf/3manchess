@@ -1,5 +1,7 @@
 package game
 
+import "log"
+
 func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
 	var cantech, canmoat, canfig bool
 	//capcheck := true
@@ -233,6 +235,13 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			if (*b)[from[0]+i][(from[1]+(i*filedirec))%24].NotEmpty {
 				canfiglong = false
 				break
+			}
+			if recerr := recover(); recerr != nil {
+				log.Println(*b)
+				log.Println(from, to)
+				log.Println("i", i)
+				log.Println("fd", filedirec)
+				panic(recerr)
 			}
 		}
 		for i = 0; i+5-from[0] < przel; i++ {
