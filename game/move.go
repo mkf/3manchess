@@ -135,18 +135,17 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in c
 	var i, j int8
 	var where Pos
 	var czy bool
+	if !pa.Give(who) {
+		panic("CheckChecking a dead player!: " + who.String())
+	}
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			if tojefig := (*b)[i][j].Fig; tojefig.Color == who && tojefig.FigType == King {
-				where = Pos{i, j}
-				czy = true
+				return b.ThreatChecking(Pos{i, j}, pa, DEFENPASSANT)
 			}
 		}
 	}
-	if !czy {
-		panic("King not found!!!")
-	}
-	return b.ThreatChecking(where, pa, DEFENPASSANT)
+	panic("King not found!!!: " + who.String())
 }
 
 //ThreatChecking checks if the piece on where Pos is 'in check'
