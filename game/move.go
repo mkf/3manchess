@@ -132,12 +132,10 @@ func (e IllegalMoveError) Error() string {
 
 //CheckChecking :  is `who` in check?
 func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in check
-	var i, j int8
-	var where Pos
-	var czy bool
 	if !pa.Give(who) {
 		panic("CheckChecking a dead player!: " + who.String())
 	}
+	var i, j int8
 	for i = 0; i < 6; i++ {
 		for j = 0; j < 24; j++ {
 			if tojefig := (*b)[i][j].Fig; tojefig.Color == who && tojefig.FigType == King {
