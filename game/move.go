@@ -226,6 +226,12 @@ func (b *Board) WeAreThreatened(who Color, pa PlayersAlive, ep EnPassant) <-chan
 
 //Possible is such a move? Returns an error, same error as After() would give you, ¡¡¡except for CheckChecking!!!
 func (m *Move) Possible() error {
+	if err := m.From.Correct(); err != nil {
+		return err
+	}
+	if err := m.To.Correct(); err != nil {
+		return err
+	}
 	if m.Where().Empty() {
 		return IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
 	}
@@ -243,12 +249,6 @@ func (m *Move) Possible() error {
 
 //After : return the gamestate afterwards, also error
 func (m *Move) After() (*State, error) { //situation after
-	if err := m.From.Correct(); err != nil {
-		return nil, err
-	}
-	if err := m.To.Correct(); err != nil {
-		return nil, err
-	}
 	if merr := m.Possible(); merr != nil {
 		return nil, merr
 	}
