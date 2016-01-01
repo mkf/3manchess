@@ -214,13 +214,14 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	bijemyostatniego := false
 	if short && canmoatshort {
 		var i int8
-		for i = 1; canfigshort && (i < przel); i++ {
-			if !((*b)[from[0]+(i*rankdirec)][from[1]+(i*filedirec)].Empty()) {
+		for i = 1; i < przel; i++ {
+			if (*b)[from[0]+(i*rankdirec)][from[1]+(i*filedirec)].NotEmpty {
 				canfigshort = false
+				break
 			}
 		}
 		ostatni := (*b)[from[0]+(przel*rankdirec)][from[1]+(przel*filedirec)]
-		if !(ostatni.Empty()) {
+		if ostatni.NotEmpty {
 			if ostatni.Color() != nasz.Color() {
 				bijemyostatniego = true
 			} else {
@@ -230,14 +231,16 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	}
 	if long && canmoatlong {
 		var i int8
-		for i = 1; canfiglong && (i <= (5 - from[0])); i++ {
-			if !((*b)[from[0]+i][from[1]+(i*filedirec)].Empty()) {
+		for i = 1; i <= (5 - from[0]); i++ {
+			if (*b)[from[0]+i][from[1]+(i*filedirec)].NotEmpty {
 				canfiglong = false
+				break
 			}
 		}
-		for i = 0; canfiglong && (i+5-from[0] < przel); i++ {
-			if !((*b)[5-i][from[1]+((5-from[0]+i)*filedirec)].Empty()) {
+		for i = 0; i+5-from[0] < przel; i++ {
+			if (*b)[5-i][from[1]+((5-from[0]+i)*filedirec)].NotEmpty {
 				canfiglong = false
+				break
 			}
 		}
 		ostatni := (*b)[(10-from[0]-przel)%6][(from[1]+(przel*filedirec))%24]
