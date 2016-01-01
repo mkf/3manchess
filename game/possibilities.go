@@ -549,6 +549,7 @@ func (b *Board) queen(from Pos, to Pos, m MoatsState) bool { //whether a queen c
 	}()
 	for {
 		if whether || (endedstr && endeddiag) {
+			log.Println("QueenReturning")
 			return whether
 		}
 	}
