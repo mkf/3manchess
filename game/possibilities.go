@@ -530,29 +530,15 @@ func (b *Board) king(from Pos, to Pos, m MoatsState, cs Castling) bool { //wheth
 	return b.kingStraight(from, to, m) || b.castling(from, to, cs)
 }
 func (b *Board) queen(from Pos, to Pos, m MoatsState) bool { //whether a queen could move like that (concurrency, yay!)
-	endedstr := false
-	endeddiag := false
-	var whether bool
-	go func() {
-		my := b.straight(from, to, m)
-		if my {
-			whether = true
-		}
-		endedstr = true
-	}()
-	go func() {
-		my := b.diagonal(from, to, m)
-		if my {
-			whether = true
-		}
-		endeddiag = true
-	}()
-	for {
-		if whether || (endedstr && endeddiag) {
-			log.Println("QueenReturning")
-			return whether
-		}
+	whether := make(chan bool)
+	go func() { whether <- b.straight(from, to, m) }()
+	go func() { whether <- b.diagonal(from, to, m) }()
+	if <-whether {
+		log.Println("QueenTrue")
+		return true
 	}
+	log.Println("QueenSth")
+	return <-whether
 }
 func (b *Board) pawn(from Pos, to Pos, e EnPassant) bool { //whether a pawn could move like that
 	var p PawnCenter
