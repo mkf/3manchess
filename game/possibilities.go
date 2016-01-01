@@ -528,7 +528,7 @@ func (b *Board) king(from Pos, to Pos, m MoatsState, cs Castling) bool { //wheth
 	return b.kingStraight(from, to, m) || b.castling(from, to, cs)
 }
 func (b *Board) queen(from Pos, to Pos, m MoatsState) bool { //whether a queen could move like that (concurrency, yay!)
-	var whether chan bool
+	whether := make(chan bool)
 	go func() { whether <- b.straight(from, to, m) }()
 	go func() { whether <- b.diagonal(from, to, m) }()
 	if <-whether {
