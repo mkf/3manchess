@@ -66,14 +66,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	} else if from[1] == to[1] { //if the same file, ie. no passing through center
 		cantech = true
 		canmoat = true
-		canfig = true
-		sgn := sign(to[0] - from[0])
-		for i := from[0] + sgn; (sgn*i < to[0]) && canfig; i += sgn {
-			if (*b)[i][from[1]].NotEmpty {
-				canfig = false
-				break
-			}
-		}
+		canfig = b.canfigstraightvertnormal(from[1], from[0], to[0])
 	} else if ((from[1] - 12) % 24) == to[1] { //if the adjacent file, passing through center
 		cantech = true
 		canmoat = true
@@ -90,6 +83,16 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	}
 	final := cantech && canmoat && canfig
 	return final
+}
+
+func (b *Board) canfigstraightvertnormal(file, f, t) bool {
+	s := sign(to - from)
+	for i := f + s; s*i < t; i += s {
+		if (*b)[i][f].NotEmpty {
+			return false
+		}
+	}
+	return true
 }
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
