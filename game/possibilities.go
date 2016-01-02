@@ -63,22 +63,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 
 		} else { //if same rank, but not first rank
 			canmoat = true
-			canfigplus := true
-			//straight direc +file (mod24 ofcoz)
-			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfigplus; i = (i + 1) % 24 {
-				if (*b)[from[0]][i].NotEmpty {
-					canfigplus = false
-					break
-				}
-			}
-			canfigminus := true
-			//straight direc -file (mod24 ofcoz)
-			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
-				if (*b)[from[0]][i].NotEmpty {
-					canfigminus = false
-					break
-				}
-			}
+			canfigplus, canfigminus := b.canfigstraighthoriz(from[0], from[1], to[1])
 			canfig = canfigplus || canfigminus
 		}
 	} else if from[1] == to[1] { //if the same file, ie. no passing through center
