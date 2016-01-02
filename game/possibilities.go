@@ -163,30 +163,20 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		canmoattemp := true  // czy ten moat jest bridged czy nie
 
 		switch sprawdzamy {
+		case 0, 23:
+			canmoattemp = m[0]
+		case 8, 7:
+			canmoattemp = m[1]
+		case 16, 15:
+			canmoattemp = m[2]
+		}
+		switch sprawdzamy % 8 {
 		case 0: //cross jest jak pojedziemy na minus
 			dirtemp = -1
 			capchecktemp = false
-			canmoattemp = m[0]
-		case 23: //cross jest jak pojedziemy na plus
+		case 7: //cross jest jak pojedziemy na plus
 			dirtemp = 1
 			capchecktemp = false
-			canmoattemp = m[0]
-		case 8:
-			dirtemp = -1
-			capchecktemp = false
-			canmoattemp = m[1]
-		case 7:
-			dirtemp = 1
-			capchecktemp = false
-			canmoattemp = m[1]
-		case 16:
-			dirtemp = -1
-			capchecktemp = false
-			canmoattemp = m[2]
-		case 15:
-			dirtemp = 1
-			capchecktemp = false
-			canmoattemp = m[2]
 		}
 		if dirtemp == mdir {
 			capcheckshort = capchecktemp
