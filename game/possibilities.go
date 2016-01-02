@@ -5,7 +5,7 @@ func (b *Board) canfigstraighthoriz(rank, from, to int8) (bool, bool) { //return
 }
 
 func (b *Board) canfigstraighthorizdirec(r, f, t, d int8) bool { //rank, from file, to file, direction
-	for i := f + d; (i-f)%24 > (t-f)%24; i = (i + d) % 24 {
+	for i := f + d; d*((i-f)%24) < d*((t-f)%24); i = (i + d) % 24 {
 		if (*b)[r][i].NotEmpty {
 			return false
 		}
