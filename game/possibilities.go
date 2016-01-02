@@ -47,6 +47,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				//if something between A and B
 				if (*b)[0][i].NotEmpty {
 					canfigplus = false
+					break
 				}
 			}
 			//straight in -file direction, mod24 ofcoz
@@ -54,6 +55,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				//if something is between A and B
 				if (*b)[0][i].NotEmpty {
 					canfigminus = false
+					break
 				}
 			}
 			canfig = canfigplus || canfigminus
