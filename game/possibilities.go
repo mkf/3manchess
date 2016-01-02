@@ -259,18 +259,12 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	//if canfigshort && canfiglong {
 	//	canmoat = canmoatshort || canmoatlong
 	//} // dalej: co jeśli jedno z nich? rozpatrywać przypadki tylko short i tylko long
-	canshort := cantech && canfigshort && canmoatshort && (!(bijemyostatniego && (!capcheckshort)))
-	canlong := cantech && canfiglong && canmoatlong && (!(bijemyostatniego && (!capchecklong)))
-	/*
-		if canshort && canlong {
-			capcheck = capcheckshort || capchecklong
-		} else if canshort {
-			capcheck = capcheckshort
-		} else if canlong {
-			capcheck = capchecklong
-		}
-	*/
-	return canshort || canlong //, capcheck
+	canshort := cantech && canfigshort && canmoatshort && (capcheckshort || !bijemyostatniego)
+	canlong := cantech && canfiglong && canmoatlong && (capchecklong || !bijemyostatniego)
+	/*	if canshort && canlong { capcheck = capcheckshort || capchecklong
+		} else if canshort {     capcheck = capcheckshort
+		} else if canlong {      capcheck = capchecklong                 }  */
+	return canshort || canlong //	, capcheck
 }
 
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
