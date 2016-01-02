@@ -157,7 +157,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			canmoatlong = canmoattemp
 		}
 	}
-	bijemyostatniego := false
+	var bijemyostatniego bool
 	if short && canmoatshort {
 		var i int8
 		for i = 1; i < przel; i++ {
@@ -168,9 +168,8 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		}
 		ostatni := (*b)[from[0]+(przel*rankdirec)][(from[1]+(przel*filedirec))%24]
 		if ostatni.NotEmpty {
-			if ostatni.Color() != nasz.Color() {
-				bijemyostatniego = true
-			} else {
+			bijemyostatniego = ostatni.Color() != nasz.Color()
+			if !bijemyostatniego {
 				canfigshort = false
 			}
 		}
