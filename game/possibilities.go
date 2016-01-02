@@ -208,16 +208,20 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	}
 	if long && canmoatlong {
 		var i int8
-		for i = 1; i <= (5 - from[0]); i++ {
-			if (*b)[from[0]+i][(from[1]+(i*filedirec))%24].NotEmpty {
-				canfiglong = false
-				break
+		if canfiglong {
+			for i = 1; i <= (5 - from[0]); i++ {
+				if (*b)[from[0]+i][(from[1]+(i*filedirec))%24].NotEmpty {
+					canfiglong = false
+					break
+				}
 			}
 		}
-		for i = 0; i+5-from[0] < przel; i++ {
-			if (*b)[5-i][(from[1]+((5-from[0]+i)*filedirec))%24].NotEmpty {
-				canfiglong = false
-				break
+		if canfiglong {
+			for i = 0; i+5-from[0] < przel; i++ {
+				if (*b)[5-i][(from[1]+((5-from[0]+i)*filedirec))%24].NotEmpty {
+					canfiglong = false
+					break
+				}
 			}
 		}
 		ostatni := (*b)[(10-from[0]-przel)%6][(from[1]+(przel*filedirec))%24]
@@ -232,16 +236,9 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			}
 		}
 	}
-	//canfig = canfigshort || canfiglong
-	//if canfigshort && canfiglong {
-	//	canmoat = canmoatshort || canmoatlong
-	//} // dalej: co jeśli jedno z nich? rozpatrywać przypadki tylko short i tylko long
 	canshort := cantech && canfigshort && canmoatshort && (capcheckshort || !bijemyostatniego)
 	canlong := cantech && canfiglong && canmoatlong && (capchecklong || !bijemyostatniego)
-	/*	if canshort && canlong { capcheck = capcheckshort || capchecklong
-		} else if canshort {     capcheck = capcheckshort
-		} else if canlong {      capcheck = capchecklong                 }  */
-	return canshort || canlong //	, capcheck
+	return canshort || canlong
 }
 
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
