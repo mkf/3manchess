@@ -2,11 +2,23 @@ package game
 
 import "log"
 
+func (b *Board) canfigstraighthoriz(rank, from, to int8) (bool, bool) { //returns plus, minus
+	return b.canfigstraighthorizdirec(rank, from, to, 1), b.canfigstraighthorizdirec(rank, from, to, -1)
+}
+
+func (b *Board) canfigstraighthorizdirec(r, f, t, d int8) bool { //rank, from file, to file, direction
+	for i := f + d; d*((i-f)%24) < d*((t-f)%24); i = (i + d) % 24 {
+		if (*b)[r][i].NotEmpty {
+			return false
+		}
+	}
+	return true
+}
+
 func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
 	var cantech, canmoat, canfig bool
 	//capcheck := true
 	if from == to { //Same square
-		//panic("Same square!")
 		return false
 	}
 	if from[0] == to[0] { //same rank
@@ -16,7 +28,6 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			var direcshort int8
 			var fromtominus int8
 			if from[1]/8 == to[1]/8 { //same color area
-				//capcheckshort = true
 				canmoat = true
 				mshort = true
 				if m[0] && m[1] && m[2] {
@@ -24,7 +35,6 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}
 				direcshort = sign(to[1] - from[1])
 			} else { //moving to another color's area
-				//capcheckshort = false
 				fromto := [2]int8{from[1] / 8, to[1] / 8}
 				switch fromto {
 				case [2]int8{0, 1}, [2]int8{1, 0}:
@@ -43,22 +53,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}
 				direcshort = sign(fromtominus)
 			}
-			canfigminus := true
-			//straight in +file direction, mod24 ofcoz
-			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfig; i = (i + 1) % 24 {
-				//if something between A and B
-				if (*b)[0][i].NotEmpty {
-					canfig = false
-				}
-			}
-			//straight in -file direction, mod24 ofcoz
-			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
-				//if something is between A and B
-				if (*b)[0][i].NotEmpty {
-					canfigminus = false
-				}
-			}
-			canfigplus := canfig //legacy mess, but not much
+			canfigplus, canfigminus := b.canfigstraighthoriz(0, from[1], to[1])
 			canfig = canfigplus || canfigminus
 
 			//as we are on the first rank && moving to another color's area, we gotta check the moats
@@ -67,61 +62,43 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 
 		} else { //if same rank, but not first rank
 			canmoat = true
-			canfigplus := true
-			//straight direc +file (mod24 ofcoz)
-			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfigplus; i = (i + 1) % 24 {
-				if (*b)[from[0]][i].NotEmpty {
-					canfigplus = false
-					break
-				}
-			}
-			canfigminus := true
-			//straight direc -file (mod24 ofcoz)
-			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
-				if (*b)[from[0]][i].NotEmpty {
-					canfigminus = false
-					break
-				}
-			}
+			canfigplus, canfigminus := b.canfigstraighthoriz(from[0], from[1], to[1])
 			canfig = canfigplus || canfigminus
 		}
 	} else if from[1] == to[1] { //if the same file, ie. no passing through center
-		cantech = true
-		canmoat = true
-		canfig = true
-		sgn := sign(to[0] - from[0])
-		for i := from[0] + sgn; (sgn*i < to[0]) && canfig; i += sgn {
-			if (*b)[i][from[1]].NotEmpty {
-				canfig = false
-			}
-		}
+		cantech, canmoat = true, true
+		canfig = b.canfigstraightvertnormal(from[1], from[0], to[0])
 	} else if ((from[1] - 12) % 24) == to[1] { //if the adjacent file, passing through center
-		cantech = true
-		canmoat = true
-		canfig = true
-		//searching for collisions from both sides of the center
-		for i, j := from[0], to[0]; i < 6 && j < 6; i, j = i+1, j+1 {
-			if (*b)[i][from[1]].NotEmpty || (*b)[j][to[1]].NotEmpty {
-				canfig = false
-				break
-			}
-		}
-	} else { //not the same rank and not the same file nor adjacent
-		cantech = false
+		cantech, canmoat = true, true
+		canfig = b.canfigstraightvertthrucenter(to[1], from[0], to[0])
 	}
-	final := cantech && canmoat && canfig
-	return final //, capcheck && final
+	return cantech && canmoat && canfig
+}
+
+func (b *Board) canfigstraightvertthrucenter(s, f, t int8) bool { //startfile (from[0]), from, to
+	e := (s - 12) % 24
+	//searching for collisions from both sides of the center
+	for i, j := f, t; i < 6 && j < 6; i, j = i+1, j+1 {
+		if (*b)[i][s].NotEmpty || (*b)[j][e].NotEmpty {
+			return false
+		}
+	}
+	return true
+}
+
+func (b *Board) canfigstraightvertnormal(file, f, t int8) bool {
+	s := sign(t - f)
+	for i := f + s; s*i < t; i += s {
+		if (*b)[i][file].NotEmpty {
+			return false
+		}
+	}
+	return true
 }
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	nasz := (*b)[from[0]][from[1]] //nasz Square
-	//if from[0] != 0 && from == to {
-	//panic("Same square and not the first rank!")
-	//}
 	if from == to {
-		//panic("Same square!") //make sure //awaiting email reply
-		//if such thing was legal, one could easily escape a zugzwang, having such a possibility around
-		//also, that would make move detection *really* hard
 		return false
 	}
 
@@ -165,30 +142,20 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		canmoattemp := true  // czy ten moat jest bridged czy nie
 
 		switch sprawdzamy {
+		case 0, 23:
+			canmoattemp = m[0]
+		case 8, 7:
+			canmoattemp = m[1]
+		case 16, 15:
+			canmoattemp = m[2]
+		}
+		switch sprawdzamy % 8 {
 		case 0: //cross jest jak pojedziemy na minus
 			dirtemp = -1
 			capchecktemp = false
-			canmoattemp = m[0]
-		case 23: //cross jest jak pojedziemy na plus
+		case 7: //cross jest jak pojedziemy na plus
 			dirtemp = 1
 			capchecktemp = false
-			canmoattemp = m[0]
-		case 8:
-			dirtemp = -1
-			capchecktemp = false
-			canmoattemp = m[1]
-		case 7:
-			dirtemp = 1
-			capchecktemp = false
-			canmoattemp = m[1]
-		case 16:
-			dirtemp = -1
-			capchecktemp = false
-			canmoattemp = m[2]
-		case 15:
-			dirtemp = 1
-			capchecktemp = false
-			canmoattemp = m[2]
 		}
 		if dirtemp == mdir {
 			capcheckshort = capchecktemp
@@ -218,16 +185,20 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	}
 	if long && canmoatlong {
 		var i int8
-		for i = 1; i <= (5 - from[0]); i++ {
-			if (*b)[from[0]+i][(from[1]+(i*filedirec))%24].NotEmpty {
-				canfiglong = false
-				break
+		if canfiglong {
+			for i = 1; i <= (5 - from[0]); i++ {
+				if (*b)[from[0]+i][(from[1]+(i*filedirec))%24].NotEmpty {
+					canfiglong = false
+					break
+				}
 			}
 		}
-		for i = 0; i+5-from[0] < przel; i++ {
-			if (*b)[5-i][(from[1]+((5-from[0]+i)*filedirec))%24].NotEmpty {
-				canfiglong = false
-				break
+		if canfiglong {
+			for i = 0; i+5-from[0] < przel; i++ {
+				if (*b)[5-i][(from[1]+((5-from[0]+i)*filedirec))%24].NotEmpty {
+					canfiglong = false
+					break
+				}
 			}
 		}
 		ostatni := (*b)[(10-from[0]-przel)%6][(from[1]+(przel*filedirec))%24]
@@ -242,16 +213,9 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			}
 		}
 	}
-	//canfig = canfigshort || canfiglong
-	//if canfigshort && canfiglong {
-	//	canmoat = canmoatshort || canmoatlong
-	//} // dalej: co jeśli jedno z nich? rozpatrywać przypadki tylko short i tylko long
 	canshort := cantech && canfigshort && canmoatshort && (capcheckshort || !bijemyostatniego)
 	canlong := cantech && canfiglong && canmoatlong && (capchecklong || !bijemyostatniego)
-	/*	if canshort && canlong { capcheck = capcheckshort || capchecklong
-		} else if canshort {     capcheck = capcheckshort
-		} else if canlong {      capcheck = capchecklong                 }  */
-	return canshort || canlong //	, capcheck
+	return canshort || canlong
 }
 
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
@@ -341,15 +305,14 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	} else {
 		sgn = int8(1)
 	}
-	if from[0] == 5 && !bool(p) && to[0] == 5 && (to[1] == ((from[1]-10)%24) || to[1] == ((from[1]+10)%24)) && (*b)[to[0]][to[1]].Color() != nasz.Color() {
-		return true
-	}
-	if (e[0] == to || e[1] == to) && (*b)[3][to[1]].What() == Pawn && (*b)[3][to[1]].Color() != nasz.Color() && (*b)[2][to[1]].Empty() {
-		return true
-	} else if to[0] == from[0]+sgn && ((to[1] == (from[1]+1)%24) || (to[1] == (from[1]-1)%24)) && (*b)[to[0]][to[1]].Color() != nasz.Color() {
-		return true
-	}
-	return false
+	return (from[0] == 5 && !bool(p) && to[0] == 5 &&
+		(to[1] == ((from[1]-10)%24) || to[1] == ((from[1]+10)%24)) &&
+		(*b)[to[0]][to[1]].Color() != nasz.Color()) ||
+		((e[0] == to || e[1] == to) && (*b)[3][to[1]].What() == Pawn &&
+			(*b)[3][to[1]].Color() != nasz.Color() && (*b)[2][to[1]].Empty()) ||
+		(to[0] == from[0]+sgn &&
+			((to[1] == (from[1]+1)%24) || (to[1] == (from[1]-1)%24)) &&
+			(*b)[to[0]][to[1]].Color() != nasz.Color())
 }
 
 func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
