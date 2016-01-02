@@ -41,12 +41,12 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}
 				direcshort = sign(fromtominus)
 			}
-			canfigminus := true
+			canfigplus, canfigminus := true, true
 			//straight in +file direction, mod24 ofcoz
-			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfig; i = (i + 1) % 24 {
+			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfigplus; i = (i + 1) % 24 {
 				//if something between A and B
 				if (*b)[0][i].NotEmpty {
-					canfig = false
+					canfigplus = false
 				}
 			}
 			//straight in -file direction, mod24 ofcoz
@@ -56,7 +56,6 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 					canfigminus = false
 				}
 			}
-			canfigplus := canfig //legacy mess, but not much
 			canfig = canfigplus || canfigminus
 
 			//as we are on the first rank && moving to another color's area, we gotta check the moats
