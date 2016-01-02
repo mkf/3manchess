@@ -17,7 +17,6 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	var cantech, canmoat, canfig bool
 	//capcheck := true
 	if from == to { //Same square
-		//panic("Same square!")
 		return false
 	}
 	if from[0] == to[0] { //same rank
@@ -27,7 +26,6 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			var direcshort int8
 			var fromtominus int8
 			if from[1]/8 == to[1]/8 { //same color area
-				//capcheckshort = true
 				canmoat = true
 				mshort = true
 				if m[0] && m[1] && m[2] {
@@ -35,7 +33,6 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}
 				direcshort = sign(to[1] - from[1])
 			} else { //moving to another color's area
-				//capcheckshort = false
 				fromto := [2]int8{from[1] / 8, to[1] / 8}
 				switch fromto {
 				case [2]int8{0, 1}, [2]int8{1, 0}:
@@ -92,18 +89,12 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		cantech = false
 	}
 	final := cantech && canmoat && canfig
-	return final //, capcheck && final
+	return final
 }
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	nasz := (*b)[from[0]][from[1]] //nasz Square
-	//if from[0] != 0 && from == to {
-	//panic("Same square and not the first rank!")
-	//}
 	if from == to {
-		//panic("Same square!") //make sure //awaiting email reply
-		//if such thing was legal, one could easily escape a zugzwang, having such a possibility around
-		//also, that would make move detection *really* hard
 		return false
 	}
 
