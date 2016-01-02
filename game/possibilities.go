@@ -64,31 +64,30 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			canfig = canfigplus || canfigminus
 		}
 	} else if from[1] == to[1] { //if the same file, ie. no passing through center
-		cantech = true
-		canmoat = true
+		cantech, canmoat = true, true
 		canfig = b.canfigstraightvertnormal(from[1], from[0], to[0])
 	} else if ((from[1] - 12) % 24) == to[1] { //if the adjacent file, passing through center
-		cantech = true
-		canmoat = true
-		canfig = true
-		//searching for collisions from both sides of the center
-		for i, j := from[0], to[0]; i < 6 && j < 6; i, j = i+1, j+1 {
-			if (*b)[i][from[1]].NotEmpty || (*b)[j][to[1]].NotEmpty {
-				canfig = false
-				break
-			}
-		}
-	} else { //not the same rank and not the same file nor adjacent
-		cantech = false
+		cantech, canmoat = true, true
+		canfig = b.canfigstraightvertthrucenter(to[1], from[0], to[0])
 	}
-	final := cantech && canmoat && canfig
-	return final
+	return cantech && canmoat && canfig
 }
 
-func (b *Board) canfigstraightvertnormal(file, f, t) bool {
-	s := sign(to - from)
+func (b *Board) canfigstraightvertthrucenter(s, f, t int8) bool { //startfile (from[0]), from, to
+	e := (s - 12) % 24
+	//searching for collisions from both sides of the center
+	for i, j := f, t; i < 6 && j < 6; i, j = i+1, j+1 {
+		if (*b)[i][s].NotEmpty || (*b)[j][e].NotEmpty {
+			return false
+		}
+	}
+	return true
+}
+
+func (b *Board) canfigstraightvertnormal(file, f, t int8) bool {
+	s := sign(t - f)
 	for i := f + s; s*i < t; i += s {
-		if (*b)[i][f].NotEmpty {
+		if (*b)[i][file].NotEmpty {
 			return false
 		}
 	}
