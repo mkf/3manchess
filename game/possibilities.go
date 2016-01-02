@@ -91,6 +91,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		for i := from[0] + sgn; (sgn*i < to[0]) && canfig; i += sgn {
 			if (*b)[i][from[1]].NotEmpty {
 				canfig = false
+				break
 			}
 		}
 	} else if ((from[1] - 12) % 24) == to[1] { //if the adjacent file, passing through center
