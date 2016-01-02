@@ -60,22 +60,9 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			canfig = canfigplus || canfigminus
 
 			//as we are on the first rank && moving to another color's area, we gotta check the moats
-			if direcshort == 1 {
-				if canfigplus && mshort {
-					canmoat = true
-				} else if canfigminus && mlong {
-					canmoat = true
-				}
-			} else if direcshort == -1 {
-				if canfigminus && mshort {
-					canmoat = true
-				} else if canfigplus && mlong {
-					canmoat = true
-				}
-			} else {
-				//panic(direcshort)
-				return false
-			}
+			canmoat = canmoat || (direcshort == 1 && ((canfigplus && mshort) || (canfigminus && mlong))) ||
+				(direcshort == -1 && ((canfigminus && mshort) || (canfigplus && mlong)))
+
 		} else { //if same rank, but not first rank
 			canmoat = true
 			canfigplus := true
@@ -83,6 +70,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfigplus; i = (i + 1) % 24 {
 				if (*b)[from[0]][i].NotEmpty {
 					canfigplus = false
+					break
 				}
 			}
 			canfigminus := true
@@ -90,6 +78,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
 				if (*b)[from[0]][i].NotEmpty {
 					canfigminus = false
+					break
 				}
 			}
 			canfig = canfigplus || canfigminus
@@ -109,12 +98,10 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		canmoat = true
 		canfig = true
 		//searching for collisions from both sides of the center
-		for i, j := from[0], to[0]; canfig && (i < 6 && j < 6); i, j = i+1, j+1 {
-			if (*b)[i][from[1]].NotEmpty {
+		for i, j := from[0], to[0]; i < 6 && j < 6; i, j = i+1, j+1 {
+			if (*b)[i][from[1]].NotEmpty || (*b)[j][to[1]].NotEmpty {
 				canfig = false
-			}
-			if (*b)[j][to[1]].NotEmpty {
-				canfig = false
+				break
 			}
 		}
 	} else { //not the same rank and not the same file nor adjacent
