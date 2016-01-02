@@ -33,7 +33,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}
 				direcshort = sign(to[1] - from[1])
 			} else { //moving to another color's area
-				fromto := [2]int8{from[1] / 8, to[1] / 8}
+				fromto := [2]int8{from[1] >> 3, to[1] >> 3}
 				switch fromto {
 				case [2]int8{0, 1}, [2]int8{1, 0}:
 					mshort = m[1]
@@ -218,7 +218,7 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 		return false
 	}
 	nasz := (*b)[from[0]][from[1]]
-	gdziekolor := ColorUint8(uint8(from[1] / 8))
+	gdziekolor := ColorUint8(uint8(from[1] >> 3))
 	if nasz.Color() == gdziekolor && p {
 		panic("pS" + nasz.Color().String())
 	}
@@ -270,7 +270,7 @@ func (b *Board) kingStraight(from Pos, to Pos, m MoatsState) bool {
 
 func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	nasz := (*b)[from[0]][from[1]]
-	gdziekolor := ColorUint8(uint8(from[1] / 8))
+	gdziekolor := ColorUint8(uint8(from[1] >> 3))
 	//cancreek := true
 	if from == to {
 		return false
@@ -308,7 +308,7 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 
 func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 	nasz := (*b)[from[0]][from[1]]
-	//gdziekolor := ColorUint8(uint8(from[1] / 8))
+	//gdziekolor := ColorUint8(uint8(from[1]>>3))
 	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
 	cantech := false
 	switch to[1] {
