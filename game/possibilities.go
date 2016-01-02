@@ -47,14 +47,14 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			//straight in +file direction, mod24 ofcoz
 			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfig; i = (i + 1) % 24 {
 				//if something between A and B
-				if !((*b)[0][i].Empty()) {
+				if (*b)[0][i].NotEmpty {
 					canfig = false
 				}
 			}
 			//straight in -file direction, mod24 ofcoz
 			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
 				//if something is between A and B
-				if !((*b)[0][i].Empty()) {
+				if (*b)[0][i].NotEmpty {
 					canfigminus = false
 				}
 			}
@@ -83,14 +83,14 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			canfigplus := true
 			//straight direc +file (mod24 ofcoz)
 			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfigplus; i = (i + 1) % 24 {
-				if !((*b)[from[0]][i].Empty()) {
+				if (*b)[from[0]][i].NotEmpty {
 					canfigplus = false
 				}
 			}
 			canfigminus := true
 			//straight direc -file (mod24 ofcoz)
 			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
-				if !((*b)[from[0]][i].Empty()) {
+				if (*b)[from[0]][i].NotEmpty {
 					canfigminus = false
 				}
 			}
@@ -102,7 +102,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		canfig = true
 		sgn := sign(to[0] - from[0])
 		for i := from[0] + sgn; (sgn*i < to[0]) && canfig; i += sgn {
-			if !((*b)[i][from[1]].Empty()) {
+			if (*b)[i][from[1]].NotEmpty {
 				canfig = false
 			}
 		}
@@ -112,10 +112,10 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		canfig = true
 		//searching for collisions from both sides of the center
 		for i, j := from[0], to[0]; canfig && (i < 6 && j < 6); i, j = i+1, j+1 {
-			if !((*b)[i][from[1]].Empty()) {
+			if (*b)[i][from[1]].NotEmpty {
 				canfig = false
 			}
-			if !((*b)[j][to[1]].Empty()) {
+			if (*b)[j][to[1]].NotEmpty {
 				canfig = false
 			}
 		}
@@ -254,7 +254,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		if r := recover(); r != nil {
 			panic(from[0] + przel)
 		}
-		if !(ostatni.Empty()) {
+		if ostatni.NotEmpty {
 			if ostatni.Color() != nasz.Color() {
 				bijemyostatniego = true
 			} else {
