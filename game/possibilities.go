@@ -116,13 +116,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		panic(from.String() + " " + to.String())
 	}
 
-	//var canfig bool
-	canfigshort := true
-	canfiglong := true
-	canmoatshort := true
-	canmoatlong := true
-	capcheckshort := true
-	capchecklong := true
+	canfigshort, canfiglong, canmoatshort, canmoatlong, capcheckshort, capchecklong := true, true, true, true, true, true
 
 	if from[0] == 0 || to[0] == 0 { //jeżeli jesteśmy na rank 0 i na rank 0 zmierzamy
 		var sprawdzamy, mdir int8
