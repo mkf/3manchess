@@ -361,13 +361,13 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 	case (from[1] + 2) % 24, (from[1] - 2) % 24:
 		if from[0] == 5 && to[0] == 5 {
 			cantech = true
-		} else if from[0] == to[0]+1 || from[0] == to[0]-1 {
+		} else if abs(from[0]-to[0]) == 1 {
 			cantech = true
 		}
 	case (from[1] + 1) % 24, (from[1] - 1) % 24:
 		if from[0] == 5 && to[0] == 4 { // doubtful, awaiting email reply
 			cantech = true
-		} else if from[0] == to[0]+2 || from[0] == to[0]-2 {
+		} else if abs(from[0]-to[0]) == 2 {
 			cantech = true
 		}
 	}
@@ -386,28 +386,14 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 		switch from[1] % 8 {
 		case 6:
 			if to[1]%8 == 0 {
-				switch from[0] {
-				case 0:
-					if to[0] == 1 { //cancheck = false
-						canmoat = ourmoat
-					}
-				case 1:
-					if to[0] == 0 { //cancheck = false
-						canmoat = ourmoat
-					}
+				if from[0]+to[0] == 1 {
+					canmoat = ourmoat
 				}
 			}
 		case 7:
 			if to[1]%8 == 1 {
-				switch from[0] {
-				case 0:
-					if to[0] == 1 { //cancheck = false
-						canmoat = ourmoat
-					}
-				case 1:
-					if to[0] == 0 { //cancheck = false
-						canmoat = ourmoat
-					}
+				if from[0]+to[0] == 1 {
+					canmoat = ourmoat
 				}
 			} else if to[1]%8 == 0 {
 				switch from[0] {
@@ -423,15 +409,8 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 			}
 		case 0:
 			if to[1]%8 == 6 {
-				switch from[0] {
-				case 0:
-					if to[0] == 1 { //cancheck = false
-						canmoat = ourmoat
-					}
-				case 1:
-					if to[0] == 0 { //cancheck = false
-						canmoat = ourmoat
-					}
+				if from[0]+to[0] == 1 {
+					canmoat = ourmoat
 				}
 			} else if to[1]%8 == 7 {
 				switch from[0] {
