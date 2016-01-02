@@ -1,5 +1,18 @@
 package game
 
+func (b *Board) canfigstraighthoriz(rank, from, to int8) (bool, bool) { //returns plus, minus
+	return b.canfigstraighthorizdirec(rank, from, to, 1), b.canfigstraighthorizdirec(rank, from, to, -1)
+}
+
+func (b *Board) canfigstraighthorizdirec(r, f, t, d int8) bool { //rank, from file, to file, direction
+	for i := f + d; (i-f)%24 > (t-f)%24; i = (i + d) % 24 {
+		if (*b)[r][i].NotEmpty {
+			return false
+		}
+	}
+	return true
+}
+
 func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
 	var cantech, canmoat, canfig bool
 	//capcheck := true
@@ -41,23 +54,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}
 				direcshort = sign(fromtominus)
 			}
-			canfigplus, canfigminus := true, true
-			//straight in +file direction, mod24 ofcoz
-			for i := from[1] + 1; ((i-from[1])%24 < (to[1]-from[1])%24) && canfigplus; i = (i + 1) % 24 {
-				//if something between A and B
-				if (*b)[0][i].NotEmpty {
-					canfigplus = false
-					break
-				}
-			}
-			//straight in -file direction, mod24 ofcoz
-			for i := from[1] - 1; ((i-from[1])%24 > (to[1]-from[1])%24) && canfigminus; i = (i - 1) % 24 {
-				//if something is between A and B
-				if (*b)[0][i].NotEmpty {
-					canfigminus = false
-					break
-				}
-			}
+			canfigplus, canfigminus := b.canfigstraighthoriz(0, from[1], to[1])
 			canfig = canfigplus || canfigminus
 
 			//as we are on the first rank && moving to another color's area, we gotta check the moats
