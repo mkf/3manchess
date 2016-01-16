@@ -29,6 +29,23 @@ func (a *ACFT) G() (bool, FromTo) {
 	return (*a)[1][1] != 6, FromTo(*a)
 }
 
+//ACP — all combinations pos
+type ACP Pos
+
+//P add one to our Pos
+func (a *ACP) P() {
+	(*a)[0]++
+	if (*a)[0] != 6 {
+		return
+	}
+	(*a)[1]++
+}
+
+//G checks whether it is correct and returns it
+func (a *ACP) G() (bool, Pos) {
+	return (*a)[1] != 24, Pos(*a)
+}
+
 func sign(u int8) int8 {
 	switch {
 	case u == 0:
