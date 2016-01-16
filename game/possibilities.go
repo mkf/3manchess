@@ -25,7 +25,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			var mshort, mlong bool //, capcheckshort bool
 			var direcshort int8
 			var fromtominus int8
-			if from[1]/8 == to[1]/8 { //same color area
+			if from[1]>>3 == to[1]>>3 { //same color area
 				canmoat = true
 				mshort = true
 				if m[0] && m[1] && m[2] {
