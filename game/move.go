@@ -166,18 +166,17 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 //FriendsNAllies returns positions of our pieces and their pieces
 func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
 	var ourpos Pos
-	var i, j int8
+	var oac ACP
 	my := make([]Pos, 0, 16)
 	oni := make(chan Pos, 32)
 	if pa[who] {
-		for i = 0; i < 6; i++ {
-			for j = 0; j < 24; j++ {
-				ourpos = Pos{i, j}
-				if (*b)[i][j].Color() == who {
-					my = append(my, ourpos)
-				} else if (*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()] {
-					oni <- ourpos
-				}
+		for oac.OK() {
+			opos = Pos(oac)
+			tjf := b.GPos(opos)
+			if tjf.Color() == who {
+				my = append(my, opos)
+			} else if tjf.NotEmpty && pa.Give(tjf.Color()) {
+				oni <- opos
 			}
 		}
 	}
