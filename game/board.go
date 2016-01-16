@@ -87,6 +87,9 @@ func (p Pos) String() string {
 type Board [6][24]Square
 
 func (b *Board) GPos(p Pos) *Square {
+	if err := p.Correct(); err != nil {
+		panic(err)
+	}
 	return &((*b)[p[0]][p[1]])
 }
 
