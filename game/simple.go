@@ -1,5 +1,34 @@
 package game
 
+//ACFT — all combinations fromto
+type ACFT FromTo
+
+//P adds one to our FromTo
+func (a *ACFT) P() {
+	(*a)[0][0]++
+	if (*a)[0][0] != 6 {
+		return
+	}
+	(*a)[0][0] = 0
+	(*a)[0][1]++
+	if (*a)[0][1] != 24 {
+		return
+	}
+	(*a)[0][1] = 0
+	(*a)[1][0]++
+	if (*a)[1][0] != 6 {
+		return
+	}
+	(*a)[1][0] = 0
+	(*a)[1][1]++
+	return
+}
+
+//G checks whether it is correct and returns it
+func (a *ACFT) G() (bool, FromTo) {
+	return (*a)[1][1] != 6, FromTo(*a)
+}
+
 func sign(u int8) int8 {
 	switch {
 	case u == 0:
