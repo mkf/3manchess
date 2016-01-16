@@ -141,6 +141,7 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in c
 		if tjf := b.GPos(opos); tjf.Color() == who && tjf.FigType == King {
 			return b.ThreatChecking(opos, pa, DEFENPASSANT)
 		}
+		oac.P()
 	}
 	panic("King not found!!!: " + who.String())
 }
