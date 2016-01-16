@@ -138,7 +138,7 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in c
 	ok := true
 	var opos Pos
 	for oac := new(ACP); ok; ok, opos = oac.G() {
-		if tjf := b.GPos(opos); tjf.Color() == who && tjf.FigType() == King {
+		if tjf := b.GPos(opos); tjf.Color() == who && tjf.FigType == King {
 			return b.ThreatChecking(opos, pa, DEFENPASSANT)
 		}
 	}
