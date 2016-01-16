@@ -166,7 +166,7 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 
 //FriendsNAllies returns positions of our pieces and their pieces
 func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
-	var ourpos Pos
+	var opos Pos
 	var oac ACP
 	my := make([]Pos, 0, 16)
 	oni := make(chan Pos, 32)
