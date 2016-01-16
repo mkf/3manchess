@@ -21,7 +21,6 @@ func (a *ACFT) P() {
 	}
 	(*a)[1][0] = 0
 	(*a)[1][1]++
-	return
 }
 
 //OK checks whether it is correct
