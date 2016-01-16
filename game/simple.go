@@ -24,9 +24,14 @@ func (a *ACFT) P() {
 	return
 }
 
+//OK checks whether it is correct
+func (a *ACFT) OK() bool {
+	return (*a)[1][1] != 24
+}
+
 //G checks whether it is correct and returns it
 func (a *ACFT) G() (bool, FromTo) {
-	return (*a)[1][1] != 6, FromTo(*a)
+	return a.OK(), FromTo(*a)
 }
 
 //ACP — all combinations pos
@@ -41,9 +46,14 @@ func (a *ACP) P() {
 	(*a)[1]++
 }
 
+//OK checks whether it is correct
+func (a *ACP) OK() bool {
+	return (*a)[1] != 24
+}
+
 //G checks whether it is correct and returns it
 func (a *ACP) G() (bool, Pos) {
-	return (*a)[1] != 24, Pos(*a)
+	return a.OK(), Pos(*a)
 }
 
 func sign(u int8) int8 {
