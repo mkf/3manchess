@@ -135,51 +135,51 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in c
 	if !pa.Give(who) {
 		panic("CheckChecking a dead player!: " + who.String())
 	}
-	var i, j int8
-	for i = 0; i < 6; i++ {
-		for j = 0; j < 24; j++ {
-			if tojefig := (*b)[i][j].Fig; tojefig.Color == who && tojefig.FigType == King {
-				return b.ThreatChecking(Pos{i, j}, pa, DEFENPASSANT)
-			}
+	var oac ACP
+	var opos Pos
+	for oac.OK() {
+		opos = Pos(oac)
+		if tjf := b.GPos(opos); tjf.Color() == who && tjf.FigType == King {
+			return b.ThreatChecking(opos, pa, DEFENPASSANT)
 		}
+		oac.P()
 	}
 	panic("King not found!!!: " + who.String())
 }
 
 //ThreatChecking checks if the piece on where Pos is 'in check'
 func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
-	var ourpos Pos
-	var i, j int8
-	who := (*b)[where[0]][where[1]].Color()
+	var opos Pos
+	who := b.GPos(where).Color()
 	var heyitscheck Check
-	for i = 0; i < 6; i++ {
-		for j = 0; j < 24; j++ {
-			ourpos = Pos{i, j}
-			if (*b)[i][j].NotEmpty && (*b)[i][j].Color() != who && pa.Give((*b)[i][j].Color()) &&
-				b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, ep) {
-				return Check{If: true, From: ourpos}
-			}
+	var oac ACP
+	for oac.OK() {
+		opos = Pos(oac)
+		if tjf := b.GPos(opos); tjf.NotEmpty && tjf.Color() != who && pa.Give(tjf.Color()) &&
+			b.AnyPiece(opos, where, DEFMOATSSTATE, FALSECASTLING, ep) {
+			return Check{If: true, From: opos}
 		}
+		oac.P()
 	}
 	return heyitscheck
 }
 
 //FriendsNAllies returns positions of our pieces and their pieces
 func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
-	var ourpos Pos
-	var i, j int8
+	var opos Pos
+	var oac ACP
 	my := make([]Pos, 0, 16)
 	oni := make(chan Pos, 32)
 	if pa[who] {
-		for i = 0; i < 6; i++ {
-			for j = 0; j < 24; j++ {
-				ourpos = Pos{i, j}
-				if (*b)[i][j].Color() == who {
-					my = append(my, ourpos)
-				} else if (*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()] {
-					oni <- ourpos
-				}
+		for oac.OK() {
+			opos = Pos(oac)
+			tjf := b.GPos(opos)
+			if tjf.Color() == who {
+				my = append(my, opos)
+			} else if tjf.NotEmpty && pa.Give(tjf.Color()) {
+				oni <- opos
 			}
+			oac.P()
 		}
 	}
 	return my, oni
