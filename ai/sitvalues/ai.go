@@ -61,26 +61,18 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 		return
 	}
 	var wg sync.WaitGroup
-	var i, j, k, l int8
+	var oac game.ACFT
 	possib := make(chan *game.State, 2050)
-	var ourft game.FromTo
-
-	for i = 0; i < 6; i++ {
-		for j = 0; j < 24; j++ {
-			for k = 0; k < 6; k++ {
-				for l = 0; l < 24; l++ {
-					wg.Add(1)
-					go func(i, j, k, l int8) {
-						ourft = game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
-						sv := ourft.Move(state)
-						if v, err := sv.After(); err == nil {
-							possib <- v
-						}
-						wg.Done()
-					}(i, j, k, l)
-				}
+	for oac.OK() {
+		wg.Add(1)
+		go func(ourft game.FromTo) {
+			sv := ourft.Move(state)
+			if v, err := sv.After(); err == nil {
+				possib <- v
 			}
-		}
+			wg.Done()
+		}(game.FromTo(oac))
+		oac.P()
 	}
 	wg.Wait()
 	var newchance float64
@@ -104,42 +96,35 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	}
 	log.Println("ALONG")
 	thoughts := make(map[game.FromTo]*float64)
-	var i, j, k, l int8
-	var ourft game.FromTo
+	var oac game.ACFT
 	countem := new(uint32)
 	atomic.StoreUint32(countem, 0)
 	var wg, gwg sync.WaitGroup
 	wg.Add(1)
-	for i = 0; i < 6; i++ {
-		for j = 0; j < 24; j++ {
-			for k = 0; k < 6; k++ {
-				for l = 0; l < 24; l++ {
-					go func(i, j, k, l int8) {
-						ourft = game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
-						sv := ourft.Move(s)
-						if v, err := sv.After(); err == nil {
-							gwg.Add(1)
-							go func(n game.FromTo) {
-								log.Println("Yeah")
-								atomic.AddUint32(countem, 1)
-								var newchance float64
-								wg.Wait()
-								log.Println("GotChance")
-								newchance = 1.0 / float64(*countem)
-								ourchan := make(chan float64, 100)
-								makefloat := new(float64)
-								thoughts[n] = makefloat
-								go func(ch <-chan float64, ou *float64) {
-									*ou += <-ch
-								}(ourchan, makefloat)
-								a.Worker(newchance, ourchan, v, s.MovesNext)
-								gwg.Done()
-							}(ourft)
-						}
-					}(i, j, k, l)
-				}
+	for oac.OK() {
+		go func(ourft game.FromTo) {
+			sv := ourft.Move(s)
+			if v, err := sv.After(); err == nil {
+				gwg.Add(1)
+				go func(n game.FromTo) {
+					log.Println("Yeah")
+					atomic.AddUint32(countem, 1)
+					var newchance float64
+					wg.Wait()
+					log.Println("GotChance")
+					newchance = 1.0 / float64(*countem)
+					ourchan := make(chan float64, 100)
+					makefloat := new(float64)
+					thoughts[n] = makefloat
+					go func(ch <-chan float64, ou *float64) {
+						*ou += <-ch
+					}(ourchan, makefloat)
+					a.Worker(newchance, ourchan, v, s.MovesNext)
+					gwg.Done()
+				}(ourft)
 			}
-		}
+		}(game.FromTo(oac))
+		oac.P()
 	}
 	wg.Done()
 	go func() {

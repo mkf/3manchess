@@ -86,6 +86,13 @@ func (p Pos) String() string {
 //Board : board array
 type Board [6][24]Square
 
+func (b *Board) GPos(p Pos) *Square {
+	if err := p.Correct(); err != nil {
+		panic(err)
+	}
+	return &((*b)[p[0]][p[1]])
+}
+
 //Color : color type
 type Color byte
 
