@@ -149,17 +149,15 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in c
 
 //ThreatChecking checks if the piece on where Pos is 'in check'
 func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
-	var ourpos Pos
-	var i, j int8
-	who := (*b)[where[0]][where[1]].Color()
+	var opos Pos
+	who := b.GPos(where).Color()
 	var heyitscheck Check
-	for i = 0; i < 6; i++ {
-		for j = 0; j < 24; j++ {
-			ourpos = Pos{i, j}
-			if (*b)[i][j].NotEmpty && (*b)[i][j].Color() != who && pa.Give((*b)[i][j].Color()) &&
-				b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, ep) {
-				return Check{If: true, From: ourpos}
-			}
+	var oac ACP
+	for oac.OK() {
+		opos = Pos(oac)
+		if tjf := b.GPos(opos); tjf.NotEmpty && tjf.Color() != who && pa.Give(tjf.Color()) &&
+			b.AnyPiece(opos, where, DEFMOATSSTATE, FALSECASTLING, ep) {
+			return Check{If: true, From: opos}
 		}
 	}
 	return heyitscheck
