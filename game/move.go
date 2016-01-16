@@ -159,6 +159,7 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 			b.AnyPiece(opos, where, DEFMOATSSTATE, FALSECASTLING, ep) {
 			return Check{If: true, From: opos}
 		}
+		oac.P()
 	}
 	return heyitscheck
 }
@@ -178,6 +179,7 @@ func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
 			} else if tjf.NotEmpty && pa.Give(tjf.Color()) {
 				oni <- opos
 			}
+			oac.P()
 		}
 	}
 	return my, oni
