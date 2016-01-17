@@ -26,12 +26,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			var direcshort int8
 			var fromtominus int8
 			if from[1]>>3 == to[1]>>3 { //same color area
-				canmoat = true
-				mshort = true
-				if m[0] && m[1] && m[2] {
-					mlong = true
-				}
-				direcshort = sign(to[1] - from[1])
+				mlong, direcshort, mshort, canmoat = m[0] && m[1] && m[2], sign(to[1]-from[1]), true, true
 			} else { //moving to another color's area
 				fromto := [2]int8{from[1] >> 3, to[1] >> 3}
 				switch fromto {
