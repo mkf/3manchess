@@ -86,6 +86,7 @@ func (p Pos) String() string {
 //Board : board array
 type Board [6][24]Square
 
+//GPos gets the position's square pointer
 func (b *Board) GPos(p Pos) *Square {
 	if err := p.Correct(); err != nil {
 		panic(err)
