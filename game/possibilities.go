@@ -28,12 +28,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			var direcshort int8
 			var fromtominus int8
 			if from[1]>>3 == to[1]>>3 { //same color area
-				canmoat = true
-				mshort = true
-				if m[0] && m[1] && m[2] {
-					mlong = true
-				}
-				direcshort = sign(to[1] - from[1])
+				mlong, direcshort, mshort, canmoat = m[0] && m[1] && m[2], sign(to[1]-from[1]), true, true
 			} else { //moving to another color's area
 				fromto := [2]int8{from[1] >> 3, to[1] >> 3}
 				switch fromto {
@@ -110,12 +105,15 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	cantech := short || long
 
 	var filedirec int8
-	if (from[1]+przel)%24 == to[1] {
+	switch to[1] {
+	case (from[1] + przel) % 24:
 		filedirec = +1
-	} else if (from[1]-przel)%24 == to[1] {
+	case (from[1] - przel) % 24:
 		filedirec = -1
-	} else if short && long { //ten warunek był zanegowany od 51d0219 do c984f32 włącznie, odnegowany w 5ff00460b17908610a8365f9e236519759869046
-		panic(from.String() + " " + to.String())
+	default:
+		if short && long { //ten warunek był zanegowany od 51d0219 do c984f32 włącznie, odnegowany w 5ff00460b17908610a8365f9e236519759869046
+			panic(from.String() + " " + to.String())
+		}
 	}
 
 	canfigshort, canfiglong, canmoatshort, canmoatlong, capcheckshort, capchecklong := true, true, true, true, true, true
@@ -135,14 +133,8 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		capchecktemp := true // czy wjedziesz w moat'a jak pojedziesz w stronę `dirtemp`, redundantne
 		canmoattemp := true  // czy ten moat jest bridged czy nie
 
-		switch sprawdzamy {
-		case 0, 23:
-			canmoattemp = m[0]
-		case 8, 7:
-			canmoattemp = m[1]
-		case 16, 15:
-			canmoattemp = m[2]
-		}
+		//switch sprawdzamy { case 0, 23: canmoattemp = m[0];  case 8, 7: m[1];  case 16, 15: m[2] }
+		canmoattemp = m[((sprawdzamy+1)/24)%3]
 		switch sprawdzamy % 8 {
 		case 0: //cross jest jak pojedziemy na minus
 			dirtemp = -1
@@ -226,33 +218,33 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 		//panic("Same square!")
 		return false
 	}
-	nasz := (*b)[from[0]][from[1]]
+	nasz := b.GPos(from)
 	gdziekolor := ColorUint8(uint8(from[1] >> 3))
 	if nasz.Color() == gdziekolor && p {
 		panic("pS" + nasz.Color().String())
 	}
 	var sgn int8
 	if p {
-		sgn = int8(-1)
+		sgn = -1
 	} else {
-		sgn = int8(1)
+		sgn = 1
 	}
 	if from[1] == to[1] {
 		realsgn := sign(to[0] - from[0])
 		if realsgn != sgn {
 			return false //,p,e
 		}
-		if !p && from[0] == 1 && to[0] == 3 {
+		if !bool(p) && from[0] == 1 && to[0] == 3 {
 			cantech = true
-			canfig = (*b)[2][from[1]].Empty() && (*b)[3][from[1]].Empty()
+			canfig = (*b)[2][from[1]].Empty() && b.GPos(to).Empty()
 			//ep:=e.Appeared(Pos{2,from[1]})
 		} else if to[0] == from[0]+sgn {
 			cantech = true
-			canfig = (*b)[to[0]][from[1]].Empty()
+			canfig = b.GPos(to).Empty()
 		}
 	} else if ((from[1]-12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) {
 		cantech = true
-		canfig = (*b)[5][to[1]].Empty()
+		canfig = b.GPos(to).Empty()
 		//pc = true
 	}
 	return cantech && canfig //, pc, ep
@@ -262,42 +254,37 @@ func (b *Board) kingStraight(from Pos, to Pos, m MoatsState) bool {
 	if from == to {
 		return false
 	}
-	nasz := (*b)[from[0]][from[1]]
+	nasz := b.GPos(from)
+	tjf := b.GPos(to)
 	switch to {
-	case Pos{from[0] + 1, from[1]}, Pos{from[0] - 1, from[1]}, Pos{from[0], (from[1] + 1) % 24}, Pos{from[0], (from[1] - 1) % 24}:
-		if (*b)[to[0]][to[1]].NotEmpty {
-			if (*b)[to[0]][to[1]].Color() == nasz.Color() {
-				return false
-			}
-			return true
-		}
-		return true
-	default:
-		return false
+	case Pos{from[0] + 1, from[1]},
+		Pos{from[0] - 1, from[1]},
+		Pos{from[0], (from[1] + 1) % 24},
+		Pos{from[0], (from[1] - 1) % 24}:
+		return !(tjf.NotEmpty && tjf.Color() == nasz.Color())
 	}
+	return false
 }
 
 func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
-	nasz := (*b)[from[0]][from[1]]
+	nasz := b.GPos(from)
 	gdziekolor := ColorUint8(uint8(from[1] >> 3))
-	//cancreek := true
+	cancreek := true
 	if from == to {
 		return false
 	}
 	if !p {
-		creektemp1 := false
-		fromto := [2]int8{from[0], to[0]}
+		creektemp := false                //normalnie nie musi się męczyć z creekami
+		fromto := [2]int8{from[0], to[0]} //przemieszczenie między rankami
 		switch fromto {
 		case [2]int8{0, 1}, [2]int8{1, 0}, [2]int8{1, 2}, [2]int8{2, 1}, [2]int8{2, 3}, [2]int8{3, 2}:
-			creektemp1 = true
+			creektemp = true //otrze się o creek
 		}
-		if ((to[1]%8 == 0 && from[1]%8 == 7) || (from[1]%8 == 0 && to[1]%8 == 7)) && creektemp1 {
-			//cancreek = false
-		}
+		cancreek = !(creektemp && ((to[1]%8 == 0 && from[1]%8 == 7) || (from[1]%8 == 0 && to[1]%8 == 7)))
+		//założenie: creeki są aktywne nawet jak już nie ma moatów
 	}
 	if nasz.Color() == gdziekolor && !p {
-		return false
-		//panic("pC" + nasz.Color().String())
+		return false //panic("pC" + nasz.Color().String())
 	}
 	var sgn int8
 	if p {
@@ -305,14 +292,16 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	} else {
 		sgn = int8(1)
 	}
-	return (from[0] == 5 && !bool(p) && to[0] == 5 &&
-		(to[1] == ((from[1]-10)%24) || to[1] == ((from[1]+10)%24)) &&
-		(*b)[to[0]][to[1]].Color() != nasz.Color()) ||
-		((e[0] == to || e[1] == to) && (*b)[3][to[1]].What() == Pawn &&
-			(*b)[3][to[1]].Color() != nasz.Color() && (*b)[2][to[1]].Empty()) ||
-		(to[0] == from[0]+sgn &&
-			((to[1] == (from[1]+1)%24) || (to[1] == (from[1]-1)%24)) &&
-			(*b)[to[0]][to[1]].Color() != nasz.Color())
+	return ((from[0] == 5 && to[0] == 5 && !bool(p)) && //jest na 5 ranku i nie przeszedl przez srodek jeszcze
+		(to[1] == ((from[1]-10)%24) || to[1] == ((from[1]+10)%24)) && //poprawnie przelecial na skos przez srodek
+		b.GPos(to).Color() != nasz.Color()) || //ten co go bijemy jest innego koloru ALBO
+		((e[0] == to || e[1] == to) && //pozycja tego co go bijemy jest w enpassant
+			(*b)[3][to[1]].What() == Pawn && //ten co go bijemy jest pionkiem
+			(*b)[3][to[1]].Color() != nasz.Color() && //i jest innego koloru
+			(*b)[2][to[1]].Empty()) || //a pole za nim jest puste (jak to po ruchu pre-enpassant) ALBO
+		(to[0] == from[0]+sgn && cancreek && //zwykle bicie, o jeden w kierunku sgn na ranku
+			((to[1] == (from[1]+1)%24) || (to[1] == (from[1]-1)%24)) && //i o jeden w tę lub tamtą stronę (wsio mod24) na file'u
+			b.GPos(to).Color() != nasz.Color()) //a ten co go bijemy jest innego koloru
 }
 
 func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
