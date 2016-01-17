@@ -272,6 +272,7 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 			creektemp = true //otrze się o creek
 		}
 		cancreek = !(creektemp && ((to[1]%8 == 0 && from[1]%8 == 7) || (from[1]%8 == 0 && to[1]%8 == 7)))
+		//założenie: creeki są aktywne nawet jak już nie ma moatów
 	}
 	if nasz.Color() == gdziekolor && !p {
 		return false //panic("pC" + nasz.Color().String())
