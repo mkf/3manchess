@@ -103,12 +103,15 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 	cantech := short || long
 
 	var filedirec int8
-	if (from[1]+przel)%24 == to[1] {
+	switch to[1] {
+	case (from[1] + przel) % 24:
 		filedirec = +1
-	} else if (from[1]-przel)%24 == to[1] {
+	case (from[1] - przel) % 24:
 		filedirec = -1
-	} else if short && long { //ten warunek był zanegowany od 51d0219 do c984f32 włącznie, odnegowany w 5ff00460b17908610a8365f9e236519759869046
-		panic(from.String() + " " + to.String())
+	default:
+		if short && long { //ten warunek był zanegowany od 51d0219 do c984f32 włącznie, odnegowany w 5ff00460b17908610a8365f9e236519759869046
+			panic(from.String() + " " + to.String())
+		}
 	}
 
 	canfigshort, canfiglong, canmoatshort, canmoatlong, capcheckshort, capchecklong := true, true, true, true, true, true
