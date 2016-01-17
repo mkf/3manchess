@@ -212,7 +212,7 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 		//panic("Same square!")
 		return false
 	}
-	nasz := (*b)[from[0]][from[1]]
+	nasz := b.GPos(from)
 	gdziekolor := ColorUint8(uint8(from[1] >> 3))
 	if nasz.Color() == gdziekolor && p {
 		panic("pS" + nasz.Color().String())
@@ -230,15 +230,15 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 		}
 		if !p && from[0] == 1 && to[0] == 3 {
 			cantech = true
-			canfig = (*b)[2][from[1]].Empty() && (*b)[3][from[1]].Empty()
+			canfig = (*b)[2][from[1]].Empty() && b.GPos(to).Empty()
 			//ep:=e.Appeared(Pos{2,from[1]})
 		} else if to[0] == from[0]+sgn {
 			cantech = true
-			canfig = (*b)[to[0]][from[1]].Empty()
+			canfig = b.GPos(to).Empty()
 		}
 	} else if ((from[1]-12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) {
 		cantech = true
-		canfig = (*b)[5][to[1]].Empty()
+		canfig = b.GPos(to).Empty()
 		//pc = true
 	}
 	return cantech && canfig //, pc, ep
