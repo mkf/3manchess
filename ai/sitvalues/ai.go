@@ -95,6 +95,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	countem := new(uint32)
 	atomic.StoreUint32(countem, 0)
 	var wg, gwg sync.WaitGroup
+	var tmx sync.Mutex
 	wg.Add(1)
 	for oac.OK() {
 		go func(ourft game.FromTo) {
@@ -108,7 +109,9 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 					newchance = 1.0 / float64(*countem)
 					ourchan := make(chan float64, 100)
 					makefloat := new(float64)
+					tmx.Lock()
 					thoughts[n] = makefloat
+					tmx.Unlock()
 					go func(ch <-chan float64, ou *float64) {
 						*ou += <-ch
 					}(ourchan, makefloat)
