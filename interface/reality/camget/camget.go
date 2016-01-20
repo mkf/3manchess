@@ -1,4 +1,4 @@
-package reality
+package camget
 
 import "github.com/lazywei/go-opencv/opencv"
 import "fmt"

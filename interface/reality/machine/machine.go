@@ -1,4 +1,4 @@
-package reality
+package machine
 
 //import "github.com/ArchieT/3manchess/game"
 
