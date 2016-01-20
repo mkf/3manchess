@@ -7,4 +7,7 @@ import "log"
 type Reality struct {
 	View
 	Machine
+	BlackIsOnWhitesRight bool
 }
+
+//func
