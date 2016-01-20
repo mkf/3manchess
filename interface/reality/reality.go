@@ -25,8 +25,10 @@ func NewReality() *Reality {
 
 func (re *Reality) MakePlayers(who ...game.Color) map[game.Color]*RealPlayer {
 	ourm := make(map[game.Color]*RealPlayer)
+	var ourp RealPlayer
 	for _, c := range who {
-		ourm[c] = RealPlayer{re, c, c.String()}
+		ourp = RealPlayer{re, c, c.String()}
+		ourm[c] = &ourp
 	}
 	return ourm
 }
