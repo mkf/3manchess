@@ -6,8 +6,8 @@ type Window struct {
 }
 
 func NewWindow() *Window {
+	retur := new(Window)
 	err := ui.Main(func() {
-		name := ui.NewEntry()
 		boardspace := ui.NewVerticalBox()
 		boardspace.Append(ui.NewLabel("test"), false)
 		window := ui.NewWindow("Hello", 200, 100, false)
@@ -21,4 +21,5 @@ func NewWindow() *Window {
 	if err != nil {
 		panic(err)
 	}
+	return retur
 }
