@@ -1,12 +1,12 @@
-package reality
+package machine
 
-import "github.com/ArchieT/3manchess/game"
+//import "github.com/ArchieT/3manchess/game"
 
 type Pins struct{}
 
 type MPos struct {
-	game.Pos
-	heigth, catch int8
+	Pos           [2]int8
+	Heigth, Catch int8
 }
 
 type Machine struct {
@@ -33,7 +33,7 @@ func (mc *Machine) FileMove(from, to int8) error {
 	return nil
 }
 
-func (mc *Machine) SquareMove(from, to game.Pos) error {
+func (mc *Machine) SquareMove(from, to [2]int8) error {
 	errchan := make(chan error)
 	go func() {
 		errchan <- mc.RankMove(from[0], to[0])
