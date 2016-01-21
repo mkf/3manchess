@@ -10,12 +10,16 @@ Window {
 	title: "3manchess"
 	visible: true
 
-	Rectangle {
+	/*Rectangle {
 		width: 699; height: 699; color: "black"
 
 		Rectangle {
 			width: 698; height: 698; color: "white"; border.color: "gray"; border.width: 1
 			radius: 349
 		}
+	}*/
+
+	Image {
+		source: "3manchesstemp700px.png"
 	}
 }
