@@ -28,14 +28,18 @@ func (s *Square) Empty() bool {
 
 type Pos game.Pos
 
+func (p *Pos) Correct() error {
+	return game.Pos(*p).Correct()
+}
+
 type Board [6][24]Square
 
 func FromGameBoard(gb *game.Board) *Board {
 	var oac game.ACP
 	var newb Board
-	var gsq game.Square
+	var gsq *game.Square
 	for oac.OK() {
-		gsq = gb.GPos(oac)
+		gsq = gb.GPos(game.Pos(oac))
 		newb[oac[0]][oac[1]] = Square{gsq.NotEmpty, Piece{gsq.FigType, gsq.Color()}}
 		oac.P()
 	}
