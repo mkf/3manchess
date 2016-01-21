@@ -1,7 +1,16 @@
-package reality
+package camget
 
 import "github.com/lazywei/go-opencv/opencv"
 import "fmt"
+import "github.com/ArchieT/3manchess/game"
+
+type Square struct {
+	NotEmpty bool
+	game.FigType
+	game.Color
+}
+
+type Board [6][24]Square
 
 //import "log"
 
@@ -58,6 +67,11 @@ func (c Camera) GiveFrame() (*opencv.IplImage, error) {
 		return c.Capture.RetrieveFrame(1), GiveFrameError("Grab failed")
 	}
 	//return c.Capture.QueryFrame(), nil
+}
+
+func (v *View) GiveBoard() Board {
+	var board Board
+	return board
 }
 
 func (v *View) Calibrate() {
