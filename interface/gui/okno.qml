@@ -1,4 +1,4 @@
-import GoExtensions 1.0
+//import GoExtensions 1.0
 import QtQuick 2.4
 import QtQuick.Window 2.2
 
