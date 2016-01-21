@@ -16,7 +16,7 @@ type changetoempty struct {
 type changereplace struct {
 	before game.Fig
 	after  board.Piece
-	where  game.Pos
+	where  board.Pos
 }
 
 //IllegalMoveDetected : error dtruct containing a nice description and a codename string
@@ -111,7 +111,7 @@ func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error
 		return om, os, IllegalMoveDetected{"One disappearance with no reason!", "NoReasonDisappear"}
 	}
 	if len(disappeared) == 1 && len(replaced) == 1 {
-		ourmove = game.Move{From: disappeared[0].where, To: replaced[0].where, Before: bef}
+		ourmove = game.Move{From: disappeared[0].where, To: game.Pos(replaced[0].where), Before: bef}
 		whatafter, err := ourmove.After()
 		if err == nil {
 			if !aft.Equal(whatafter.Board) {
@@ -121,7 +121,7 @@ func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error
 		return &ourmove, whatafter, err
 	}
 	if len(disappeared) == 1 && len(appeared) == 1 {
-		ourmove = game.Move{From: disappeared[0].where, To: appeared[0].where, Before: bef}
+		ourmove = game.Move{From: disappeared[0].where, To: game.Pos(appeared[0].where), Before: bef}
 		whatafter, err := ourmove.After()
 		if err == nil {
 			if !aft.Equal(whatafter.Board) {
