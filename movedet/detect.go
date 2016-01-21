@@ -1,6 +1,7 @@
 package movedet
 
 import "github.com/ArchieT/3manchess/game"
+import "github.com/ArchieT/3manchess/movedet/board"
 
 type changeempty struct {
 	what  game.Fig
@@ -24,7 +25,7 @@ func (i IllegalMoveDetected) Error() string {
 }
 
 //WhatMove : return a move that happened between the before state and the board after
-func WhatMove(bef *game.State, aft *game.Board) (*game.Move, *game.State, error) {
+func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error) {
 	//yep, it's right! all over, again!
 	//but now... with concurrency!
 	var i, j int8

@@ -9,9 +9,21 @@ type Piece struct {
 	game.Color
 }
 
+func (p *Piece) Equal(gf *game.Fig) bool {
+	return p.Color == gf.Color && p.FigType == gf.FigType
+}
+
 type Square struct {
 	NotEmpty bool
 	Piece
+}
+
+func (s *Square) Equal(gs *game.Square) bool {
+	return s.Piece.Equal(&(gs.Fig)) && s.NotEmpty == gs.NotEmpty
+}
+
+func (s *Square) Empty() bool {
+	return !s.NotEmpty
 }
 
 type Pos game.Pos
@@ -44,7 +56,7 @@ func (b *Board) Equal(gb *game.Board) bool {
 	for oac.OK() {
 		gs = gb.GPos(game.Pos(oac))
 		os = b.GPos(Pos(oac))
-		if gs.Piece.FigType != os.Fig.FigType || gs.Piece.Color != os.Fig.Color || gs.NotEmpty != os.NotEmpty {
+		if !os.Equal(gs) {
 			return false
 		}
 		oac.P()
