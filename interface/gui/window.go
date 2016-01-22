@@ -2,7 +2,6 @@ package gui
 
 import "gopkg.in/qml.v1"
 import "log"
-import "github.com/ArchieT/3manchess/movedet/board"
 import "github.com/ArchieT/3manchess/movedet"
 import "github.com/ArchieT/3manchess/game"
 import "math/cmplx"
@@ -16,7 +15,7 @@ const (
 	OneFile            = math.Pi / 12
 )
 
-var PieceURIs = map[game.Piece]string{}
+var FigURIs = map[game.Fig]string{}
 
 //adowbiowl — Angle Depening On Whether Black Is On Whites Left
 func adowbiowl(p float64, biowl bool) {
@@ -28,7 +27,7 @@ func adowbiowl(p float64, biowl bool) {
 
 type appearing struct {
 	game.Pos
-	board.Piece
+	game.Fig
 }
 
 type GUI struct {
@@ -45,7 +44,7 @@ type GUI struct {
 	window              *qml.Window
 }
 
-type boardmap [6][24]board.Piece
+type boardmap [6][24]game.Fig
 
 type boardclicker chan complex64
 
@@ -53,7 +52,7 @@ func (bckr BoardClicker) ClickedIt(x, y int) {
 	bckr <- complex64(x + y*1i)
 }
 
-func replacing(r <-chan appearing, a chan<- appearing, d chan<- board.Pos) {
+func replacing(r <-chan appearing, a chan<- appearing, d chan<- game.Pos) {
 	var y appearing
 	for {
 		y = <-r
@@ -62,7 +61,7 @@ func replacing(r <-chan appearing, a chan<- appearing, d chan<- board.Pos) {
 	}
 }
 
-func clicking(s <-chan complex64, d chan<- board.Pos, rot *float64, biowl *bool) {
+func clicking(s <-chan complex64, d chan<- game.Pos, rot *float64, biowl *bool) {
 	var c complex64
 	var r, p float64
 	var m uint16
