@@ -28,17 +28,14 @@ func NewReality() *Reality {
 	return new(Reality)
 }
 
-func (re *Reality) MakePlayers(who ...game.Color) map[game.Color]*RealPlayer {
-	ourm := make(map[game.Color]*RealPlayer)
-	var ourp *RealPlayer
-	for _, c := range who {
-		ourp = new(RealPlayer)
-		ourp.Reality = re
-		ourp.Name = c.String() + "_real"
-		ourm[c] = ourp
-	}
-	return ourm
+func (re *Reality) Start() error { return nil }
+func (re *Reality) GenPlayer(name string) (player.Player, error) {
+	ourp := new(RealPlayer)
+	ourp.Reality = re
+	ourp.Name = name
+	return ourp, nil
 }
+func (re *Reality) String() string { return "Reality" }
 
 func (p *RealPlayer) Initialize(gp *player.Gameplay) {
 	errchan := make(chan error)
