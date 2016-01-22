@@ -14,7 +14,6 @@ var DEFMOATSSTATE = MoatsState{false, false, false} //are they bridged?
 type Castling [3][2]bool
 
 func forcastlingconv(c Color, b byte) (uint8, uint8) {
-	col := c.UInt8()
 	var ct uint8
 	switch b {
 	case 'k', 'K':
@@ -22,7 +21,7 @@ func forcastlingconv(c Color, b byte) (uint8, uint8) {
 	case 'q', 'Q':
 		ct = 1
 	}
-	return col, ct
+	return uint8(c) - 1, ct
 }
 
 //Give (color, K/Q)
@@ -76,13 +75,13 @@ type PlayersAlive [3]bool
 
 //Give : tell if a player is active by color
 func (pa PlayersAlive) Give(who Color) bool {
-	return pa[who.UInt8()]
+	return pa[who-1]
 }
 
 //Die : disactivate a player
 func (pa PlayersAlive) Die(who Color) PlayersAlive {
 	pan := pa
-	pan[who.UInt8()] = false
+	pan[who-1] = false
 	return pan
 }
 
