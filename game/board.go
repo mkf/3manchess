@@ -2,21 +2,18 @@ package game
 
 import "strconv"
 
-//FigType : type of a figure
-type FigType byte //piece type
-var (
-	//Pawn FigType  const
-	Pawn = FigType('p')
-	//Rook FigType   const
-	Rook = FigType('r')
-	//Knight FigType   const
-	Knight = FigType('n')
-	//Bishop FigType   const
-	Bishop = FigType('b')
-	//Queen FigType   const
-	Queen = FigType('q')
-	//King FigType    const
-	King = FigType('k')
+//FigType : type of a figure, piece type
+type FigType uint8
+
+//const FigTypes
+const (
+	ZeroFigType FigType = iota
+	Rook
+	Knight
+	Bishop
+	Queen
+	King
+	Pawn
 )
 
 func (f *Fig) String() string {
@@ -95,65 +92,33 @@ func (b *Board) GPos(p Pos) *Square {
 }
 
 //Color : color type
-type Color byte
-
-//UInt8 : returns 0 for white, 1 for gray, 2 for black
-func (c Color) UInt8() uint8 {
-	switch c {
-	case Color('W'), Color('w'):
-		return 0
-	case Color('G'), Color('g'):
-		return 1
-	case Color('B'), Color('b'):
-		return 2
-	//case 0:
-	//	return 127 //Bug(ArchieT): sometimes c==byte(0)
-	default:
-		//panic(c)
-		panic(strconv.Itoa(int(uint8(byte(c)))))
-	}
-}
-
-//ColorUint8 : returns White for 0, Gray for 1, Black for 2
-func ColorUint8(u uint8) Color {
-	switch u {
-	case 0:
-		return White
-	case 1:
-		return Gray
-	case 2:
-		return Black
-	default:
-		panic(u)
-	}
-}
+type Color uint8
 
 //Next returns the next color: White, Gray, Black,  White, etc.
 func (c Color) Next() Color {
-	return ColorUint8((c.UInt8() + 1) % 3)
+	return Color(c%3 + 1)
 }
 
 //String returns string "White"/"Gray"/"Black"
 func (c Color) String() string {
-	switch c.UInt8() {
-	case 0:
+	switch c {
+	case White:
 		return "White"
-	case 1:
+	case Gray:
 		return "Gray"
-	case 2:
+	case Black:
 		return "Black"
 	default:
-		panic(byte(c))
+		panic(c)
 	}
 }
 
-var (
-	//White color const
-	White = Color('W') //white color
-	//Gray color const
-	Gray = Color('G') //gray color
-	//Black color const
-	Black = Color('B') //black color
+//Color constants
+const (
+	ZeroColor Color = iota
+	White
+	Gray
+	Black
 )
 
 //COLORS : array of colors, ordered	const
