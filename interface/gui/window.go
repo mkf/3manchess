@@ -1,8 +1,9 @@
 package gui
 
 import "gopkg.in/qml.v1"
-import "log"
-import "github.com/ArchieT/3manchess/movedet"
+
+//import "log"
+//import "github.com/ArchieT/3manchess/movedet"
 import "github.com/ArchieT/3manchess/game"
 import "math/cmplx"
 import "math"
@@ -11,16 +12,16 @@ const (
 	Center             = 350 + 350i
 	InnerRadius        = 70
 	SubsequentRadiiAdd = 35
-	DefaultRotation    = math.Pi * (11 / 6)
+	DefaultRotation    = -math.Pi / 6
 	OneFile            = math.Pi / 12
 )
 
 //adowbiowl — Angle Depening On Whether Black Is On Whites Left
-func adowbiowl(p float64, biowl bool) {
+func adowbiowl(p float64, biowl bool) float64 {
 	if !biowl {
-		return p % (2 * math.Pi)
+		return math.Remainder(p, 2*math.Pi)
 	}
-	return (p + math.Pi) % (2 * math.Pi)
+	return math.Remainder(p+math.Pi, 2*math.Pi)
 }
 
 type appearing struct {
@@ -47,7 +48,7 @@ type boardmap [6][24]game.Fig
 type boardclicker chan complex128
 
 func (bckr boardclicker) ClickedIt(x, y int) {
-	bckr <- complex128(x) + complex128(y)*1i
+	bckr <- complex(float64(x), float64(y))
 }
 
 func replacing(r <-chan appearing, a chan<- appearing, d chan<- game.Pos) {
@@ -73,14 +74,14 @@ func clicking(s <-chan complex128, d chan<- game.Pos, rot *float64, biowl *bool)
 		if r < 0 {
 			continue
 		}
-		p = adowbiowl(p, biowl)
+		p = adowbiowl(p, *biowl)
 		m = uint16(r) / 35
 		if m < 24 {
 			pr = int8(m)
 		} else {
 			continue
 		}
-		pf = p / OneFile
+		pf = int8(p / OneFile)
 		d <- game.Pos{pr, pf}
 	}
 }
@@ -94,13 +95,13 @@ func fromtoing(s <-chan game.Pos, d chan<- game.FromTo) {
 }
 
 func NewGUI() (*GUI, error) {
-	gui = new(GUI)
-	clicks = make(boardclicker)
-	clickpos = make(chan game.Pos)
-	disappears = make(chan game.Pos)
-	appears = make(chan appearing)
-	replacements = make(chan appearing)
-	fromtos = make(chan game.FromTo)
+	gui := new(GUI)
+	clicks := make(boardclicker)
+	clickpos := make(chan game.Pos)
+	disappears := make(chan game.Pos)
+	appears := make(chan appearing)
+	replacements := make(chan appearing)
+	fromtos := make(chan game.FromTo)
 	gui.disappears = disappears
 	gui.appears = appears
 	gui.replacements = replacements
@@ -111,7 +112,7 @@ func NewGUI() (*GUI, error) {
 	go fromtoing(clickpos, fromtos)
 	gui.engine = qml.NewEngine()
 	gui.engine.Context().SetVar("clickinto", clicks)
-	component, err := engine.LoadFile("okno.qml")
+	component, err := gui.engine.LoadFile("okno.qml")
 	gui.component = &component
 	if err != nil {
 		return gui, err
