@@ -119,8 +119,10 @@ func NewGUI() (*GUI, error) {
 	gui.ErrorChan = gui.errchan
 	gui.window = component.CreateWindow(nil)
 	gui.window.Show()
+	go gui.run()
 	return gui, nil
 }
 
 func (gui *GUI) run() {
+
 }
