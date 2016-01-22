@@ -4,13 +4,16 @@ import "github.com/ArchieT/3manchess/interface/reality/machine"
 import "github.com/ArchieT/3manchess/interface/reality/camget"
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
+import "github.com/ArchieT/3manchess/movedet"
+import "errors"
 
 //import "log"
 
 type Reality struct {
 	camget.View
 	machine.Machine
-	BlackIsOnWhitesRight bool
+	BlackIsOnWhitesLeft bool
+	CheckTheMove        chan bool
 }
 
 type RealPlayer struct {
@@ -59,5 +62,28 @@ func (p *RealPlayer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Mov
 			p.hurry <- <-hurryi
 		}
 	}()
-	return nil
+	go func() {
+		for {
+			<-p.hurry
+		}
+	}()
+	go func() {
+		for {
+			select {
+			case <-p.hurry:
+			default:
+			}
+		}
+	}()
+	var wha *game.Move
+	var err, berr error
+	err = errors.New("nothing really")
+	berr = err
+	for err != nil || berr != nil {
+		our, berr := p.Reality.View.GiveBoard()
+		if berr == nil {
+			wha, _, err = movedet.WhatMove(s, our)
+		}
+	}
+	return wha
 }
