@@ -46,6 +46,14 @@ type GUI struct {
 
 type boardmap [6][24]game.Fig
 
+func (bm *boardmap) Disappear(w game.Pos) {
+	bm[w[0]][w[1]] = game.Fig{0, 0}
+}
+
+func (bm *boardmap) Appear(w appearing) {
+	bm[w.Pos[0]][w.Pos[1]] = w.Fig
+}
+
 type boardclicker chan complex128
 
 func (bckr boardclicker) ClickedIt(x, y int) {
