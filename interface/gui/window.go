@@ -36,6 +36,17 @@ type GUI struct {
 	BlackIsOnWhitesLeft bool
 	fromtos             <-chan game.FromTo
 	Rotated             float64 //zerofile blackmost boundary angle
+	errchan             chan error
+	ErrorChan           <-chan error
+	engine              *qml.Engine
+	component           *qml.Object
+	window              *qml.Window
+}
+
+type boardclicker chan complex64
+
+func (bckr BoardClicker) ClickedIt(x, y int) {
+	bckr <- complex64(x + y*1i)
 }
 
 func replacing(r <-chan appearing, a chan<- appearing, d chan<- board.Pos) {
@@ -83,7 +94,7 @@ func fromtoing(s <-chan game.Pos, d chan<- game.FromTo) {
 
 func NewGUI() (*GUI, error) {
 	gui = new(GUI)
-	clicks = make(chan complex64)
+	clicks = make(boardclicker)
 	clickpos = make(chan game.Pos)
 	disappears = make(chan game.Pos)
 	appears = make(chan appearing)
@@ -97,5 +108,19 @@ func NewGUI() (*GUI, error) {
 	go replacing(replacements, appears, disappears)
 	go clicking(clicks, clickpos, &(gui.Rotated), &(gui.BlackIsOnWhitesLeft))
 	go fromtoing(clickpos, fromtos)
+	gui.engine = qml.NewEngine()
+	gui.engine.Context().SetVar("clickinto", clicks)
+	component, err := engine.LoadFile("okno.qml")
+	gui.component = &component
+	if err != nil {
+		return gui, err
+	}
+	gui.errchan = make(chan error)
+	gui.ErrorChan = gui.errchan
+	gui.window = component.CreateWindow(nil)
+	gui.window.Show()
 	return gui, nil
+}
+
+func (gui *GUI) run() {
 }
