@@ -2,15 +2,9 @@ package camget
 
 import "github.com/lazywei/go-opencv/opencv"
 import "fmt"
-import "github.com/ArchieT/3manchess/game"
 
-type Square struct {
-	NotEmpty bool
-	game.FigType
-	game.Color
-}
-
-type Board [6][24]Square
+//import "github.com/ArchieT/3manchess/game"
+import "github.com/ArchieT/3manchess/movedet/board"
 
 //import "log"
 
@@ -69,9 +63,9 @@ func (c Camera) GiveFrame() (*opencv.IplImage, error) {
 	//return c.Capture.QueryFrame(), nil
 }
 
-func (v *View) GiveBoard() Board {
-	var board Board
-	return board
+func (v *View) GiveBoard() (*board.Board, error) {
+	var b board.Board
+	return &b, nil
 }
 
 func (v *View) Calibrate() {
