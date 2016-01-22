@@ -44,10 +44,10 @@ type GUI struct {
 
 type boardmap [6][24]game.Fig
 
-type boardclicker chan complex64
+type boardclicker chan complex128
 
 func (bckr boardclicker) ClickedIt(x, y int) {
-	bckr <- complex64(x) + complex64(y)*1i
+	bckr <- complex128(x) + complex128(y)*1i
 }
 
 func replacing(r <-chan appearing, a chan<- appearing, d chan<- game.Pos) {
@@ -59,8 +59,8 @@ func replacing(r <-chan appearing, a chan<- appearing, d chan<- game.Pos) {
 	}
 }
 
-func clicking(s <-chan complex64, d chan<- game.Pos, rot *float64, biowl *bool) {
-	var c complex64
+func clicking(s <-chan complex128, d chan<- game.Pos, rot *float64, biowl *bool) {
+	var c complex128
 	var r, p float64
 	var m uint16
 	var pr, pf int8
