@@ -15,8 +15,6 @@ const (
 	OneFile            = math.Pi / 12
 )
 
-var FigURIs = map[game.Fig]string{}
-
 //adowbiowl — Angle Depening On Whether Black Is On Whites Left
 func adowbiowl(p float64, biowl bool) {
 	if !biowl {
