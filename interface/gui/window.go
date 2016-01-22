@@ -2,7 +2,8 @@ package gui
 
 import "gopkg.in/qml.v1"
 
-//import "log"
+import "log"
+
 //import "github.com/ArchieT/3manchess/movedet"
 import "github.com/ArchieT/3manchess/game"
 import "math/cmplx"
@@ -67,6 +68,7 @@ func clicking(s <-chan complex128, d chan<- game.Pos, rot *float64, biowl *bool)
 	var pr, pf int8
 	for {
 		c = <-s
+		log.Println("RawClick:", c)
 		c -= Center
 		r, p = cmplx.Polar(c)
 		p -= *rot
