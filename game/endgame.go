@@ -40,4 +40,5 @@ func (c Check) Bool() bool {
 //AmIInCheck — Am I in check right now?
 func (s *State) AmIInCheck(who Color) Check {
 	return s.Board.CheckChecking(who, s.PlayersAlive)
+
 }

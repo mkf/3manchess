@@ -7,6 +7,8 @@ import "sync"
 import "sync/atomic"
 import "fmt"
 
+import "log"
+
 const DEFFIXPREC float64 = 0.0002
 
 type AIPlayer struct {
@@ -48,6 +50,7 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 }
 
 func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State, whoarewe game.Color) {
+	log.Println(chance)
 	state.EvalDeath()
 	if !(state.PlayersAlive.Give(whoarewe)) { //if we are dead
 		give <- a.SitValue(state) * chance
@@ -87,9 +90,11 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	a.curfixprec = a.FixedPrecision
 	hurryup := simple.MergeBool(hurry, a.hurry)
+	log.Println("Started thinking")
 	for i := len(hurryup); i > 0; i-- {
 		<-hurryup
 	}
+	log.Println("ALONG")
 	thoughts := make(map[game.FromTo]*float64)
 	var oac game.ACFT
 	countem := new(uint32)
@@ -103,9 +108,11 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 			if v, err := sv.After(); err == nil {
 				gwg.Add(1)
 				go func(n game.FromTo) {
+					log.Println("Yeah")
 					atomic.AddUint32(countem, 1)
 					var newchance float64
 					wg.Wait()
+					log.Println("GotChance")
 					newchance = 1.0 / float64(*countem)
 					ourchan := make(chan float64, 100)
 					makefloat := new(float64)
