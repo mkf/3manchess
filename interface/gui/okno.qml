@@ -23,7 +23,7 @@ Window {
 		source: "3manchesstemp700px.png"
 		MouseArea {
 			anchors.fill: parent
-			onClicked: console.log("PLACEHOLDER")
+			onClicked: clickinto.clickinit(event.ScreenX, event.ScreenY)
 		}
 	}
 }
