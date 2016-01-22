@@ -210,7 +210,7 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 		return false
 	}
 	nasz := b.GPos(from)
-	gdziekolor := ColorUint8(uint8(from[1] >> 3))
+	gdziekolor := Color(from[1]>>3 + 1)
 	if nasz.Color() == gdziekolor && p {
 		panic("pS" + nasz.Color().String())
 	}
@@ -259,7 +259,7 @@ func (b *Board) kingStraight(from Pos, to Pos, m MoatsState) bool {
 
 func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	nasz := b.GPos(from)
-	gdziekolor := ColorUint8(uint8(from[1] >> 3))
+	gdziekolor := Color(from[1]>>3 + 1)
 	cancreek := true
 	if from == to {
 		return false
