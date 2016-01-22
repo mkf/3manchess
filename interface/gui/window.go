@@ -47,7 +47,7 @@ type boardmap [6][24]game.Fig
 type boardclicker chan complex64
 
 func (bckr boardclicker) ClickedIt(x, y int) {
-	bckr <- complex64(x) + y*1i
+	bckr <- complex64(x) + complex64(y)*1i
 }
 
 func replacing(r <-chan appearing, a chan<- appearing, d chan<- game.Pos) {
