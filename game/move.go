@@ -1,5 +1,7 @@
 package game
 
+import "log"
+
 //Move :  struct describing a single move with the situation before it
 type Move struct {
 	From Pos
@@ -153,12 +155,15 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 	who := b.GPos(where).Color()
 	var heyitscheck Check
 	var oac ACP
+	log.Println("STRTDThrCh")
 	for oac.OK() {
 		opos = Pos(oac)
 		if tjf := b.GPos(opos); tjf.NotEmpty && tjf.Color() != who && pa.Give(tjf.Color()) &&
 			b.AnyPiece(opos, where, DEFMOATSSTATE, FALSECASTLING, ep) {
+			log.Println("thrChYESS")
 			return Check{If: true, From: opos}
 		}
+		//log.Println("ThrChNope")
 		oac.P()
 	}
 	return heyitscheck
@@ -254,6 +259,8 @@ func (m *Move) After() (*State, error) { //situation after
 	next.Board = &nextboard
 	next.MovesNext = next.MovesNext.Next()
 
+	log.Println("BEFTHEIFS")
+
 	if m.IsItKingSideCastling() {
 		empty := next.Board[0][m.From[1]+2]                     //rather senseless, a lazy definition of an empty square
 		next.Board[0][m.From[1]+2] = next.Board[0][m.From[1]]   //moving the king to his side
@@ -264,7 +271,7 @@ func (m *Move) After() (*State, error) { //situation after
 		next.HalfmoveClock++
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
-	} else if m.IsItQueenSideCastling() {
+	} else if log.Println("CheckedCKing"); m.IsItQueenSideCastling() {
 		empty := next.Board[0][m.From[1]-2]                     //rather senseless, a lazy definition of an empty square
 		next.Board[0][m.From[1]-2] = next.Board[0][m.From[1]]   //moving the king
 		next.Board[0][m.From[1]-1] = next.Board[0][m.From[1]+4] //moving the rook
@@ -362,6 +369,7 @@ func (m *Move) After() (*State, error) { //situation after
 			next.MoatsState[m.From[1]/8+1] = true
 		}
 	} else {
+		log.Println("OtherFig")
 		var empty Square
 		czyempty := next.Board[m.To[0]][m.To[1]].Empty()
 		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]]
@@ -374,11 +382,13 @@ func (m *Move) After() (*State, error) { //situation after
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
 		moatbridging := true
+		log.Println("PREPCHKBETW")
 		for i := (m.From[1] / 8) * 8; i < ((m.From[1]/8)*8)+8; i++ {
 			if next.Board[0][i].NotEmpty {
 				moatbridging = false
 			}
 		}
+		log.Println("CHKDBTWN")
 		if moatbridging {
 			next.MoatsState[m.From[1]/8] = true
 			next.MoatsState[m.From[1]/8+1] = true
@@ -386,8 +396,10 @@ func (m *Move) After() (*State, error) { //situation after
 	}
 
 	if heyitscheck := next.AmIInCheck(m.What().Color); heyitscheck.If {
+		log.Println("AfterRet")
 		return &next, IllegalMoveError{m, "Check", "We would be in check! (checking " + heyitscheck.From.String()} //Bug(ArchieT): returns it even if we would not
 	}
+	log.Println("AAFFTERRET")
 
 	return &next, nil
 }
