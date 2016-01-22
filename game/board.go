@@ -2,21 +2,18 @@ package game
 
 import "strconv"
 
-//FigType : type of a figure
-type FigType byte //piece type
-var (
-	//Pawn FigType  const
-	Pawn = FigType('p')
-	//Rook FigType   const
-	Rook = FigType('r')
-	//Knight FigType   const
-	Knight = FigType('n')
-	//Bishop FigType   const
-	Bishop = FigType('b')
-	//Queen FigType   const
-	Queen = FigType('q')
-	//King FigType    const
-	King = FigType('k')
+//FigType : type of a figure, piece type
+type FigType uint8
+
+//const FigTypes
+const (
+	ZeroFigType FigType = iota
+	Rook
+	Knight
+	Bishop
+	Queen
+	King
+	Pawn
 )
 
 func (f *Fig) String() string {
