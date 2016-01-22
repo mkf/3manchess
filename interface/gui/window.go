@@ -46,7 +46,7 @@ type boardmap [6][24]game.Fig
 
 type boardclicker chan complex64
 
-func (bckr BoardClicker) ClickedIt(x, y int) {
+func (bckr boardclicker) ClickedIt(x, y int) {
 	bckr <- complex64(x + y*1i)
 }
 
