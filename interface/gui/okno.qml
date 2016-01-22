@@ -21,5 +21,9 @@ Window {
 
 	Image {
 		source: "3manchesstemp700px.png"
+		MouseArea {
+			anchors.fill: parent
+			onClicked: console.log("PLACEHOLDER")
+		}
 	}
 }
