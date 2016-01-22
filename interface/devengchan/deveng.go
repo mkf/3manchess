@@ -15,6 +15,18 @@ const (
 	LOSE        ResultCode = 2
 )
 
+type DevGen struct {
+	Name string
+}
+
+func (dg *DevGen) Start() error { return nil }
+func (dg *DevGen) GenPlayer(name string) (player.Player, error) {
+	var dev Developer
+	dev.Name = name
+	return player.Player(&dev), nil
+}
+func (dg *DevGen) String() string { return "devengchan" + dg.Name }
+
 type Developer struct {
 	Name         string
 	errchan      chan error

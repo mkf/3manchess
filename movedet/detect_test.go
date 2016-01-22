@@ -2,6 +2,7 @@ package movedet
 
 import "testing"
 import "github.com/ArchieT/3manchess/game"
+import "github.com/ArchieT/3manchess/movedet/board"
 
 //var simplyillegal []testentity
 
@@ -24,7 +25,7 @@ func TestGood(t *testing.T) {
 		var w *game.State
 		if temp != nil {
 			t.Log("temp.Board", *temp.Board)
-			v, w, err = WhatMove(pair.Before, temp.Board)
+			v, w, err = WhatMove(pair.Before, board.FromGameBoard(temp.Board))
 		} else {
 			t.Log("temp is nil")
 			if err == nil {
@@ -56,7 +57,7 @@ func TestSimplyIllegal(t *testing.T) {
 		} else {
 			t.Log("temp IS NOT NIL!!")
 			t.Log("temp.Board", *temp.Board)
-			v, w, terr = WhatMove(pair.Before, temp.Board)
+			v, w, terr = WhatMove(pair.Before, board.FromGameBoard(temp.Board))
 		}
 		if terr == nil {
 			t.Error("For", pair, "there is no error, values are", v, w)
