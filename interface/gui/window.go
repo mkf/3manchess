@@ -31,9 +31,7 @@ type appearing struct {
 }
 
 type GUI struct {
-	disappears          chan<- game.Pos
 	appears             chan<- appearing
-	replacements        chan<- appearing
 	BlackIsOnWhitesLeft bool
 	fromtos             <-chan game.FromTo
 	Rotated             float64 //zerofile blackmost boundary angle
@@ -46,10 +44,6 @@ type GUI struct {
 
 type boardmap [6][24]game.Fig
 
-func (bm *boardmap) Disappear(w game.Pos) {
-	bm[w[0]][w[1]] = game.Fig{0, 0}
-}
-
 func (bm *boardmap) Appear(w appearing) {
 	bm[w.Pos[0]][w.Pos[1]] = w.Fig
 }
@@ -58,15 +52,6 @@ type boardclicker chan complex128
 
 func (bckr boardclicker) ClickedIt(x, y int) {
 	bckr <- complex(float64(x), float64(y))
-}
-
-func replacing(r <-chan appearing, a chan<- appearing, d chan<- game.Pos) {
-	var y appearing
-	for {
-		y = <-r
-		d <- y.Pos
-		a <- y
-	}
 }
 
 func clicking(s <-chan complex128, d chan<- game.Pos, rot *float64, biowl *bool) {
@@ -108,16 +93,11 @@ func NewGUI() (*GUI, error) {
 	gui := new(GUI)
 	clicks := make(boardclicker)
 	clickpos := make(chan game.Pos)
-	disappears := make(chan game.Pos)
 	appears := make(chan appearing)
-	replacements := make(chan appearing)
 	fromtos := make(chan game.FromTo)
-	gui.disappears = disappears
 	gui.appears = appears
-	gui.replacements = replacements
 	gui.Rotated = DefaultRotation
 	gui.fromtos = fromtos
-	go replacing(replacements, appears, disappears)
 	go clicking(clicks, clickpos, &(gui.Rotated), &(gui.BlackIsOnWhitesLeft))
 	go fromtoing(clickpos, fromtos)
 	gui.engine = qml.NewEngine()
