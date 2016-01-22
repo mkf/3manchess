@@ -16,6 +16,8 @@ const (
 	OneFile            = math.Pi / 12
 )
 
+var PieceURIs = map[game.Piece]string{}
+
 //adowbiowl — Angle Depening On Whether Black Is On Whites Left
 func adowbiowl(p float64, biowl bool) {
 	if !biowl {
@@ -42,6 +44,8 @@ type GUI struct {
 	component           *qml.Object
 	window              *qml.Window
 }
+
+type boardmap [6][24]board.Piece
 
 type boardclicker chan complex64
 
@@ -124,5 +128,5 @@ func NewGUI() (*GUI, error) {
 }
 
 func (gui *GUI) run() {
-
+	gui.window.Wait()
 }
