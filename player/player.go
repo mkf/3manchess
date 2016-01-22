@@ -17,6 +17,12 @@ type Player interface {
 	String() string
 }
 
+type PlayerGen interface {
+	Start() error
+	GenPlayer(name string) (Player, error)
+	String() string
+}
+
 //Gameplay is a list of players and the current gamestate pointer
 type Gameplay struct {
 	Players map[game.Color]Player
