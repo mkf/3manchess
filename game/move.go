@@ -6,7 +6,8 @@ type Move struct {
 	To   Pos
 	//	What        Fig
 	//	AlreadyHere Fig
-	Before *State
+	Before        *State
+	PawnPromotion FigType
 }
 
 //IncorrectPos error
@@ -360,6 +361,12 @@ func (m *Move) After() (*State, error) { //situation after
 		if moatbridging {
 			next.MoatsState[m.From[1]/8] = true
 			next.MoatsState[m.From[1]/8+1] = true
+		}
+		if m.To[0] == 0 && m.From[0] == 1 {
+			if m.PawnPromotion == ZeroFigType {
+				panic("Pawn promoted by zero")
+			}
+			next.Board[m.To[0]][m.To[1]] = Fig{FigType: m.PawnPromotion, Color: m.What().Color, PawnCenter: false}
 		}
 	} else {
 		var empty Square
