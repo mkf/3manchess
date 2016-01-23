@@ -9,13 +9,6 @@ before_install:
 - go get github.com/onsi/gomega
 - go get github.com/onsi/ginkgo
 - go get golang.org/x/tools/cmd/cover
-- sudo cp .xvfb.init /etc/init.d/xvfb
-- sudo chmod +x /etc/init.d/xvfb
-- export DISPLAY=:99.0
-- sudo sh -e /etc/init.d/xvfb start
-  #- sudo add-apt-repository -y ppa:ubuntu-sdk-team/ppa
-  #- sudo apt-get update
-  #- sudo apt-get install ubuntu-sdk qtbase5-private-dev qtdeclarative5-private-dev libqt5opengl5-dev
 install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
 - go get -v -t -race github.com/ArchieT/3manchess/movedet
@@ -24,7 +17,6 @@ install:
 - go get -v -t -race github.com/ArchieT/3manchess/cmd/3manchess-devengfmt
 - go get -v -t -race github.com/ArchieT/3manchess/cmd/3manchess-devengchan
 - go get -v -t -race github.com/ArchieT/3manchess/interface/web
-- go get -v -t -race github.com/ArchieT/3manchess/interface/gui
 - go get -v -t -race github.com/ArchieT/3manchess/ai/bruteforce
 - go get -v -t -race github.com/ArchieT/3manchess/ai/sitvalues
 script:

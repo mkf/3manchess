@@ -25,11 +25,6 @@ func adowbiowl(p float64, biowl bool) float64 {
 	return math.Remainder(p+math.Pi, 2*math.Pi)
 }
 
-type appearing struct {
-	game.Pos
-	game.Fig
-}
-
 type GUI struct {
 	appears             chan<- appearing
 	BlackIsOnWhitesLeft bool
@@ -42,10 +37,10 @@ type GUI struct {
 	window              *qml.Window
 }
 
-type boardmap [6][24]game.Fig
+type boardmap [6][24]string
 
-func (bm *boardmap) Appear(w appearing) {
-	bm[w.Pos[0]][w.Pos[1]] = w.Fig
+func (bm *boardmap) Appear(w game.BoardDiff) {
+	bm[w.Pos[0]][w.Pos[1]] = FigURIs[w.Fig.Uint8()]
 }
 
 type boardclicker chan complex128
