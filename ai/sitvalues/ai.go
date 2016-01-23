@@ -37,11 +37,10 @@ func (a *AIPlayer) Map() map[string]interface{} {
 	return m
 }
 
-func FromMap(m map[string]interface{}) player.Player {
+func (a *AIPlayer) FromMap(m map[string]interface{}) {
 	if m["WhoAmI"] != WhoAmI {
 		panic("It's not mine!")
 	}
-	var a *AIPlayer = new(AIPlayer)
 	ok := true
 	a.FixedPrecision, ok = m["Precision"]
 	if !ok {
