@@ -109,7 +109,7 @@ func (c Color) String() string {
 	case Black:
 		return "Black"
 	default:
-		panic(c)
+		panic(uint8(c))
 	}
 }
 
