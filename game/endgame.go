@@ -13,7 +13,7 @@ func (s *State) CanIMoveWOCheck(who Color) bool {
 		for oacp.OK() {
 			to := Pos(oacp)
 			if s.AnyPiece(from, to) {
-				m := Move{from, to, s}
+				m := Move{from, to, s, Queen}
 				_, err := m.After()
 				if err == nil {
 					return true
