@@ -2,6 +2,8 @@
 //the PawnCenter bool in its structs, which could be misleading when ommited.
 package board
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "github.com/ArchieT/3manchess/game"
 
 type Piece struct {

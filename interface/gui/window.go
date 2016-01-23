@@ -1,8 +1,9 @@
 package gui
 
-import "gopkg.in/qml.v1"
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
-//import "log"
+import "log"
+
 //import "github.com/ArchieT/3manchess/movedet"
 import "github.com/ArchieT/3manchess/game"
 import "math/cmplx"
@@ -24,66 +25,71 @@ func adowbiowl(p float64, biowl bool) float64 {
 	return math.Remainder(p+math.Pi, 2*math.Pi)
 }
 
-type appearing struct {
-	game.Pos
-	game.Fig
-}
-
 type GUI struct {
-	disappears          chan<- game.Pos
-	appears             chan<- appearing
-	replacements        chan<- appearing
+	appears             chan<- game.BoardDiff
 	BlackIsOnWhitesLeft bool
 	fromtos             <-chan game.FromTo
 	Rotated             float64 //zerofile blackmost boundary angle
 	errchan             chan error
 	ErrorChan           <-chan error
-	engine              *qml.Engine
-	component           *qml.Object
-	window              *qml.Window
+	GUIEngine
+	bm *boardmap
 }
 
-type boardmap [6][24]game.Fig
-
-type boardclicker chan complex128
-
-func (bckr boardclicker) ClickedIt(x, y int) {
-	bckr <- complex(float64(x), float64(y))
+type GUIEngine interface {
+	Initialize(Boardclicker) error
+	Appear(game.BoardDiff)
+	ErrorChan() <-chan error
 }
 
-func replacing(r <-chan appearing, a chan<- appearing, d chan<- game.Pos) {
-	var y appearing
-	for {
-		y = <-r
-		d <- y.Pos
-		a <- y
+type boardmap [6][24]string
+
+func (gui *GUI) Appear(w game.BoardDiff) {
+	gui.bm[w.Pos[0]][w.Pos[1]] = FigURIs[w.Fig.Uint8()]
+	gui.GUIEngine.Appear(w)
+}
+
+type Boardclicker struct {
+	c     chan game.Pos
+	rot   *float64
+	biowl *bool
+}
+
+func (bckr Boardclicker) ClickedIt(x, y int) {
+	bckr.c <- clicking(complex(float64(x), float64(y)), *bckr.rot, *bckr.biowl)
+}
+
+func (bckr Boardclicker) ClickPos(rank, file int8) error {
+	p := game.Pos{rank, file}
+	if err := p.Correct(); err == nil {
+		bckr.c <- p
+	} else {
+		return err
 	}
+	return nil
 }
 
-func clicking(s <-chan complex128, d chan<- game.Pos, rot *float64, biowl *bool) {
-	var c complex128
+func clicking(c complex128, rot float64, biowl bool) game.Pos {
 	var r, p float64
 	var m uint16
 	var pr, pf int8
-	for {
-		c = <-s
-		c -= Center
-		r, p = cmplx.Polar(c)
-		p -= *rot
-		r -= InnerRadius
-		if r < 0 {
-			continue
-		}
-		p = adowbiowl(p, *biowl)
-		m = uint16(r) / 35
-		if m < 24 {
-			pr = int8(m)
-		} else {
-			continue
-		}
-		pf = int8(p / OneFile)
-		d <- game.Pos{pr, pf}
+	log.Println("RawClick:", c)
+	c -= Center
+	r, p = cmplx.Polar(c)
+	p -= rot
+	r -= InnerRadius
+	if r < 0 {
+		return game.Pos{-1, -1}
 	}
+	p = adowbiowl(p, biowl)
+	m = uint16(r) / 35
+	if m < 24 {
+		pr = int8(m)
+	} else {
+		return game.Pos{127, 127}
+	}
+	pf = int8(p / OneFile)
+	return game.Pos{pr, pf}
 }
 
 func fromtoing(s <-chan game.Pos, d chan<- game.FromTo) {
@@ -94,37 +100,24 @@ func fromtoing(s <-chan game.Pos, d chan<- game.FromTo) {
 	}
 }
 
-func NewGUI() (*GUI, error) {
+func NewGUI(ge GUIEngine) (*GUI, error) {
 	gui := new(GUI)
-	clicks := make(boardclicker)
+	var clicks Boardclicker
+	clicks.rot = &gui.Rotated
+	clicks.biowl = &gui.BlackIsOnWhitesLeft
 	clickpos := make(chan game.Pos)
-	disappears := make(chan game.Pos)
-	appears := make(chan appearing)
-	replacements := make(chan appearing)
+	clicks.c = clickpos
+	appears := make(chan game.BoardDiff)
 	fromtos := make(chan game.FromTo)
-	gui.disappears = disappears
 	gui.appears = appears
-	gui.replacements = replacements
 	gui.Rotated = DefaultRotation
 	gui.fromtos = fromtos
-	go replacing(replacements, appears, disappears)
-	go clicking(clicks, clickpos, &(gui.Rotated), &(gui.BlackIsOnWhitesLeft))
 	go fromtoing(clickpos, fromtos)
-	gui.engine = qml.NewEngine()
-	gui.engine.Context().SetVar("clickinto", clicks)
-	component, err := gui.engine.LoadFile("okno.qml")
-	gui.component = &component
+	err := ge.Initialize(clicks)
 	if err != nil {
 		return gui, err
 	}
 	gui.errchan = make(chan error)
 	gui.ErrorChan = gui.errchan
-	gui.window = component.CreateWindow(nil)
-	gui.window.Show()
-	go gui.run()
 	return gui, nil
-}
-
-func (gui *GUI) run() {
-	gui.window.Wait()
 }
