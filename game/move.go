@@ -1,5 +1,7 @@
 package game
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 //Move :  struct describing a single move with the situation before it
 type Move struct {
 	From, To Pos

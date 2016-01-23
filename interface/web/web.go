@@ -1,5 +1,7 @@
 package web
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import (
 	"encoding/json"
 	"github.com/ArchieT/3manchess/game"

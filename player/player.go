@@ -1,5 +1,7 @@
 package player
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "github.com/ArchieT/3manchess/game"
 
 //Player is either AI or a human via some UI

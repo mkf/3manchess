@@ -1,3 +1,6 @@
+
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 //import GoExtensions 1.0
 import QtQuick 2.4
 import QtQuick.Window 2.2
@@ -23,7 +26,7 @@ Window {
 		source: "3manchesstemp700px.png"
 		MouseArea {
 			anchors.fill: parent
-			onClicked: console.log("PLACEHOLDER")
+			onClicked: clickinto.clickinit(event.ScreenX, event.ScreenY)
 		}
 	}
 }
