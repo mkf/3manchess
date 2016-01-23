@@ -35,7 +35,7 @@ type GUI struct {
 }
 
 type GUIEngine interface {
-	Initialize() error
+	Initialize(Boardclicker) error
 	Appear(game.BoardDiff)
 	ErrorChan() <-chan error
 }
@@ -47,46 +47,47 @@ func (gui *GUI) Appear(w game.BoardDiff) {
 	gui.GUIEngine.Appear(w)
 }
 
-type boardclicker chan complex128
-
-func (bckr boardclicker) ClickedIt(x, y int) {
-	bckr <- complex(float64(x), float64(y))
+type Boardclicker struct {
+	c     chan game.Pos
+	rot   *float64
+	biowl *bool
 }
 
-type posclicker chan game.Pos
+func (bckr Boardclicker) ClickedIt(x, y int) {
+	bckr.c <- clicking(complex(float64(x), float64(y)), *bckr.rot, *bckr.biowl)
+}
 
-func (pckr posclicker) ClickedIt(rank, file int8) {
+func (bckr Boardclicker) ClickPos(rank, file int8) error {
 	p := game.Pos{rank, file}
-	if p.Correct() == nil {
-		pckr <- p
+	if err := p.Correct(); err == nil {
+		bckr.c <- p
+	} else {
+		return err
 	}
+	return nil
 }
 
-func clicking(s <-chan complex128, d chan<- game.Pos, rot *float64, biowl *bool) {
-	var c complex128
+func clicking(c complex128, rot float64, biowl bool) game.Pos {
 	var r, p float64
 	var m uint16
 	var pr, pf int8
-	for {
-		c = <-s
-		log.Println("RawClick:", c)
-		c -= Center
-		r, p = cmplx.Polar(c)
-		p -= *rot
-		r -= InnerRadius
-		if r < 0 {
-			continue
-		}
-		p = adowbiowl(p, *biowl)
-		m = uint16(r) / 35
-		if m < 24 {
-			pr = int8(m)
-		} else {
-			continue
-		}
-		pf = int8(p / OneFile)
-		d <- game.Pos{pr, pf}
+	log.Println("RawClick:", c)
+	c -= Center
+	r, p = cmplx.Polar(c)
+	p -= rot
+	r -= InnerRadius
+	if r < 0 {
+		return game.Pos{-1, -1}
 	}
+	p = adowbiowl(p, biowl)
+	m = uint16(r) / 35
+	if m < 24 {
+		pr = int8(m)
+	} else {
+		return game.Pos{127, 127}
+	}
+	pf = int8(p / OneFile)
+	return game.Pos{pr, pf}
 }
 
 func fromtoing(s <-chan game.Pos, d chan<- game.FromTo) {
@@ -99,16 +100,18 @@ func fromtoing(s <-chan game.Pos, d chan<- game.FromTo) {
 
 func NewGUI(ge GUIEngine) (*GUI, error) {
 	gui := new(GUI)
-	clicks := make(boardclicker)
+	var clicks Boardclicker
+	clicks.rot = &gui.Rotated
+	clicks.biowl = &gui.BlackIsOnWhitesLeft
 	clickpos := make(chan game.Pos)
+	clicks.c = clickpos
 	appears := make(chan game.BoardDiff)
 	fromtos := make(chan game.FromTo)
 	gui.appears = appears
 	gui.Rotated = DefaultRotation
 	gui.fromtos = fromtos
-	go clicking(clicks, clickpos, &(gui.Rotated), &(gui.BlackIsOnWhitesLeft))
 	go fromtoing(clickpos, fromtos)
-	err := ge.Initialize()
+	err := ge.Initialize(clicks)
 	if err != nil {
 		return gui, err
 	}
