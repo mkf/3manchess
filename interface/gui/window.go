@@ -1,5 +1,7 @@
 package gui
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "log"
 
 //import "github.com/ArchieT/3manchess/movedet"

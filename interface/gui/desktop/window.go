@@ -1,5 +1,7 @@
 package desktop
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "gopkg.in/qml.v1"
 
 //import "log"

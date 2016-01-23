@@ -1,5 +1,7 @@
 package machine
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 //import "github.com/ArchieT/3manchess/game"
 
 type Pins struct{}
