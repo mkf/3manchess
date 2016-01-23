@@ -4,11 +4,11 @@ import "log"
 
 //Move :  struct describing a single move with the situation before it
 type Move struct {
-	From Pos
-	To   Pos
+	From, To Pos
 	//	What        Fig
 	//	AlreadyHere Fig
-	Before *State
+	Before        *State
+	PawnPromotion FigType
 }
 
 //IncorrectPos error
@@ -43,7 +43,7 @@ func (ft FromTo) To() Pos {
 
 //Move gives you a Move with the given Before *State
 func (ft FromTo) Move(before *State) Move {
-	return Move{ft.From(), ft.To(), before}
+	return Move{ft.From(), ft.To(), before, 0}
 }
 
 //Correct checks if the FromTo is Pos.Correct
@@ -367,6 +367,12 @@ func (m *Move) After() (*State, error) { //situation after
 		if moatbridging {
 			next.MoatsState[m.From[1]/8] = true
 			next.MoatsState[m.From[1]/8+1] = true
+		}
+		if m.To[0] == 0 && m.From[0] == 1 {
+			if m.PawnPromotion == ZeroFigType {
+				panic("Pawn promoted by zero")
+			}
+			next.Board[m.To[0]][m.To[1]] = Square{NotEmpty: true, Fig: Fig{FigType: m.PawnPromotion, Color: m.What().Color, PawnCenter: false}}
 		}
 	} else {
 		log.Println("OtherFig")

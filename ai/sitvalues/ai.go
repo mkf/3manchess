@@ -11,6 +11,8 @@ import "log"
 
 const DEFFIXPREC float64 = 0.0002
 
+const DEFPAWNPROMOTION = game.Queen
+
 type AIPlayer struct {
 	errchan           chan error
 	ErrorChan         chan<- error
@@ -21,6 +23,7 @@ type AIPlayer struct {
 	OwnedToThreatened float64
 	gp                *player.Gameplay
 	waiting           bool
+	PawnPromotion     game.FigType //it will be possible to set it to 0 for automatic choice (not yet implemented)
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
@@ -34,6 +37,7 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 	a.hurry = hurry
 	a.HurryChan = hurry
 	a.gp = gp
+	a.PawnPromotion = DEFPAWNPROMOTION
 	go func() {
 		for b := range a.errchan {
 			panic(b)
@@ -67,6 +71,7 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 		wg.Add(1)
 		go func(ourft game.FromTo) {
 			sv := ourft.Move(state)
+			sv.PawnPromotion = a.PawnPromotion
 			if v, err := sv.After(); err == nil {
 				possib <- v
 			}
@@ -105,6 +110,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	for oac.OK() {
 		go func(ourft game.FromTo) {
 			sv := ourft.Move(s)
+			sv.PawnPromotion = a.PawnPromotion
 			if v, err := sv.After(); err == nil {
 				gwg.Add(1)
 				go func(n game.FromTo) {
@@ -154,6 +160,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 		panic("len(ourfts)==0 !!!!")
 	}
 	ormov := ourfts[9].Move(s)
+	ormov.PawnPromotion = a.PawnPromotion
 	return &ormov
 }
 
