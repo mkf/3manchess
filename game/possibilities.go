@@ -1,5 +1,7 @@
 package game
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "log"
 
 func (b *Board) canfigstraighthoriz(rank, from, to int8) (bool, bool) { //returns plus, minus

@@ -1,5 +1,7 @@
 package game
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "testing"
 
 func TestSimpleGenNoPanic(t *testing.T) {

@@ -1,5 +1,7 @@
 package game
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 func (f *Fig) Uint8() uint8 {
 	if f.FigType == 0 || f.Color == 0 {
 		return 0

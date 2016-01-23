@@ -1,5 +1,7 @@
 package game
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 //Rune : Unicode representation of a piece
 func (f *Fig) Rune() rune {
 	switch f.Color {
