@@ -1,7 +1,5 @@
 package gui
 
-import "gopkg.in/qml.v1"
-
 import "log"
 
 //import "github.com/ArchieT/3manchess/movedet"
@@ -26,7 +24,7 @@ func adowbiowl(p float64, biowl bool) float64 {
 }
 
 type GUI struct {
-	appears             chan<- appearing
+	appears             chan<- game.BoardDiff
 	BlackIsOnWhitesLeft bool
 	fromtos             <-chan game.FromTo
 	Rotated             float64 //zerofile blackmost boundary angle
@@ -57,9 +55,9 @@ func (bckr boardclicker) ClickedIt(x, y int) {
 
 type posclicker chan game.Pos
 
-func (pckr posclicker) ClickedIt(rank, file uint8) {
+func (pckr posclicker) ClickedIt(rank, file int8) {
 	p := game.Pos{rank, file}
-	if p.Correct {
+	if p.Correct() == nil {
 		pckr <- p
 	}
 }
@@ -103,7 +101,7 @@ func NewGUI(ge GUIEngine) (*GUI, error) {
 	gui := new(GUI)
 	clicks := make(boardclicker)
 	clickpos := make(chan game.Pos)
-	appears := make(chan appearing)
+	appears := make(chan game.BoardDiff)
 	fromtos := make(chan game.FromTo)
 	gui.appears = appears
 	gui.Rotated = DefaultRotation
@@ -117,8 +115,4 @@ func NewGUI(ge GUIEngine) (*GUI, error) {
 	gui.errchan = make(chan error)
 	gui.ErrorChan = gui.errchan
 	return gui, nil
-}
-
-func (gui *GUI) run() {
-	gui.window.Wait()
 }
