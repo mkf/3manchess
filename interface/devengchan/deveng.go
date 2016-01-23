@@ -17,6 +17,8 @@ const (
 	LOSE        ResultCode = 2
 )
 
+const WhoAmI string = "3manchess-devengchan"
+
 type DevGen struct {
 	Name string
 }
@@ -53,6 +55,21 @@ func (p *Developer) AskingForMove() <-chan *game.State {
 
 func (p *Developer) HereAreMoves() chan<- *game.Move {
 	return p.HereRMoves
+}
+
+func (p *Developer) Map() map[string]interface{} {
+	return map[string]interface{}{
+		"Name":   p.Name,
+		"WhoAmI": WhoAmI,
+	}
+}
+
+func (p *Developer) FromMap(m map[string]interface{}) {
+	ok := true
+	p.Name, ok = m["Name"]
+	if !ok {
+		panic("Name")
+	}
 }
 
 func (p *Developer) Initialize(gp *player.Gameplay) {

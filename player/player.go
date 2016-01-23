@@ -17,6 +17,7 @@ type Player interface {
 	AreWeWaitingForYou() bool
 	HeyWeWaitingForYou(bool)
 	String() string
+	Map() map[string]interface{}
 }
 
 type PlayerGen interface {

@@ -8,6 +8,8 @@ import "github.com/ArchieT/3manchess/simple"
 import "fmt"
 import "log"
 
+const WhoAmI string = "3manchess-devengfmt"
+
 type Developer struct {
 	Name      string
 	errchan   chan error
@@ -16,6 +18,21 @@ type Developer struct {
 	hurry     chan bool
 	gp        *player.Gameplay
 	waiting   bool
+}
+
+func (p *Developer) Map() map[string]interface{} {
+	return map[string]interface{}{
+		"Name":   p.Name,
+		"WhoAmI": WhoAmI,
+	}
+}
+
+func (p *Developer) FromMap(m map[string]interface{}) {
+	ok := true
+	p.Name, ok = m["Name"]
+	if !ok {
+		panic("Name")
+	}
 }
 
 func (p *Developer) Initialize(gp *player.Gameplay) {

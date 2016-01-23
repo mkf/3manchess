@@ -28,6 +28,32 @@ type AIPlayer struct {
 	PawnPromotion     game.FigType //it will be possible to set it to 0 for automatic choice (not yet implemented)
 }
 
+func (a *AIPlayer) Map() map[string]interface{} {
+	m := make(map[string]interface{})
+	m["Precision"] = a.FixedPrecision
+	m["OwnedToThreatened"] = a.OwnedToThreatened
+	m["PawnPromotion"] = a.PawnPromotion
+	m["WhoAmI"] = WhoAmI
+	return m
+}
+
+func (a *AIPlayer) FromMap(m map[string]interface{}) {
+	ok := true
+	a.FixedPrecision, ok = m["Precision"]
+	if !ok {
+		panic("Precision")
+	}
+	a.OwnedToThreatened, ok = m["OwnedToThreatened"]
+	if !ok {
+		panic("OwnedToThreatened")
+	}
+	a.PawnPromotion, ok = m["PawnPromotion"]
+	if !ok {
+		panic("PawnPromotion")
+	}
+	return a
+}
+
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 	if a.FixedPrecision == 0.0 {
 		a.FixedPrecision = DEFFIXPREC
@@ -39,7 +65,9 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 	a.hurry = hurry
 	a.HurryChan = hurry
 	a.gp = gp
-	a.PawnPromotion = DEFPAWNPROMOTION
+	if a.PawnPromotion == game.ZeroFigType {
+		a.PawnPromotion = DEFPAWNPROMOTION
+	}
 	go func() {
 		for b := range a.errchan {
 			panic(b)
