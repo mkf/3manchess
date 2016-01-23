@@ -32,21 +32,36 @@ type GUI struct {
 	Rotated             float64 //zerofile blackmost boundary angle
 	errchan             chan error
 	ErrorChan           <-chan error
-	engine              *qml.Engine
-	component           *qml.Object
-	window              *qml.Window
+	GUIEngine
+	bm *boardmap
+}
+
+type GUIEngine interface {
+	Initialize() error
+	Appear(game.BoardDiff)
+	ErrorChan() <-chan error
 }
 
 type boardmap [6][24]string
 
-func (bm *boardmap) Appear(w game.BoardDiff) {
-	bm[w.Pos[0]][w.Pos[1]] = FigURIs[w.Fig.Uint8()]
+func (gui *GUI) Appear(w game.BoardDiff) {
+	gui.bm[w.Pos[0]][w.Pos[1]] = FigURIs[w.Fig.Uint8()]
+	gui.GUIEngine.Appear(w)
 }
 
 type boardclicker chan complex128
 
 func (bckr boardclicker) ClickedIt(x, y int) {
 	bckr <- complex(float64(x), float64(y))
+}
+
+type posclicker chan game.Pos
+
+func (pckr posclicker) ClickedIt(rank, file uint8) {
+	p := game.Pos{rank, file}
+	if p.Correct {
+		pckr <- p
+	}
 }
 
 func clicking(s <-chan complex128, d chan<- game.Pos, rot *float64, biowl *bool) {
@@ -84,7 +99,7 @@ func fromtoing(s <-chan game.Pos, d chan<- game.FromTo) {
 	}
 }
 
-func NewGUI() (*GUI, error) {
+func NewGUI(ge GUIEngine) (*GUI, error) {
 	gui := new(GUI)
 	clicks := make(boardclicker)
 	clickpos := make(chan game.Pos)
@@ -95,18 +110,12 @@ func NewGUI() (*GUI, error) {
 	gui.fromtos = fromtos
 	go clicking(clicks, clickpos, &(gui.Rotated), &(gui.BlackIsOnWhitesLeft))
 	go fromtoing(clickpos, fromtos)
-	gui.engine = qml.NewEngine()
-	gui.engine.Context().SetVar("clickinto", clicks)
-	component, err := gui.engine.LoadFile("okno.qml")
-	gui.component = &component
+	err := ge.Initialize()
 	if err != nil {
 		return gui, err
 	}
 	gui.errchan = make(chan error)
 	gui.ErrorChan = gui.errchan
-	gui.window = component.CreateWindow(nil)
-	gui.window.Show()
-	go gui.run()
 	return gui, nil
 }
 
