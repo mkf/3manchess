@@ -1,5 +1,7 @@
 package sitvalues
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "testing"
 import "github.com/ArchieT/3manchess/game"
 import "time"

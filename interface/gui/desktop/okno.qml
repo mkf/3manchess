@@ -1,3 +1,6 @@
+
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 //import GoExtensions 1.0
 import QtQuick 2.4
 import QtQuick.Window 2.2

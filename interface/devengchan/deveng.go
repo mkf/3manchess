@@ -1,5 +1,7 @@
 package devengchan
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
 
