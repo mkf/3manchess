@@ -111,7 +111,7 @@ func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error
 		return om, os, IllegalMoveDetected{"One disappearance with no reason!", "NoReasonDisappear"}
 	}
 	if len(disappeared) == 1 && len(replaced) == 1 {
-		ourmove = game.Move{From: disappeared[0].where, To: game.Pos(replaced[0].where), Before: bef, PawnPromotion: replaced[0].what.FigType}
+		ourmove = game.Move{From: disappeared[0].where, To: game.Pos(replaced[0].where), Before: bef, PawnPromotion: replaced[0].after.FigType}
 		whatafter, err := ourmove.After()
 		if err == nil {
 			if !aft.Equal(whatafter.Board) {
