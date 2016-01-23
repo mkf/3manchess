@@ -31,18 +31,6 @@ type Gameplay struct {
 	*game.State
 }
 
-type GameplayData struct {
-	*game.State
-	Players [3]PlayerData
-}
-
-type PlayerData struct {
-	Type        string
-	Name        string
-	Precision   float64
-	Coefficient float64
-}
-
 func (gp *Gameplay) HurryUpWhoever() {
 	for _, color := range game.COLORS {
 		if gp.Players[color].AreWeWaitingForYou() {
