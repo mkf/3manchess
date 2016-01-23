@@ -65,9 +65,6 @@ func (p *Developer) Map() map[string]interface{} {
 }
 
 func (p *Developer) FromMap(m map[string]interface{}) {
-	if m["WhoAmI"] != WhoAmI {
-		panic("It's not mine!")
-	}
 	ok := true
 	p.Name, ok = m["Name"]
 	if !ok {

@@ -38,9 +38,6 @@ func (a *AIPlayer) Map() map[string]interface{} {
 }
 
 func (a *AIPlayer) FromMap(m map[string]interface{}) {
-	if m["WhoAmI"] != WhoAmI {
-		panic("It's not mine!")
-	}
 	ok := true
 	a.FixedPrecision, ok = m["Precision"]
 	if !ok {
