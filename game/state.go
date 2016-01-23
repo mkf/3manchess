@@ -1,5 +1,7 @@
 package game
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "fmt"
 
 //MoatsState :  Black-White, White-Gray, Gray-Black  //true: bridged. Originally, true meant still active, i.e. non-bridged!!!
