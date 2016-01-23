@@ -94,7 +94,7 @@ func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error
 	}
 	if len(appeared) == 1 && len(disappeared) == 2 && len(replaced) == 0 && appeared[0].what.FigType == game.Pawn {
 		for _, j := range disappeared {
-			ourmove = game.Move{From: j.where, To: game.Pos(appeared[0].where), Before: bef}
+			ourmove = game.Move{From: j.where, To: game.Pos(appeared[0].where), Before: bef, PawnPromotion: appeared[0].what.FigType}
 			whatafter, err := ourmove.After()
 			if err == nil {
 				if !aft.Equal(whatafter.Board) {
@@ -111,7 +111,7 @@ func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error
 		return om, os, IllegalMoveDetected{"One disappearance with no reason!", "NoReasonDisappear"}
 	}
 	if len(disappeared) == 1 && len(replaced) == 1 {
-		ourmove = game.Move{From: disappeared[0].where, To: game.Pos(replaced[0].where), Before: bef}
+		ourmove = game.Move{From: disappeared[0].where, To: game.Pos(replaced[0].where), Before: bef, PawnPromotion: replaced[0].after.FigType}
 		whatafter, err := ourmove.After()
 		if err == nil {
 			if !aft.Equal(whatafter.Board) {
@@ -121,7 +121,7 @@ func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error
 		return &ourmove, whatafter, err
 	}
 	if len(disappeared) == 1 && len(appeared) == 1 {
-		ourmove = game.Move{From: disappeared[0].where, To: game.Pos(appeared[0].where), Before: bef}
+		ourmove = game.Move{From: disappeared[0].where, To: game.Pos(appeared[0].where), Before: bef, PawnPromotion: appeared[0].what.FigType}
 		whatafter, err := ourmove.After()
 		if err == nil {
 			if !aft.Equal(whatafter.Board) {
@@ -134,7 +134,7 @@ func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error
 		return om, bef, IllegalMoveDetected{"The board remains unchanged", "Unchanged"}
 	}
 	if len(disappeared) == 0 && len(appeared) == 0 && len(replaced) == 1 {
-		return om, os, IllegalMoveDetected{"One replacement with no reason!", "NoReasonReplace"}
+		return om, os, IllegalMoveDetected{"One replacement with no reason (Note: promotion should be done in the same move)!", "NoReasonReplace"}
 	}
 	panic("None of the cases???")
 }

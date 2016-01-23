@@ -25,7 +25,6 @@ install:
 - go get -v -t -race github.com/ArchieT/3manchess/cmd/3manchess-devengchan
 - go get -v -t -race github.com/ArchieT/3manchess/interface/web
 - go get -v -t -race github.com/ArchieT/3manchess/interface/gui
-- go get -v -t -race github.com/ArchieT/3manchess/ai/bruteforce
 - go get -v -t -race github.com/ArchieT/3manchess/ai/sitvalues
 script:
 - go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp1.out

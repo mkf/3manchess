@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	ai "github.com/ArchieT/3manchess/ai/bruteforce"
+	ai "github.com/ArchieT/3manchess/ai/sitvalues"
 	"github.com/ArchieT/3manchess/game"
 	deveng "github.com/ArchieT/3manchess/interface/devengchan"
 	"github.com/ArchieT/3manchess/player"
