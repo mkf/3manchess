@@ -1,5 +1,7 @@
 package reality
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "github.com/ArchieT/3manchess/interface/reality/machine"
 import "github.com/ArchieT/3manchess/interface/reality/camget"
 import "github.com/ArchieT/3manchess/game"
