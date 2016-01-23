@@ -1,8 +1,9 @@
 package desktop
 
 import "gopkg.in/qml.v1"
-import "log"
-import "github.com/ArchieT/3manches/interface/gui"
+
+//import "log"
+import "github.com/ArchieT/3manchess/interface/gui"
 
 type DesktopEngine struct {
 	engine    *qml.Engine
@@ -12,12 +13,10 @@ type DesktopEngine struct {
 	errchan   chan error
 }
 
-func (de *DesktopEngine) Initialize(clicks interface {
-	ClickedIt(int, int)
-}) error {
+func (de *DesktopEngine) Initialize(clicks gui.Boardclicker) error {
 	de.engine = qml.NewEngine()
 	de.engine.Context().SetVar("clickinto", clicks)
-	component, err := gui.engine.LoadFile("okno.qml")
+	component, err := de.engine.LoadFile("okno.qml")
 	de.component = &component
 	if err != nil {
 		return err
