@@ -13,6 +13,8 @@ const DEFFIXPREC float64 = 0.0002
 
 const DEFPAWNPROMOTION = game.Queen
 
+const WhoAmI string = "3manchess-ai_sitvalues"
+
 type AIPlayer struct {
 	errchan           chan error
 	ErrorChan         chan<- error
