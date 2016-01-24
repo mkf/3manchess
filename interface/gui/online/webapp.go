@@ -14,7 +14,7 @@ import "google.golang.org/appengine/datastore"
 
 import "time"
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func MainPage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	c.Deadline() //just a placeholder senseless and probably harmful, just delete and forget this line
 }

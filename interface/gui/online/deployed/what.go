@@ -4,5 +4,5 @@ import "net/http"
 import "github.com/ArchieT/3manchess/interface/online"
 
 func init() {
-	http.HandleFunc("/", online.Handler)
+	http.HandleFunc("/", online.MainPage)
 }
