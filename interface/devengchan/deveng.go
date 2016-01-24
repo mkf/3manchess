@@ -57,6 +57,17 @@ func (p *Developer) HereAreMoves() chan<- *game.Move {
 	return p.HereRMoves
 }
 
+func (p *Developer) Data() player.PlayerData {
+	var d player.PlayerData
+	d.WhoAmI = WhoAmI
+	d.Name = p.Name
+	return d
+}
+
+func (p *Developer) FromData(d player.PlayerData) {
+	p.Name = d.Name
+}
+
 func (p *Developer) Map() map[string]interface{} {
 	return map[string]interface{}{
 		"Name":   p.Name,
