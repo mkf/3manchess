@@ -39,7 +39,8 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	}
 	pre.Gameplays = make([]GameplayData, 0, 20)
 	q := datastore.NewQuery("Gameplay").Ancestor(allGameplaysKey(c)).Order("-Date").Limit(20)
-	if qk, err := q.GetAll(c, &pre.Gameplays); err != nil {
+	qk, err := q.GetAll(c, &pre.Gameplays)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
