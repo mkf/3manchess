@@ -56,7 +56,7 @@ func BoardUint(s *([6][24]uint8)) *Board {
 	return &b
 }
 
-func BoardByteArray(s []byte) *Board {
+func BoardByte(s []byte) *Board {
 	var b Board
 	var t uint8
 	var oac ACP
