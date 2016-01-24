@@ -29,7 +29,9 @@ func (p *Developer) Map() map[string]interface{} {
 
 func (p *Developer) FromMap(m map[string]interface{}) {
 	ok := true
-	p.Name, ok = m["Name"]
+	var t interface{}
+	t, ok = m["Name"]
+	p.Name = t.(string)
 	if !ok {
 		panic("Name")
 	}
