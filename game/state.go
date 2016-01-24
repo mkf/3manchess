@@ -136,6 +136,31 @@ type StateData struct {
 	AliveBlack     bool
 }
 
+func (s *State) FromData(d StateData) {
+	s.Board = BoardByte(d.Board)
+	s.MoatsState = MoatsState{d.MoatZero, d.MoatOne, d.MoatTwo}
+	s.MovesNext = Color(d.MovesNext)
+	s.Castling = Castling{{d.CasWK, d.CasWQ}, {d.CasGK, d.CasGQ}, {d.CasBK, d.CasBQ}}
+	s.EnPassant = EnPassant{{d.EnPasPrevRank, d.EnPasPrevFile}, {d.EnPasCurRank, d.EnPasCurFile}}
+	s.HalfmoveClock = HalfmoveClock(d.HalfmoveClock)
+	s.FullmoveNumber = FullmoveNumber(d.FullmoveNumber)
+	s.PlayersAlive = PlayersAlive{d.AliveWhite, d.AliveGray, d.AliveBlack}
+}
+
+func (s *State) Data() StateData {
+	return StateData{
+		Board: s.Board.Byte(), MovesNext: int8(s.MovesNext),
+		MoatZero: s.MoatsState[0], MoatOne: s.MoatsState[1], MoatTwo: s.MoatsState[2],
+		CasWK: s.Castling[0][0], CasWQ: s.Castling[0][1],
+		CasGK: s.Castling[1][0], CasGQ: s.Castling[1][1],
+		CasBK: s.Castling[2][0], CasBQ: s.Castling[2][1],
+		EnPasPrevRank: s.EnPassant[0][0], EnPasPrevFile: s.EnPassant[0][1],
+		EnPasCurRank: s.EnPassant[1][0], EnPasCurFile: s.EnPassant[1][1],
+		HalfmoveClock: int8(s.HalfmoveClock), FullmoveNumber: int16(s.FullmoveNumber),
+		AliveWhite: s.PlayersAlive[0], AliveGray: s.PlayersAlive[1], AliveBlack: s.PlayersAlive[2],
+	}
+}
+
 //EvalDeath evaluates the death of whom is about to move next and returns the same pointer it got
 func (s *State) EvalDeath() *State {
 	if !(s.CanIMoveWOCheck(s.MovesNext)) {
