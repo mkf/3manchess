@@ -1,6 +1,7 @@
 package online
 
 import "github.com/ArchieT/3manchess/game"
+import "github.com/ArchieT/3manchess/player"
 
 //import "github.com/ArchieT/3manchess/interface/gui"
 //import "fmt"
@@ -30,4 +31,32 @@ func SaveState(st *game.State, c context.Context) (*datastore.Key, error) {
 	return datastore.Put(c, datastore.NewIncompleteKey(c, "State", nil), st.Data())
 }
 
-//func SavePlayer
+func SavePlayer(pl player.Player, c context.Context) (*datastore.Key, error) {
+	s := pl.Data()
+	return datastore.Put(c, datastore.NewIncompleteKey(c, "Player", nil), &s)
+}
+
+type GameplayData struct {
+	State, White, Gray, Black *datastore.Key
+}
+
+func SaveGameplay(gp player.Gameplay, c context.Context) (*datastore.Key, error) {
+	st, err := SaveState(gp.State, c)
+	if err != nil {
+		return nil, err
+	}
+	w, err := SavePlayer(gp.Players[game.White], c)
+	if err != nil {
+		return nil, err
+	}
+	g, err := SavePlayer(gp.Players[game.Gray], c)
+	if err != nil {
+		return nil, err
+	}
+	b, err := SavePlayer(gp.Players[game.Black], c)
+	if err != nil {
+		return nil, err
+	}
+	d := GameplayData{State: st, White: w, Gray: g, Black: b}
+	return datastore.Put(c, datastore.NewIncompleteKey(c, "Gameplay", nil), &d)
+}
