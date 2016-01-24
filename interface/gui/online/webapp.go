@@ -12,6 +12,8 @@ import "google.golang.org/appengine"
 //import "google.golang.org/appengine/user"
 import "google.golang.org/appengine/datastore"
 
+import "time"
+
 func Handler(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	c.Deadline() //just a placeholder senseless and probably harmful, just delete and forget this line
@@ -38,6 +40,7 @@ func SavePlayer(pl player.Player, c context.Context) (*datastore.Key, error) {
 
 type GameplayData struct {
 	State, White, Gray, Black *datastore.Key
+	Date                      time.Time
 }
 
 func SaveGameplay(gp player.Gameplay, c context.Context) (*datastore.Key, error) {
@@ -57,6 +60,6 @@ func SaveGameplay(gp player.Gameplay, c context.Context) (*datastore.Key, error)
 	if err != nil {
 		return nil, err
 	}
-	d := GameplayData{State: st, White: w, Gray: g, Black: b}
+	d := GameplayData{State: st, White: w, Gray: g, Black: b, Date: time.Now()}
 	return datastore.Put(c, datastore.NewIncompleteKey(c, "Gameplay", nil), &d)
 }
