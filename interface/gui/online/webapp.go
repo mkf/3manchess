@@ -1,9 +1,11 @@
 package online
 
-//import "github.com/ArchieT/3manchess/game"
+import "github.com/ArchieT/3manchess/game"
+
 //import "github.com/ArchieT/3manchess/interface/gui"
 //import "fmt"
 import "net/http"
+import "net/context"
 import "google.golang.org/appengine"
 
 //import "google.golang.org/appengine/user"
@@ -23,3 +25,9 @@ func PropertiesFromMaps(m ...map[string]interface{}) []datastore.Property {
 	}
 	return p
 }
+
+func SaveState(st *game.State, c context.Context) (*datastore.Key, error) {
+	return datastore.Put(c, datastore.NewIncompleteKey(c, "State", nil), st.Data())
+}
+
+//func SavePlayer
