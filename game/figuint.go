@@ -17,6 +17,20 @@ func (f *Fig) Uint8() uint8 {
 	return c*7 + t + p
 }
 
+func (s *Square) Uint8() uint8 {
+	if s.Empty() {
+		return 0
+	}
+	return s.Fig.Uint8()
+}
+
+func SqUint8(i uint8) Square {
+	if i == 0 {
+		return Square{Fig{0, 0, false}, false}
+	}
+	return Square{FigUint8(i), true}
+}
+
 func FigUint8(i uint8) Fig {
 	var f Fig
 	f.Color = Color(i/7 + 1)
@@ -36,11 +50,22 @@ func BoardUint(s *([6][24]uint8)) *Board {
 	var oac ACP
 	for oac.OK() {
 		t = (*s)[oac[0]][oac[1]]
-		if t == 0 {
-			b[oac[0]][oac[1]] = Square{NotEmpty: false, Fig: Fig{Color: ZeroColor, FigType: ZeroFigType}}
-		} else {
-			b[oac[0]][oac[1]] = Square{NotEmpty: true, Fig: FigUint8(t)}
-		}
+		b[oac[0]][oac[1]] = SqUint8(t)
+		oac.P()
+	}
+	return &b
+}
+
+func BoardByteArray(s []byte) *Board {
+	var b Board
+	var t uint8
+	var oac ACP
+	if len(s) < 24*6 {
+		panic(len(s))
+	}
+	for oac.OK() {
+		t = s[24*oac[0]+oac[1]]
+		b[oac[0]][oac[1]] = SqUint8(t)
 		oac.P()
 	}
 	return &b

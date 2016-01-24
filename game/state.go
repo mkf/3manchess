@@ -113,6 +113,29 @@ type State struct {
 	PlayersAlive
 }
 
+type StateData struct {
+	Board          []byte
+	MoatZero       bool
+	MoatOne        bool
+	MoatTwo        bool
+	MovesNext      int8
+	CasWK          bool
+	CasWQ          bool
+	CasGK          bool
+	CasGQ          bool
+	CasBK          bool
+	CasBQ          bool
+	EnPasPrevRank  int8
+	EnPasPrevFile  int8
+	EnPasCurRank   int8
+	EnPasCurFile   int8
+	HalfmoveClock  int8
+	FullmoveNumber int16
+	AliveWhite     bool
+	AliveGray      bool
+	AliveBlack     bool
+}
+
 //EvalDeath evaluates the death of whom is about to move next and returns the same pointer it got
 func (s *State) EvalDeath() *State {
 	if !(s.CanIMoveWOCheck(s.MovesNext)) {
