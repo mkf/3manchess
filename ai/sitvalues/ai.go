@@ -15,7 +15,10 @@ const DEFFIXPREC float64 = 0.0002
 
 const DEFPAWNPROMOTION = game.Queen
 
+const WhoAmI string = "3manchess-ai_sitvalues"
+
 type AIPlayer struct {
+	Name              string
 	errchan           chan error
 	ErrorChan         chan<- error
 	hurry             chan bool
@@ -26,6 +29,55 @@ type AIPlayer struct {
 	gp                *player.Gameplay
 	waiting           bool
 	PawnPromotion     game.FigType //it will be possible to set it to 0 for automatic choice (not yet implemented)
+}
+
+func (a *AIPlayer) Data() player.PlayerData {
+	var d player.PlayerData
+	d.Precision = a.FixedPrecision
+	d.Coefficient = a.OwnedToThreatened
+	d.PawnPromotion = int8(a.PawnPromotion)
+	d.WhoAmI = WhoAmI
+	d.Name = a.Name
+	return d
+}
+
+func (a *AIPlayer) Map() map[string]interface{} {
+	m := make(map[string]interface{})
+	m["Precision"] = a.FixedPrecision
+	m["OwnedToThreatened"] = a.OwnedToThreatened
+	m["PawnPromotion"] = a.PawnPromotion
+	m["WhoAmI"] = WhoAmI
+	m["Name"] = a.Name
+	return m
+}
+
+func (a *AIPlayer) FromMap(m map[string]interface{}) {
+	ok := true
+	var fp, ott, pp, nm interface{}
+	fp, ok = m["Precision"]
+	a.FixedPrecision = fp.(float64)
+	if !ok {
+		panic("Precision")
+	}
+	ott, ok = m["OwnedToThreatened"]
+	a.OwnedToThreatened = ott.(float64)
+	if !ok {
+		panic("OwnedToThreatened")
+	}
+	pp, ok = m["PawnPromotion"]
+	a.PawnPromotion = pp.(game.FigType)
+	if !ok {
+		panic("PawnPromotion")
+	}
+	nm, ok = m["Name"]
+	a.Name = nm.(string)
+}
+
+func (a *AIPlayer) FromData(d player.PlayerData) {
+	a.FixedPrecision = d.Precision
+	a.OwnedToThreatened = d.Coefficient
+	a.PawnPromotion = game.FigType(d.PawnPromotion)
+	a.Name = d.Name
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
@@ -39,7 +91,9 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 	a.hurry = hurry
 	a.HurryChan = hurry
 	a.gp = gp
-	a.PawnPromotion = DEFPAWNPROMOTION
+	if a.PawnPromotion == game.ZeroFigType {
+		a.PawnPromotion = DEFPAWNPROMOTION
+	}
 	go func() {
 		for b := range a.errchan {
 			panic(b)
