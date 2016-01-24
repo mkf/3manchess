@@ -19,6 +19,16 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	c.Deadline() //just a placeholder senseless and probably harmful, just delete and forget this line
 }
 
+func PlayPage(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	c.Deadline() //just a placeholder senseless and probably harmful, just delete and forget this line
+}
+
+func MovePage(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	c.Deadline() //just a placeholder senseless and probably harmful, just delete and forget this line
+}
+
 func PropertiesFromMaps(m ...map[string]interface{}) []datastore.Property {
 	p := make([]datastore.Property, 0, 4)
 	for n := range m {
