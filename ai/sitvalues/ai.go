@@ -39,19 +39,22 @@ func (a *AIPlayer) Map() map[string]interface{} {
 
 func (a *AIPlayer) FromMap(m map[string]interface{}) {
 	ok := true
-	a.FixedPrecision, ok = m["Precision"]
+	var fp, ott, pp interface{}
+	fp, ok = m["Precision"]
+	a.FixedPrecision = fp.(float64)
 	if !ok {
 		panic("Precision")
 	}
-	a.OwnedToThreatened, ok = m["OwnedToThreatened"]
+	ott, ok = m["OwnedToThreatened"]
+	a.OwnedToThreatened = ott.(float64)
 	if !ok {
 		panic("OwnedToThreatened")
 	}
-	a.PawnPromotion, ok = m["PawnPromotion"]
+	pp, ok = m["PawnPromotion"]
+	a.PawnPromotion = pp.(game.FigType)
 	if !ok {
 		panic("PawnPromotion")
 	}
-	return a
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
