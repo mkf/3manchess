@@ -19,16 +19,36 @@ func allGameplaysKey(c context.Context) *datastore.Key {
 	return datastore.NewKey(c, "Gamesbase", "default_gamesbase", 0, nil)
 }
 
+type presentMain struct {
+	LoginStr, LoginURL string
+	Gameplays          []GameplayData
+	GameKeys           []string
+}
+
 func MainPage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	u := user.Current(c)
-	var loginstr, loginurl string
+	var pre presentMain
+	var err error
 	if u == nil {
-		loginurl, _ = user.LoginURL(c, "/")
-		loginstr = "Sign in or register to play"
+		pre.LoginURL, _ = user.LoginURL(c, "/")
+		pre.LoginStr = "Sign in or register to play"
 	} else {
-		loginurl, _ = user.LogoutURL(c, "/")
-		loginstr = "Click here to sign out (logged as" + u.String() + ")"
+		pre.LoginURL, _ = user.LogoutURL(c, "/")
+		pre.LoginStr = "Click here to sign out (logged as" + u.String() + ")"
+	}
+	pre.Gameplays = make([]GameplayData, 0, 20)
+	q := datastore.NewQuery("Gameplay").Ancestor(allGameplaysKey(c)).Order("-Date").Limit(20)
+	if qk, err := q.GetAll(c, &pre.Gameplays); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	pre.GameKeys = make([]string, 0, len(qk))
+	for iq := range qk {
+		pre.GameKeys = append(pre.GameKeys, qk[iq].Encode())
+	}
+	if err := mainTemplate.Execute(w, pre); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
