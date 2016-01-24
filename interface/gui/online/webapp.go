@@ -4,19 +4,32 @@ import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
 
 //import "github.com/ArchieT/3manchess/interface/gui"
-//import "fmt"
 import "net/http"
 import "golang.org/x/net/context"
 import "google.golang.org/appengine"
-
-//import "google.golang.org/appengine/user"
+import "html/template"
+import "google.golang.org/appengine/user"
 import "google.golang.org/appengine/datastore"
 
 import "time"
 
+var mainTemplate = template.Must(template.New("main").ParseFiles("static/main.html"))
+
+func allGameplaysKey(c context.Context) *datastore.Key {
+	return datastore.NewKey(c, "Gamesbase", "default_gamesbase", 0, nil)
+}
+
 func MainPage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	c.Deadline() //just a placeholder senseless and probably harmful, just delete and forget this line
+	u := user.Current(c)
+	var loginstr, loginurl string
+	if u == nil {
+		loginurl, _ = user.LoginURL(c, "/")
+		loginstr = "Sign in or register to play"
+	} else {
+		loginurl, _ = user.LogoutURL(c, "/")
+		loginstr = "Click here to sign out (logged as" + u.String() + ")"
+	}
 }
 
 func PlayPage(w http.ResponseWriter, r *http.Request) {
@@ -71,5 +84,5 @@ func SaveGameplay(gp player.Gameplay, c context.Context) (*datastore.Key, error)
 		return nil, err
 	}
 	d := GameplayData{State: st, White: w, Gray: g, Black: b, Date: time.Now()}
-	return datastore.Put(c, datastore.NewIncompleteKey(c, "Gameplay", nil), &d)
+	return datastore.Put(c, datastore.NewIncompleteKey(c, "Gameplay", allGameplaysKey(c)), &d)
 }
