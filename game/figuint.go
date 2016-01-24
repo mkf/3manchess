@@ -70,3 +70,13 @@ func BoardByte(s []byte) *Board {
 	}
 	return &b
 }
+
+func (b *Board) Byte() []byte {
+	d := make([]byte, 0, 24*6)
+	var oac ACP
+	for oac.OK() {
+		d = append(d, b.GPos(Pos(oac)).Uint8())
+		oac.P()
+	}
+	return d
+}
