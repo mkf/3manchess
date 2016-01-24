@@ -136,7 +136,7 @@ type StateData struct {
 	AliveBlack     bool
 }
 
-func (s *State) FromData(d StateData) {
+func (s *State) FromData(d *StateData) {
 	s.Board = BoardByte(d.Board)
 	s.MoatsState = MoatsState{d.MoatZero, d.MoatOne, d.MoatTwo}
 	s.MovesNext = Color(d.MovesNext)
@@ -147,8 +147,8 @@ func (s *State) FromData(d StateData) {
 	s.PlayersAlive = PlayersAlive{d.AliveWhite, d.AliveGray, d.AliveBlack}
 }
 
-func (s *State) Data() StateData {
-	return StateData{
+func (s *State) Data() *StateData {
+	d := StateData{
 		Board: s.Board.Byte(), MovesNext: int8(s.MovesNext),
 		MoatZero: s.MoatsState[0], MoatOne: s.MoatsState[1], MoatTwo: s.MoatsState[2],
 		CasWK: s.Castling[0][0], CasWQ: s.Castling[0][1],
@@ -159,6 +159,7 @@ func (s *State) Data() StateData {
 		HalfmoveClock: int8(s.HalfmoveClock), FullmoveNumber: int16(s.FullmoveNumber),
 		AliveWhite: s.PlayersAlive[0], AliveGray: s.PlayersAlive[1], AliveBlack: s.PlayersAlive[2],
 	}
+	return &d
 }
 
 //EvalDeath evaluates the death of whom is about to move next and returns the same pointer it got
