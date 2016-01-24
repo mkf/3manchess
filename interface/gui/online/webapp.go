@@ -5,7 +5,7 @@ import "github.com/ArchieT/3manchess/game"
 //import "github.com/ArchieT/3manchess/interface/gui"
 //import "fmt"
 import "net/http"
-import "net/context"
+import "golang.org/x/net/context"
 import "google.golang.org/appengine"
 
 //import "google.golang.org/appengine/user"
