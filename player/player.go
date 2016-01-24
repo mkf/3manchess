@@ -17,12 +17,24 @@ type Player interface {
 	AreWeWaitingForYou() bool
 	HeyWeWaitingForYou(bool)
 	String() string
+	Map() map[string]interface{}
+	FromMap(map[string]interface{})
+	Data() PlayerData
+	FromData(PlayerData)
 }
 
 type PlayerGen interface {
 	Start() error
 	GenPlayer(name string) (Player, error)
 	String() string
+}
+
+type PlayerData struct {
+	WhoAmI        string
+	Name          string
+	Precision     float64
+	Coefficient   float64
+	PawnPromotion int8
 }
 
 //Gameplay is a list of players and the current gamestate pointer
