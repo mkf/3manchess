@@ -26,9 +26,9 @@ func (s *Square) Uint8() uint8 {
 
 func SqUint8(i uint8) Square {
 	if i == 0 {
-		return Square{Fig{0, 0, false}, false}
+		return Square{Fig: Fig{FigType: 0, Color: 0, PawnCenter: false}, NotEmpty: false}
 	}
-	return Square{FigUint8(i), true}
+	return Square{Fig: FigUint8(i), NotEmpty: true}
 }
 
 func FigUint8(i uint8) Fig {
