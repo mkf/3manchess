@@ -33,9 +33,10 @@ func (a *AIPlayer) Data() player.PlayerData {
 	var d player.PlayerData
 	d.Precision = a.FixedPrecision
 	d.Coefficient = a.OwnedToThreatened
-	d.PawnPromotion = a.PawnPromotion
+	d.PawnPromotion = int8(a.PawnPromotion)
 	d.WhoAmI = WhoAmI
-	d.Name = a.String
+	d.Name = a.Name
+	return d
 }
 
 func (a *AIPlayer) Map() map[string]interface{} {
@@ -67,13 +68,13 @@ func (a *AIPlayer) FromMap(m map[string]interface{}) {
 		panic("PawnPromotion")
 	}
 	nm, ok = m["Name"]
-	a.Name = nm.String()
+	a.Name = nm.(string)
 }
 
 func (a *AIPlayer) FromData(d player.PlayerData) {
 	a.FixedPrecision = d.Precision
 	a.OwnedToThreatened = d.Coefficient
-	a.PawnPromotion = d.PawnPromotion
+	a.PawnPromotion = game.FigType(d.PawnPromotion)
 	a.Name = d.Name
 }
 
