@@ -18,6 +18,9 @@ type Player interface {
 	HeyWeWaitingForYou(bool)
 	String() string
 	Map() map[string]interface{}
+	FromMap(map[string]interface{})
+	Data() PlayerData
+	FromData(PlayerData)
 }
 
 type PlayerGen interface {
