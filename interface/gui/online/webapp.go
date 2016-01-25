@@ -21,8 +21,12 @@ func allGameplaysKey(c context.Context) *datastore.Key {
 
 type presentMain struct {
 	LoginStr, LoginURL string
-	Gameplays          []GameplayData
-	GameKeys           []string
+	GameKeys           []GameKey
+}
+
+type GameKey struct {
+	*GameplayData
+	Key string
 }
 
 func MainPage(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +50,7 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	}
 	pre.GameKeys = make([]string, 0, len(qk))
 	for iq := range qk {
-		pre.GameKeys = append(pre.GameKeys, qk[iq].Encode())
+		pre.GameKeys = append(pre.GameKeys, GameKey{&(qk[iq]), qk[iq].Encode()})
 	}
 	if err := mainTemplate.Execute(w, pre); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
