@@ -5,7 +5,7 @@
 	<body>
 		<a href="{{.LoginURL}}">{{.LoginStr}}</a>
 		<hr>
-		<form action="/play" method="post">
+		<form action="/play" method="get">
 			<input type="radio" name="open" value="existing" checked> Existing one<hr>
 			{{range .GameKeys}}
 			<input type="radio" name="what" value="{{.Key}}"> {{.GameplayData.Date}} <br>

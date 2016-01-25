@@ -59,7 +59,28 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 
 func PlayPage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	c.Deadline() //just a placeholder senseless and probably harmful, just delete and forget this line
+	u := user.Current(c)
+	if u == nil {
+		url, err := user.LoginURL(c, r.URL.String())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Location", url)
+		w.WriteHeader(http.StatusFound)
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fopen := r.FormValue("open")
+	fwhat := r.FormValue("what")
+	fengineone := r.FormValue("engineone")
+	fenginetwo := r.FormValue("enginetwo")
+	fnameone := r.FormValue("nameone")
+	fnametwo := r.FormValue("nametwo")
 }
 
 func MovePage(w http.ResponseWriter, r *http.Request) {
