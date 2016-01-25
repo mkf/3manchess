@@ -80,3 +80,29 @@ func (b *Board) Byte() []byte {
 	}
 	return d
 }
+
+type BadBoardForTemplate struct {
+	Zero  [24]uint8
+	One   [24]uint8
+	Two   [24]uint8
+	Three [24]uint8
+	Four  [24]uint8
+	Five  [24]uint8
+}
+
+func (b *Board) BadBoardForTemplate() *BadBoardForTemplate {
+	var bb BadBoardForTemplate
+	pl := [6]*[24]uint8{&(bb.Zero), &(bb.One), &(bb.Two), &(bb.Three), &(bb.Four), &(bb.Five)}
+	var i int8
+	for i = 0; i < 6; i++ {
+		b.bbarray(i, pl[i])
+	}
+	return &bb
+}
+
+func (b *Board) bbarray(rank int8, arr *[24]uint8) {
+	var i int8
+	for i = 0; i < 24; i++ {
+		(*arr)[i] = (*b)[rank][i].Uint8()
+	}
+}
