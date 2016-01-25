@@ -41,16 +41,16 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 		pre.LoginURL, _ = user.LogoutURL(c, "/")
 		pre.LoginStr = "Click here to sign out (logged as" + u.String() + ")"
 	}
-	pre.Gameplays = make([]GameplayData, 0, 20)
+	pq := make([]GameplayData, 0, 20)
 	q := datastore.NewQuery("Gameplay").Ancestor(allGameplaysKey(c)).Order("-Date").Limit(20)
-	qk, err := q.GetAll(c, &pre.Gameplays)
+	qk, err := q.GetAll(c, &pq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	pre.GameKeys = make([]string, 0, len(qk))
+	pre.GameKeys = make([]GameKey, 0, len(qk))
 	for iq := range qk {
-		pre.GameKeys = append(pre.GameKeys, GameKey{&(qk[iq]), qk[iq].Encode()})
+		pre.GameKeys = append(pre.GameKeys, GameKey{&(pq[iq]), qk[iq].Encode()})
 	}
 	if err := mainTemplate.Execute(w, pre); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
