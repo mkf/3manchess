@@ -85,7 +85,23 @@ func PlayPage(w http.ResponseWriter, r *http.Request) {
 
 func MovePage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	c.Deadline() //just a placeholder senseless and probably harmful, just delete and forget this line
+	u := user.Current(c)
+	if u == nil {
+		url, err := user.LoginURL(c, r.URL.String())
+		if err != nil {
+			http.Error(w, er.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Location", url)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	//FormValues
 }
 
 func PropertiesFromMaps(m ...map[string]interface{}) []datastore.Property {
