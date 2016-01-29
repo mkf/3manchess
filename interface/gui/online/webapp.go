@@ -129,9 +129,23 @@ func SaveState(st *game.State, c context.Context) (*datastore.Key, error) {
 	return datastore.Put(c, datastore.NewIncompleteKey(c, "State", nil), st.Data())
 }
 
+func LoadState(k *datastore.Key, c context.Context, s *game.State) error {
+	var sd game.StateData
+	err := datastore.Get(c, k, &sd)
+	s.FromData(&sd)
+	return err
+}
+
 func SavePlayer(pl player.Player, c context.Context) (*datastore.Key, error) {
 	s := pl.Data()
 	return datastore.Put(c, datastore.NewIncompleteKey(c, "Player", nil), &s)
+}
+
+func LoadPlayer(k *datastore.Key, c context.Context, p player.Player) error {
+	var s player.PlayerData
+	err := datastore.Get(c, k, &s)
+	p.FromData(s)
+	return err
 }
 
 type GameplayData struct {
