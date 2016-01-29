@@ -173,3 +173,5 @@ func SaveGameplay(gp player.Gameplay, c context.Context) (*datastore.Key, error)
 	d := GameplayData{State: st, White: w, Gray: g, Black: b, Date: time.Now()}
 	return datastore.Put(c, datastore.NewIncompleteKey(c, "Gameplay", allGameplaysKey(c)), &d)
 }
+
+//func LoadGameplay(k *datastore.Key, c context.Context
