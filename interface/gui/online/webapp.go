@@ -85,7 +85,7 @@ func (og *Online) PlayPage(w http.ResponseWriter, r *http.Request) {
 	fenginetwo := r.FormValue("enginetwo")
 	fnameone := r.FormValue("nameone")
 	fnametwo := r.FormValue("nametwo")
-	gpd := new(GamePlayData)
+	gpd := new(GameplayData)
 	switch fopen {
 	case "existing":
 
