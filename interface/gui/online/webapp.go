@@ -174,4 +174,4 @@ func SaveGameplay(gp player.Gameplay, c context.Context) (*datastore.Key, error)
 	return datastore.Put(c, datastore.NewIncompleteKey(c, "Gameplay", allGameplaysKey(c)), &d)
 }
 
-//func LoadGameplay(k *datastore.Key, c context.Context
+//func LoadGameplay(k *datastore.Key, c context.Context)
