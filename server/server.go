@@ -4,6 +4,7 @@ import "github.com/ArchieT/3manchess/player"
 import "github.com/ArchieT/3manchess/game"
 
 type Server interface {
+	Initialize(username string, password string, database string) error
 	SaveGP(*player.Gameplay) (key string, err error)
 	LoadGP(key string, gp *player.Gameplay) error
 	SaveSD(*game.StateData) (key string, err error)
