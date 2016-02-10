@@ -2,6 +2,7 @@ package server
 
 import "github.com/ArchieT/3manchess/player"
 import "github.com/ArchieT/3manchess/game"
+import "time"
 
 type Server interface {
 	Initialize(username string, password string, database string) error
@@ -14,23 +15,23 @@ type Server interface {
 	GetDerived(key string) (keys []string, err error)
 }
 
-func (sr Server) SaveState(st *game.State) (key string, err error) {
+func SaveState(sr Server, st *game.State) (key string, err error) {
 	return sr.SaveSD(st.Data())
 }
 
-func (sr Server) LoadState(key string, s *game.State) error {
+func LoadState(sr Server, key string, s *game.State) error {
 	var sd game.StateData
 	err := sr.LoadSD(k, &sd)
 	s.FromData(&sd)
 	return err
 }
 
-func (sr Server) SavePlayer(pl player.Player) (key string, err error) {
+func SavePlayer(sr Server, pl player.Player) (key string, err error) {
 	s := pl.Data()
 	return sr.SavePD(&s)
 }
 
-func (sr Server) LoadPlayer(key string, p player.Player) error {
+func LoadPlayer(sr Server, key string, p player.Player) error {
 	var s player.PlayerData
 	err := sr.LoadPD(k, &s)
 	p.FromData(s)
@@ -42,30 +43,30 @@ type GameplayData struct {
 	Date                      time.Time
 }
 
-func (gd GameplayData) FromGameplay(gp player.Gameplay) error {
+func FromGameplay(sr Server, gp player.Gameplay) (*GameplayData, error) {
 	var d GameplayData
 	var err error
 	d.Date = time.Now()
-	d.State, err = SaveState(gp.State)
+	d.State, err = SaveState(sr, gp.State)
 	if err != nil {
 		return d, err
 	}
-	d.White, err = SavePlayer(gp.Players[game.White], c)
+	d.White, err = SavePlayer(sr, gp.Players[game.White], c)
 	if err != nil {
 		return d, err
 	}
-	d.Gray, err = SavePlayer(gp.Players[game.Gray], c)
+	d.Gray, err = SavePlayer(sr, gp.Players[game.Gray], c)
 	if err != nil {
 		return d, err
 	}
-	d.Black, err = SavePlayer(gp.Players[game.Black], c)
+	d.Black, err = SavePlayer(sr, gp.Players[game.Black], c)
 	return d, err
 }
 
-func (sr Server) SaveGameplay(gp player.Gameplay) (key string, err error) {
-	var d GameplayData
-	if err := d.FromGameplay(gp); err != nil {
+func SaveGameplay(sr Server, gp player.Gameplay) (key string, err error) {
+	d, err := FromGameplay(sr, gp)
+	if err != nil {
 		return nil, err
 	}
-	return sr.SaveGP(&d)
+	return sr.SaveGP(d)
 }
