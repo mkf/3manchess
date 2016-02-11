@@ -1,5 +1,6 @@
 package mojsql
 
+import "github.com/ArchieT/3manchess/server"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
 
@@ -11,14 +12,14 @@ type MojSQL struct {
 
 func (m *MojSQL) Initialize(username string, password string, database string) error {
 	conn, err := sql.Open("mysql", username+":"+password+"@/"+database)
-	if err != nil {
-		return err
-	}
 	m.conn = conn
-	res, err := conn.Exec("CREATE TABLE 3manchess if not exists;")
-	log.Println(res)
 	if err != nil {
 		return err
 	}
-	return nil
+	res, err := conn.Exec("CREATE TABLE if not exists 3mangp (id bigint auto_increment primary key, state bigint, white bigint, gray bigint, black bigint, date datetime)")
+	log.Println(res)
+	return err
+}
+
+func (m *MojSQL) SaveGP(gpd *server.GameplayData) (string, error) {
 }

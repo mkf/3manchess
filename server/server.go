@@ -6,13 +6,13 @@ import "time"
 
 type Server interface {
 	Initialize(username string, password string, database string) error
-	SaveGP(*player.Gameplay) (key string, err error)
-	LoadGP(key string, gp *player.Gameplay) error
-	SaveSD(*game.StateData) (key string, err error)
-	LoadSD(key string, sd *game.StateData) error
-	SavePD(*player.PlayerData) (key string, err error)
-	LoadPD(key string, pd *player.PlayerData) error
-	GetDerived(key string) (keys []string, err error)
+	SaveGP(*GameplayData) (key int64, err error)
+	LoadGP(key int64, gp *GameplayData) error
+	SaveSD(*game.StateData) (key int64, err error)
+	LoadSD(key int64, sd *game.StateData) error
+	SavePD(*player.PlayerData) (key int64, err error)
+	LoadPD(key int64, pd *player.PlayerData) error
+	GetDerived(key int64) (keys []int64, err error)
 }
 
 func SaveState(sr Server, st *game.State) (key string, err error) {
@@ -39,7 +39,7 @@ func LoadPlayer(sr Server, key string, p player.Player) error {
 }
 
 type GameplayData struct {
-	State, White, Gray, Black string
+	State, White, Gray, Black int64
 	Date                      time.Time
 }
 
