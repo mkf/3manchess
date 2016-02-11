@@ -38,7 +38,7 @@ func (cs Castling) Uint8() uint8 {
 	return u
 }
 
-func FromUint8(u uint8) Castling {
+func CastlingFromUint8(u uint8) Castling {
 	var cs Castling
 	cs[0][0] = u%2 == 1
 	cs[0][1] = u>>1%2 == 1
@@ -169,7 +169,7 @@ func (s *State) FromData(d *StateData) {
 	s.Board = BoardByte(d.Board)
 	s.MoatsState = MoatsState{d.MoatZero, d.MoatOne, d.MoatTwo}
 	s.MovesNext = Color(d.MovesNext)
-	s.Castling = Castling{{d.CasWK, d.CasWQ}, {d.CasGK, d.CasGQ}, {d.CasBK, d.CasBQ}}
+	s.Castling = CastlingFromUint8(d.Castling)
 	s.EnPassant = EnPassant{{d.EnPasPrevRank, d.EnPasPrevFile}, {d.EnPasCurRank, d.EnPasCurFile}}
 	s.HalfmoveClock = HalfmoveClock(d.HalfmoveClock)
 	s.FullmoveNumber = FullmoveNumber(d.FullmoveNumber)
