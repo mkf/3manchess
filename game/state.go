@@ -15,6 +15,40 @@ var DEFMOATSSTATE = MoatsState{false, false, false} //are they bridged?
 //Castling : White,Gray,Black King-side,Queen-side
 type Castling [3][2]bool
 
+func (cs Castling) Uint8() uint8 {
+	var u uint8
+	if cs[0][0] {
+		u++
+	}
+	if cs[0][1] {
+		u += 2
+	}
+	if cs[1][0] {
+		u += 4
+	}
+	if cs[1][1] {
+		u += 8
+	}
+	if cs[2][0] {
+		u += 16
+	}
+	if cs[2][1] {
+		u += 32
+	}
+	return u
+}
+
+func FromUint8(u uint8) Castling {
+	var cs Castling
+	cs[0][0] = u%2 == 1
+	cs[0][1] = u>>1%2 == 1
+	cs[1][0] = u>>2%2 == 1
+	cs[1][1] = u>>3%2 == 1
+	cs[2][0] = u>>4%2 == 1
+	cs[2][1] = u>>5 == 1
+	return cs
+}
+
 func forcastlingconv(c Color, b byte) (uint8, uint8) {
 	var ct uint8
 	switch b {
@@ -119,12 +153,7 @@ type StateData struct {
 	MoatOne        bool
 	MoatTwo        bool
 	MovesNext      int8
-	CasWK          bool
-	CasWQ          bool
-	CasGK          bool
-	CasGQ          bool
-	CasBK          bool
-	CasBQ          bool
+	Castling       uint8
 	EnPasPrevRank  int8
 	EnPasPrevFile  int8
 	EnPasCurRank   int8
@@ -151,9 +180,7 @@ func (s *State) Data() *StateData {
 	d := StateData{
 		Board: s.Board.Byte(), MovesNext: int8(s.MovesNext),
 		MoatZero: s.MoatsState[0], MoatOne: s.MoatsState[1], MoatTwo: s.MoatsState[2],
-		CasWK: s.Castling[0][0], CasWQ: s.Castling[0][1],
-		CasGK: s.Castling[1][0], CasGQ: s.Castling[1][1],
-		CasBK: s.Castling[2][0], CasBQ: s.Castling[2][1],
+		Castling:      s.Castling.Uint8(),
 		EnPasPrevRank: s.EnPassant[0][0], EnPasPrevFile: s.EnPassant[0][1],
 		EnPasCurRank: s.EnPassant[1][0], EnPasCurFile: s.EnPassant[1][1],
 		HalfmoveClock: int8(s.HalfmoveClock), FullmoveNumber: int16(s.FullmoveNumber),

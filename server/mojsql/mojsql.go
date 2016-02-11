@@ -18,6 +18,11 @@ func (m *MojSQL) Initialize(username string, password string, database string) e
 	}
 	res, err := conn.Exec("CREATE TABLE if not exists 3mangp (id bigint auto_increment primary key, state bigint, white bigint, gray bigint, black bigint, date datetime)")
 	log.Println(res)
+	if err != nil {
+		return err
+	}
+	res, err = conn.Exec("CREATE TABLE if not exists 3manst (id bigint auto_increment primary key, board blob, moats bool array(3), movesnext shortint, castling shortint, enpasprev shortint array(2), enpascur shortint array(2), halfmoveclock shortint, fullmovenumber int, alive bool array(3))")
+	log.Println(res)
 	return err
 }
 
