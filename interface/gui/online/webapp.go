@@ -2,16 +2,20 @@ package online
 
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
-
-//import "github.com/ArchieT/3manchess/interface/gui"
 import "net/http"
 import "golang.org/x/net/context"
 import "google.golang.org/appengine"
 import "html/template"
 import "google.golang.org/appengine/user"
 import "google.golang.org/appengine/datastore"
-
 import "time"
+
+type Online struct {
+}
+
+func (og *Online) Initialize() error {
+	return nil
+}
 
 var mainTemplate = template.Must(template.New("main").ParseFiles("static/main.html"))
 
@@ -29,7 +33,7 @@ type GameKey struct {
 	Key string
 }
 
-func MainPage(w http.ResponseWriter, r *http.Request) {
+func (og *Online) MainPage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	u := user.Current(c)
 	var pre presentMain
@@ -57,14 +61,58 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func PlayPage(w http.ResponseWriter, r *http.Request) {
+func (og *Online) PlayPage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	c.Deadline() //just a placeholder senseless and probably harmful, just delete and forget this line
+	u := user.Current(c)
+	if u == nil {
+		url, err := user.LoginURL(c, r.URL.String())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Location", url)
+		w.WriteHeader(http.StatusFound)
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fopen := r.FormValue("open")
+	fwhat := r.FormValue("what")
+	fengineone := r.FormValue("engineone")
+	fenginetwo := r.FormValue("enginetwo")
+	fnameone := r.FormValue("nameone")
+	fnametwo := r.FormValue("nametwo")
+	gpd := new(GameplayData)
+	switch fopen {
+	case "existing":
+
+	case "new":
+
+	}
 }
 
-func MovePage(w http.ResponseWriter, r *http.Request) {
+func (og *Online) MovePage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	c.Deadline() //just a placeholder senseless and probably harmful, just delete and forget this line
+	u := user.Current(c)
+	if u == nil {
+		url, err := user.LoginURL(c, r.URL.String())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Location", url)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	//FormValues
 }
 
 func PropertiesFromMaps(m ...map[string]interface{}) []datastore.Property {
@@ -81,9 +129,23 @@ func SaveState(st *game.State, c context.Context) (*datastore.Key, error) {
 	return datastore.Put(c, datastore.NewIncompleteKey(c, "State", nil), st.Data())
 }
 
+func LoadState(k *datastore.Key, c context.Context, s *game.State) error {
+	var sd game.StateData
+	err := datastore.Get(c, k, &sd)
+	s.FromData(&sd)
+	return err
+}
+
 func SavePlayer(pl player.Player, c context.Context) (*datastore.Key, error) {
 	s := pl.Data()
 	return datastore.Put(c, datastore.NewIncompleteKey(c, "Player", nil), &s)
+}
+
+func LoadPlayer(k *datastore.Key, c context.Context, p player.Player) error {
+	var s player.PlayerData
+	err := datastore.Get(c, k, &s)
+	p.FromData(s)
+	return err
 }
 
 type GameplayData struct {
@@ -111,3 +173,5 @@ func SaveGameplay(gp player.Gameplay, c context.Context) (*datastore.Key, error)
 	d := GameplayData{State: st, White: w, Gray: g, Black: b, Date: time.Now()}
 	return datastore.Put(c, datastore.NewIncompleteKey(c, "Gameplay", allGameplaysKey(c)), &d)
 }
+
+//func LoadGameplay(k *datastore.Key, c context.Context)

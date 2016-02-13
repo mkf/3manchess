@@ -5,7 +5,7 @@
 	<body>
 		<a href="{{.LoginURL}}">{{.LoginStr}}</a>
 		<hr>
-		<form action="/play" method="post">
+		<form action="/play" method="get">
 			<input type="radio" name="open" value="existing" checked> Existing one<hr>
 			{{range .GameKeys}}
 			<input type="radio" name="what" value="{{.Key}}"> {{.GameplayData.Date}} <br>
@@ -21,7 +21,6 @@
 			<!--input type="radio" name="engine" value="sitvalues"> ai/sitvalues<br-->
 			Opponent's Name: <input type="text" name="nametwo" value="">
 			<input type="submit">
-
 		</form>
 	</body>
 </html>
