@@ -11,6 +11,17 @@ type Move struct {
 	PawnPromotion FigType
 }
 
+type FromToProm struct {
+	FromTo        `json:"fromto"`
+	PawnPromotion FigType `json:"pawnpromotion"`
+}
+
+func (ftp FromToProm) Move(bef *State) Move {
+	m := ftp.FromTo.Move(bef)
+	m.PawnPromotion = ftp.PawnPromotion
+	return m
+}
+
 //IncorrectPos error
 type IncorrectPos struct {
 	Pos

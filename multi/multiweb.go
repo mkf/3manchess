@@ -14,17 +14,8 @@ import "log"
 import "fmt"
 import "github.com/gorilla/mux"
 
-type GameInfo struct {
-	Id   int64     `json:"id"`
-	Date time.Time `json:"date"`
-}
-
-type DataProvider interface {
-	GameList() []GameInfo
-}
-
 type Multi struct {
-	DataProvider
+	server.Server
 }
 
 func Run() {

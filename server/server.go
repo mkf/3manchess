@@ -12,7 +12,27 @@ type Server interface {
 	LoadSD(key int64, sd *game.StateData) error
 	SavePD(*player.PlayerData) (key int64, err error)
 	LoadPD(key int64, pd *player.PlayerData) error
+	ListGP() ([]Gameinfo, error)
 	GetDerived(key int64) (keys []int64, err error)
+}
+
+type GameInfo struct {
+	Id   int64     `json:"id"`
+	Date time.Time `json:"date"`
+}
+
+type MoveData struct {
+	FromRank      int8
+	FromFile      int8
+	ToRank        int8
+	ToFile        int8
+	Before        int64
+	PawnPromotion int8
+}
+
+type StateFollow struct {
+	Key int64
+	*game.StateData
 }
 
 func SaveState(sr Server, st *game.State) (key string, err error) {
@@ -24,6 +44,11 @@ func LoadState(sr Server, key string, s *game.State) error {
 	err := sr.LoadSD(k, &sd)
 	s.FromData(&sd)
 	return err
+}
+
+type PlayerFollow struct {
+	Key int64
+	*player.PlayerData
 }
 
 func SavePlayer(sr Server, pl player.Player) (key string, err error) {
@@ -41,6 +66,11 @@ func LoadPlayer(sr Server, key string, p player.Player) error {
 type GameplayData struct {
 	State, White, Gray, Black int64
 	Date                      time.Time
+}
+
+type GameplayFollow struct {
+	Key int64
+	*GameplayData
 }
 
 func FromGameplay(sr Server, gp player.Gameplay) (*GameplayData, error) {
