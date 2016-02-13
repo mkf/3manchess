@@ -3,6 +3,7 @@ package multi
 //import "github.com/ArchieT/3manchess/game"
 //import "github.com/ArchieT/3manchess/player"
 import "net/http"
+import "github.com/ArchieT/3manchess/server"
 
 //import "golang.org/x/net/context"
 //import "html/template"
@@ -12,6 +13,10 @@ import "time"
 import "log"
 import "fmt"
 import "github.com/gorilla/mux"
+
+type Multi struct {
+	server.Server
+}
 
 func Run() {
 	router := NewRouter()
@@ -46,7 +51,7 @@ var routes = Routes{
 	{"APIAuth", "POST", "/api/auth", APIAuth},
 	{"APICreate", "POST", "/api/play", APICreate},
 	{"APIPlay", "GET", "/api/play/{gameId}", APIPlay},
-	{"APIMove", "GET", "/api/move/{gameId}", APIMove},
+	{"APIMove", "POST", "/api/play/{gameId}", APIMove},
 }
 
 func NewRouter() *mux.Router {

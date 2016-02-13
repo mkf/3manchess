@@ -11,6 +11,17 @@ type Move struct {
 	PawnPromotion FigType
 }
 
+type FromToProm struct {
+	FromTo        `json:"fromto"`
+	PawnPromotion FigType `json:"pawnpromotion"`
+}
+
+func (ftp FromToProm) Move(bef *State) Move {
+	m := ftp.FromTo.Move(bef)
+	m.PawnPromotion = ftp.PawnPromotion
+	return m
+}
+
 //IncorrectPos error
 type IncorrectPos struct {
 	Pos
@@ -364,13 +375,13 @@ func (m *Move) After() (*State, error) { //situation after
 			next.MoatsState[m.From[1]/8+1] = true
 		}
 		if m.To[0] == 0 && m.From[0] == 1 {
+			next.Board[m.To[0]][m.To[1]] = Square{NotEmpty: true, Fig: Fig{FigType: m.PawnPromotion, Color: m.What().Color, PawnCenter: false}}
 			switch m.PawnPromotion {
 			case ZeroFigType:
-				return next, IllegalMoveError{m, "ZeroPromotion", "Promotion to Zero"}
+				return &next, IllegalMoveError{m, "ZeroPromotion", "Promotion to Zero"}
 			case King:
-				return next, IllegalMoveError{m, "KingPromotion", "Promotion to King"}
+				return &next, IllegalMoveError{m, "KingPromotion", "Promotion to King"}
 			} //let's say that you can promote a pawn to a pawn
-			next.Board[m.To[0]][m.To[1]] = Square{NotEmpty: true, Fig: Fig{FigType: m.PawnPromotion, Color: m.What().Color, PawnCenter: false}}
 		}
 	} else {
 		var empty Square
