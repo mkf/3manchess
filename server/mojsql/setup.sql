@@ -18,16 +18,14 @@ create table 3manst (
 	aliveblack bool not null
 ) ENGINE = InnoDB;
 
-set @dbo := (select database() from dual);
-
-create trigger @dbo.BlockDuplicates3manst
-	on @dbo.3manst
+create trigger BlockDuplicates3manst
+	on 3manst
 	instead of insert
 as
 begin
 	set nocount on;
 	if not exists (select 1 from inserted as i
-		inner join @dbo.3manst as t
+		inner join 3manst as t
 		on i.board = t.board
 		and i.moatzero = t.moatzero
 		and i.moatone = t.moatone
@@ -45,7 +43,7 @@ begin
 		and i.aliveblack = t.aliveblack
 	)
 	begin
-		insert @dbo.3manst(board,
+		insert 3manst (board,
 			moatzero, moatone, moattwo, 
 			movesnext, castling,
 			enpasprevrow, enpasprevfile, enpascurrow, enpascurfile,
