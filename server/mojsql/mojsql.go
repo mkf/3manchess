@@ -1,5 +1,6 @@
 package mojsql
 
+import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/server"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
@@ -17,6 +18,10 @@ func (m *MojSQL) Initialize(username string, password string, database string) e
 		return err
 	}
 	return err
+}
+
+func (m *MojSQL) SaveSD(*game.StateData) (key int64, err error) {
+
 }
 
 func (m *MojSQL) SaveGP(gpd *server.GameplayData) (string, error) {
