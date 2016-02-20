@@ -69,8 +69,6 @@ begin
 			from inserted;
 	end
 end
-go
-
 
 drop table if exists 3manplayer;
 create table 3manplayer (
