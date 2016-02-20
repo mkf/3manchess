@@ -59,3 +59,5 @@ create table 3manmv (
 		foreign key (before) references 3manst (id)
 		on update restrict
 ) engine = InnoDB;
+
+-- vi:ft=mysql
