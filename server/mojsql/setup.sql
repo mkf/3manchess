@@ -49,3 +49,17 @@ create table 3mangp (
 		foreign key (black) references 3manplayer (id)
 		on update restrict
 ) ENGINE = InnoDB;
+
+drop table if exists 3manmv;
+create table 3manmv (
+	id bigint auto_increment primary key,
+	fromrank tinyint not null,
+	fromfile tinyint not null,
+	torank tinyint not null,
+	tofile tinyint not null,
+	before bigint not null,
+	promotion tinyint not null,
+	constraint
+		foreign key (before) references 3manst (id)
+		on update restrict
+) engine = InnoDB;
