@@ -34,7 +34,7 @@ create table 3mangp (
 	white bigint not null, 
 	gray bigint not null, 
 	black bigint not null, 
-	date datetime not null,
+	data datetime not null,
 	constraint
 		foreign key (state) references 3manst (id)
 		on update restrict,
@@ -52,10 +52,7 @@ create table 3mangp (
 drop table if exists 3manmv;
 create table 3manmv (
 	id bigint auto_increment primary key,
-	fromrank tinyint not null,
-	fromfile tinyint not null,
-	torank tinyint not null,
-	tofile tinyint not null,
+	fromto binary(4) not null,
 	before bigint not null,
 	promotion tinyint not null,
 	constraint
