@@ -34,19 +34,19 @@ create table 3mangp (
 	white bigint not null, 
 	gray bigint not null, 
 	black bigint not null, 
-	data datetime not null,
-	constraint
-		foreign key (state) references 3manst (id)
-		on update restrict,
-	constraint
-		foreign key (white) references 3manplayer (id)
-		on update restrict,
-	constraint
-		foreign key (gray) references 3manplayer (id)
-		on update restrict,
-	constraint
-		foreign key (black) references 3manplayer (id)
-		on update restrict
+	datatime datetime not null
+--	constraint
+--		foreign key (state) references 3manst (id)
+--		on update restrict,
+--	constraint
+--		foreign key (white) references 3manplayer (id)
+--		on update restrict,
+--	constraint
+--		foreign key (gray) references 3manplayer (id)
+--		on update restrict,
+--	constraint
+--		foreign key (black) references 3manplayer (id)
+--		on update restrict
 ) ENGINE = InnoDB;
 
 drop table if exists 3manmv;
@@ -54,10 +54,10 @@ create table 3manmv (
 	id bigint auto_increment primary key,
 	fromto binary(4) not null,
 	before bigint not null,
-	promotion tinyint not null,
-	constraint
-		foreign key (before) references 3manst (id)
-		on update restrict
+	promotion tinyint not null
+--	constraint
+--		foreign key (before) references 3manst (id)
+--		on update restrict
 ) engine = InnoDB;
 
 -- vi:ft=mysql
