@@ -15,7 +15,13 @@ create table 3manst (
 	fullmovenumber smallint not null, 
 	alivewhite bool not null,
 	alivegray bool not null,
-	aliveblack bool not null
+	aliveblack bool not null,
+	unique key everything(
+		board, moatzero, moatone, moattwo, movesnext, castling,
+		enpasprevrow, enpasprevfile, enpascurrow, enpascurfile,
+		halfmoveclock, fullmovenumber,
+		alivewhite, alivegray, aliveblack
+	)
 ) ENGINE = InnoDB;
 
 create trigger BlockDuplicates3manst
