@@ -1,26 +1,19 @@
 drop table if exists 3manst;
 create table 3manst (
 	id bigint auto_increment primary key, 
-	board blob not null, 
-	moatzero boolean not null, 
-	moatone boolean not null,
-	moattwo boolean not null,
+	board binary(144) not null, 
+	moats bit(3) not null,
 	movesnext tinyint not null, 
-	castling tinyint not null, 
-	enpasprevrow tinyint not null, 
-	enpasprevfile tinyint not null,
-	enpascurrow tinyint not null, 
-	enpascurfile tinyint not null,
+	castling bit(6) not null, 
+	enpassant binary(4) not null,
 	halfmoveclock tinyint not null, 
 	fullmovenumber smallint not null, 
-	alivewhite bool not null,
-	alivegray bool not null,
-	aliveblack bool not null,
+	alive bit(3) not null,
 	unique key everything(
-		board, moatzero, moatone, moattwo, movesnext, castling,
-		enpasprevrow, enpasprevfile, enpascurrow, enpascurfile,
+		board, moats, movesnext, castling,
+		enpassant,
 		halfmoveclock, fullmovenumber,
-		alivewhite, alivegray, aliveblack
+		alive
 	)
 ) ENGINE = InnoDB;
 
@@ -79,11 +72,11 @@ end
 drop table if exists 3manplayer;
 create table 3manplayer (
 	id bigint auto_increment primary key,
-	whoami varchar(100) not null,
-	name varchar(100) not null,
-	precise double,
-	coefficient double,
-	pawnpromotion tinyint
+	whoami varbinary(20) not null, -- player type identifier
+	name varchar(100) not null, -- name, not parsed
+	precise double, -- bot depth
+	coefficient double, -- bot coefficient
+	pawnpromotion tinyint -- bot promotion if not auto
 ) engine = InnoDB;
 
 drop table if exists 3mangp;
@@ -93,31 +86,30 @@ create table 3mangp (
 	white bigint not null, 
 	gray bigint not null, 
 	black bigint not null, 
-	date datetime not null,
-	constraint
-		foreign key (state) references 3manst (id)
-		on update restrict,
-	constraint
-		foreign key (white) references 3manplayer (id)
-		on update restrict,
-	constraint
-		foreign key (gray) references 3manplayer (id)
-		on update restrict,
-	constraint
-		foreign key (black) references 3manplayer (id)
-		on update restrict
+	created datetime not null
+--	constraint
+--		foreign key (state) references 3manst (id)
+--		on update restrict,
+--	constraint
+--		foreign key (white) references 3manplayer (id)
+--		on update restrict,
+--	constraint
+--		foreign key (gray) references 3manplayer (id)
+--		on update restrict,
+--	constraint
+--		foreign key (black) references 3manplayer (id)
+--		on update restrict
 ) ENGINE = InnoDB;
 
 drop table if exists 3manmv;
 create table 3manmv (
 	id bigint auto_increment primary key,
-	fromrank tinyint not null,
-	fromfile tinyint not null,
-	torank tinyint not null,
-	tofile tinyint not null,
+	fromto binary(4) not null,
 	before bigint not null,
-	promotion tinyint not null,
-	constraint
-		foreign key (before) references 3manst (id)
-		on update restrict
+	promotion tinyint not null
+--	constraint
+--		foreign key (before) references 3manst (id)
+--		on update restrict
 ) engine = InnoDB;
+
+-- vi:ft=mysql
