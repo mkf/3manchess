@@ -20,8 +20,6 @@ create table 3manst (
 
 set @dbo := (select database() from dual);
 
-select dbo;
-
 create trigger dbo.BlockDuplicates3manst
 	on dbo.3manst
 	instead of insert
