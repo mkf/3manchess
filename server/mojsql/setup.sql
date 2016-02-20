@@ -18,6 +18,60 @@ create table 3manst (
 	aliveblack bool not null
 ) ENGINE = InnoDB;
 
+create trigger dbo.BlockDuplicates3manst
+	on dbo.3manst
+	instead of insert
+as
+begin
+	set nocount on;
+	if not exists (select 1 from inserted as i
+		inner join dbo.3manst as t
+		on i.board = t.board
+		and i.moatzero = t.moatzero
+		and i.moatone = t.moatone
+		and i.moattwo = t.moattwo
+		and i.movesnext = t.movesnext
+		and i.castling = t.castling
+		and i.enpasprevrow = t.enpasprevrow
+		and i.enpasprevfile = t.enpasprevfile
+		and i.enpascurrow = t.enpascurrow
+		and i.enpascurfile = t.enpascurfile
+		and i.halfmoveclock = t.halfmoveclock
+		and i.fullmovenumber = t.fullmovenumber
+		and i.alivewhite = t.alivewhite
+		and i.alivegray = t.alivegray
+		and i.aliveblack = t.aliveblack
+	)
+	begin
+		insert dbo.3manst(board,
+			moatzero, moatone, moattwo, 
+			movesnext, castling,
+			enpasprevrow, enpasprevfile, enpascurrow, enpascurfile,
+			halfmoveclock, fullmovenumber,
+			alivewhite, alivegray, aliveblack
+		)
+			select board,
+				moatzero, moatone, moattwo, 
+				movesnext, castling,
+				enpasprevrow, enpasprevfile, enpascurrow, enpascurfile,
+				halfmoveclock, fullmovenumber,
+				alivewhite, alivegray, aliveblack
+				from inserted;
+	end
+	else
+	begin
+		select board,
+			moatzero, moatone, moattwo, 
+			movesnext, castling,
+			enpasprevrow, enpasprevfile, enpascurrow, enpascurfile,
+			halfmoveclock, fullmovenumber,
+			alivewhite, alivegray, aliveblack
+			from inserted;
+	end
+end
+go
+
+
 drop table if exists 3manplayer;
 create table 3manplayer (
 	id bigint auto_increment primary key,
