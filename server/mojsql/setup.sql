@@ -2,25 +2,18 @@ drop table if exists 3manst;
 create table 3manst (
 	id bigint auto_increment primary key, 
 	board binary(144) not null, 
-	moatzero boolean not null, 
-	moatone boolean not null,
-	moattwo boolean not null,
+	moats bit(3) not null,
 	movesnext tinyint not null, 
-	castling tinyint not null, 
-	enpasprevrow tinyint not null, 
-	enpasprevfile tinyint not null,
-	enpascurrow tinyint not null, 
-	enpascurfile tinyint not null,
+	castling bit(6) not null, 
+	enpassant binary(4) not null,
 	halfmoveclock tinyint not null, 
 	fullmovenumber smallint not null, 
-	alivewhite bool not null,
-	alivegray bool not null,
-	aliveblack bool not null,
+	alive bit(3) not null,
 	unique everything(
-		board, moatzero, moatone, moattwo, movesnext, castling,
-		enpasprevrow, enpasprevfile, enpascurrow, enpascurfile,
+		board, moats, movesnext, castling,
+		enpassant,
 		halfmoveclock, fullmovenumber,
-		alivewhite, alivegray, aliveblack
+		alive
 	)
 ) ENGINE = InnoDB;
 
