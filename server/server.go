@@ -12,6 +12,8 @@ type Server interface {
 	LoadSD(key int64, sd *game.StateData) error
 	SavePD(*player.PlayerData) (key int64, err error)
 	LoadPD(key int64, pd *player.PlayerData) error
+	SaveMD(*MoveData) (key int64, err error)
+	LoadMD(key int64, md *MoveData) error
 	ListGP() ([]GameFollow, error)
 	//GetDerived selects all the moves where the gamestate is before
 	GetDerived(key int64) (keys []int64, err error)
