@@ -16,7 +16,7 @@ create table 3manst (
 	alivewhite bool not null,
 	alivegray bool not null,
 	aliveblack bool not null,
-	unique key everything(
+	unique everything(
 		board, moatzero, moatone, moattwo, movesnext, castling,
 		enpasprevrow, enpasprevfile, enpascurrow, enpascurfile,
 		halfmoveclock, fullmovenumber,
