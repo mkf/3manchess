@@ -54,7 +54,7 @@ create table 3manmv (
 	id bigint auto_increment primary key,
 	fromto binary(4) not null,
 	beforestate bigint not null,
-	pawnpromotion tinyint not null
+	promotion tinyint not null
 --	constraint
 --		foreign key (before) references 3manst (id)
 --		on update restrict
