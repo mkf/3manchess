@@ -1,7 +1,7 @@
 drop table if exists 3manst;
 create table 3manst (
 	id bigint auto_increment primary key, 
-	board blob not null, 
+	board binary(144) not null, 
 	moatzero boolean not null, 
 	moatone boolean not null,
 	moattwo boolean not null,
@@ -27,7 +27,7 @@ create table 3manst (
 drop table if exists 3manplayer;
 create table 3manplayer (
 	id bigint auto_increment primary key,
-	whoami varchar(100) not null,
+	whoami varbinary(20) not null,
 	name varchar(100) not null,
 	precise double,
 	coefficient double,
