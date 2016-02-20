@@ -9,7 +9,7 @@ create table 3manst (
 	halfmoveclock tinyint not null, 
 	fullmovenumber smallint not null, 
 	alive bit(3) not null,
-	unique everything(
+	unique key everything(
 		board, moats, movesnext, castling,
 		enpassant,
 		halfmoveclock, fullmovenumber,
@@ -20,11 +20,11 @@ create table 3manst (
 drop table if exists 3manplayer;
 create table 3manplayer (
 	id bigint auto_increment primary key,
-	whoami varbinary(20) not null,
-	name varchar(100) not null,
-	precise double,
-	coefficient double,
-	pawnpromotion tinyint
+	whoami varbinary(20) not null, -- player type identifier
+	name varchar(100) not null, -- name, not parsed
+	precise double, -- bot depth
+	coefficient double, -- bot coefficient
+	pawnpromotion tinyint -- bot promotion if not auto
 ) engine = InnoDB;
 
 drop table if exists 3mangp;
@@ -34,7 +34,7 @@ create table 3mangp (
 	white bigint not null, 
 	gray bigint not null, 
 	black bigint not null, 
-	datatime datetime not null
+	created datetime not null
 --	constraint
 --		foreign key (state) references 3manst (id)
 --		on update restrict,
