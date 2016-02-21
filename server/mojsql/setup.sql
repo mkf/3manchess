@@ -44,7 +44,7 @@ create table chessbot (
 	player bigint not null unique key,
 	precise double ,
 	coefficient double ,
-	pawnpromotion tinyint ,
+	pawnpromotion tinyint 
 	-- unique key everything ( whoami, owner, precise, coefficient, pawnpromotion )
 	-- constraint
 --		foreign key (owner) references chessuser (id)
