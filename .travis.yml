@@ -1,9 +1,12 @@
 language: go
 go:
-- 1.2
-- 1.3
-- 1.4
+- 1.6
 - 1.5
+- 1.4
+- 1.3
+- 1.2
+addons:
+        mariadb: '5.5'
 before_install:
 - echo "" > coverage.txt
 - go get github.com/onsi/gomega
@@ -11,6 +14,7 @@ before_install:
 - go get golang.org/x/tools/cmd/cover
 install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
+- sh -c "mysql -e 'create database if not exists archiet;'; mysql archiet < $GOPATH/src/github.com/ArchieT/3manchess/server/mojsql/setup.sql"
 - go get -v -t -race github.com/ArchieT/3manchess/movedet
 - go get -v -t -race github.com/ArchieT/3manchess/player
 - go get -v -t -race github.com/ArchieT/3manchess/interface/devengfmt
