@@ -152,32 +152,31 @@ type StateData struct {
 	Moats          [3]bool
 	MovesNext      int8
 	Castling       uint8
-	EnPassant      [6]int8
+	EnPassant      [4]int8
 	HalfmoveClock  int8
 	FullmoveNumber int16
 	Alive          [3]bool
 }
 
 func (s *State) FromData(d *StateData) {
-	s.Board = BoardByte(d.Board)
-	s.MoatsState = MoatsState{d.MoatZero, d.MoatOne, d.MoatTwo}
+	s.Board = BoardByte(d.Board[:])
+	s.MoatsState = MoatsState(d.Moats)
 	s.MovesNext = Color(d.MovesNext)
 	s.Castling = CastlingFromUint8(d.Castling)
-	s.EnPassant = EnPassant{{d.EnPasPrevRank, d.EnPasPrevFile}, {d.EnPasCurRank, d.EnPasCurFile}}
+	s.EnPassant = EnPassant{{d.EnPassant[0], d.EnPassant[1]}, {d.EnPassant[2], d.EnPassant[3]}}
 	s.HalfmoveClock = HalfmoveClock(d.HalfmoveClock)
 	s.FullmoveNumber = FullmoveNumber(d.FullmoveNumber)
-	s.PlayersAlive = PlayersAlive{d.AliveWhite, d.AliveGray, d.AliveBlack}
+	s.PlayersAlive = PlayersAlive(d.Alive)
 }
 
 func (s *State) Data() *StateData {
 	d := StateData{
 		Board: s.Board.Byte(), MovesNext: int8(s.MovesNext),
-		MoatZero: s.MoatsState[0], MoatOne: s.MoatsState[1], MoatTwo: s.MoatsState[2],
+		Moats:         [3]bool(s.MoatsState),
 		Castling:      s.Castling.Uint8(),
-		EnPasPrevRank: s.EnPassant[0][0], EnPasPrevFile: s.EnPassant[0][1],
-		EnPasCurRank: s.EnPassant[1][0], EnPasCurFile: s.EnPassant[1][1],
+		EnPassant:     [4]int8{s.EnPassant[0][0], s.EnPassant[0][1], s.EnPassant[1][0], s.EnPassant[1][1]},
 		HalfmoveClock: int8(s.HalfmoveClock), FullmoveNumber: int16(s.FullmoveNumber),
-		AliveWhite: s.PlayersAlive[0], AliveGray: s.PlayersAlive[1], AliveBlack: s.PlayersAlive[2],
+		Alive: [3]bool(s.PlayersAlive),
 	}
 	return &d
 }
