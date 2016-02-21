@@ -19,7 +19,7 @@ create table 3manst (
 
 drop table if exists 3manplayer;
 create table 3manplayer (
-	id bigint auto_increment primary key,
+	id bigint auto_increment primary key
 	-- name varchar(100) not null,
 ) engine = InnoDB;
 
