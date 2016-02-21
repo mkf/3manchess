@@ -30,11 +30,11 @@ type PlayerGen interface {
 }
 
 type PlayerData struct {
-	WhoAmI        string
-	Name          string
-	Precision     float64
-	Coefficient   float64
-	PawnPromotion int8
+	WhoAmI        string  `json:"whoami"`
+	Name          string  `json:"name"`
+	Precision     float64 `json:"precision"`
+	Coefficient   float64 `json:"coefficient"`
+	PawnPromotion int8    `json:"pawnpromotion"`
 }
 
 //Gameplay is a list of players and the current gamestate pointer
