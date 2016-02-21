@@ -148,21 +148,14 @@ type State struct {
 }
 
 type StateData struct {
-	Board          []byte
-	MoatZero       bool
-	MoatOne        bool
-	MoatTwo        bool
+	Board          [144]byte
+	Moats          [3]bool
 	MovesNext      int8
 	Castling       uint8
-	EnPasPrevRank  int8
-	EnPasPrevFile  int8
-	EnPasCurRank   int8
-	EnPasCurFile   int8
+	EnPassant      [6]int8
 	HalfmoveClock  int8
 	FullmoveNumber int16
-	AliveWhite     bool
-	AliveGray      bool
-	AliveBlack     bool
+	Alive          [3]bool
 }
 
 func (s *State) FromData(d *StateData) {
