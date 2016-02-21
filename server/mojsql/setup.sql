@@ -29,7 +29,7 @@ create table chessuser (
 	login varchar(20) unique key,
 	passwd varchar(100) not null,
 	name varchar(100),
-	player bigint not null unique key,
+	player bigint not null unique key
 	-- constraint
 --		foreign key (player) references 3manplayer (id)
 --		on update restrict
