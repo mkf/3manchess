@@ -1,14 +1,17 @@
 package movedet
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "testing"
 import "github.com/ArchieT/3manchess/game"
+import "github.com/ArchieT/3manchess/movedet/board"
 
 //var simplyillegal []testentity
 
-var first = game.Move{game.Pos{1, 0}, game.Pos{3, 0}, &game.NEWGAME}
+var first = game.Move{From: game.Pos{1, 0}, To: game.Pos{3, 0}, Before: &game.NEWGAME, PawnPromotion: 0}
 var temp, _ = first.After()
-var g = []game.Move{first, game.Move{From: game.Pos{1, 8}, To: game.Pos{3, 8}, Before: temp}}
-var b = []game.Move{game.Move{From: game.Pos{3, 0}, To: game.Pos{4, 0}, Before: temp}}
+var g = []game.Move{first, game.Move{From: game.Pos{1, 8}, To: game.Pos{3, 8}, Before: temp, PawnPromotion: 0}}
+var b = []game.Move{game.Move{From: game.Pos{3, 0}, To: game.Pos{4, 0}, Before: temp, PawnPromotion: 0}}
 
 //simplyillegal = []testentity{
 //	{Pos{3,0},Pos{5,0},g[0].After()}
@@ -24,7 +27,7 @@ func TestGood(t *testing.T) {
 		var w *game.State
 		if temp != nil {
 			t.Log("temp.Board", *temp.Board)
-			v, w, err = WhatMove(pair.Before, temp.Board)
+			v, w, err = WhatMove(pair.Before, board.FromGameBoard(temp.Board))
 		} else {
 			t.Log("temp is nil")
 			if err == nil {
@@ -56,7 +59,7 @@ func TestSimplyIllegal(t *testing.T) {
 		} else {
 			t.Log("temp IS NOT NIL!!")
 			t.Log("temp.Board", *temp.Board)
-			v, w, terr = WhatMove(pair.Before, temp.Board)
+			v, w, terr = WhatMove(pair.Before, board.FromGameBoard(temp.Board))
 		}
 		if terr == nil {
 			t.Error("For", pair, "there is no error, values are", v, w)

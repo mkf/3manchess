@@ -1,5 +1,7 @@
 package sitvalues
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/simple"
 import "github.com/ArchieT/3manchess/player"
@@ -9,7 +11,12 @@ import "fmt"
 
 const DEFFIXPREC float64 = 0.0002
 
+const DEFPAWNPROMOTION = game.Queen
+
+const WhoAmI string = "3manchess-ai_sitvalues"
+
 type AIPlayer struct {
+	Name              string
 	errchan           chan error
 	ErrorChan         chan<- error
 	hurry             chan bool
@@ -19,6 +26,56 @@ type AIPlayer struct {
 	OwnedToThreatened float64
 	gp                *player.Gameplay
 	waiting           bool
+	PawnPromotion     game.FigType //it will be possible to set it to 0 for automatic choice (not yet implemented)
+}
+
+func (a *AIPlayer) Data() player.PlayerData {
+	var d player.PlayerData
+	d.Precision = a.FixedPrecision
+	d.Coefficient = a.OwnedToThreatened
+	d.PawnPromotion = int8(a.PawnPromotion)
+	d.WhoAmI = WhoAmI
+	d.Name = a.Name
+	return d
+}
+
+func (a *AIPlayer) Map() map[string]interface{} {
+	m := make(map[string]interface{})
+	m["Precision"] = a.FixedPrecision
+	m["OwnedToThreatened"] = a.OwnedToThreatened
+	m["PawnPromotion"] = a.PawnPromotion
+	m["WhoAmI"] = WhoAmI
+	m["Name"] = a.Name
+	return m
+}
+
+func (a *AIPlayer) FromMap(m map[string]interface{}) {
+	ok := true
+	var fp, ott, pp, nm interface{}
+	fp, ok = m["Precision"]
+	a.FixedPrecision = fp.(float64)
+	if !ok {
+		panic("Precision")
+	}
+	ott, ok = m["OwnedToThreatened"]
+	a.OwnedToThreatened = ott.(float64)
+	if !ok {
+		panic("OwnedToThreatened")
+	}
+	pp, ok = m["PawnPromotion"]
+	a.PawnPromotion = pp.(game.FigType)
+	if !ok {
+		panic("PawnPromotion")
+	}
+	nm, ok = m["Name"]
+	a.Name = nm.(string)
+}
+
+func (a *AIPlayer) FromData(d player.PlayerData) {
+	a.FixedPrecision = d.Precision
+	a.OwnedToThreatened = d.Coefficient
+	a.PawnPromotion = game.FigType(d.PawnPromotion)
+	a.Name = d.Name
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
@@ -32,6 +89,9 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 	a.hurry = hurry
 	a.HurryChan = hurry
 	a.gp = gp
+	if a.PawnPromotion == game.ZeroFigType {
+		a.PawnPromotion = DEFPAWNPROMOTION
+	}
 	go func() {
 		for b := range a.errchan {
 			panic(b)
@@ -49,35 +109,28 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 
 func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State, whoarewe game.Color) {
 	state.EvalDeath()
-	if !(state.PlayersAlive.Give(whoarewe)) {
+	if !(state.PlayersAlive.Give(whoarewe)) { //if we are dead
 		give <- a.SitValue(state) * chance
 		return
 	}
-	if chance < a.curfixprec {
+	if chance < a.curfixprec { //if we are too deep
 		give <- a.SitValue(state) * chance
 		return
 	}
 	var wg sync.WaitGroup
-	var i, j, k, l int8
+	var oac game.ACFT
 	possib := make(chan *game.State, 2050)
-	var ourft game.FromTo
-
-	for i = 0; i < 6; i++ {
-		for j = 0; j < 24; j++ {
-			for k = 0; k < 6; k++ {
-				for l = 0; l < 24; l++ {
-					wg.Add(1)
-					go func(i, j, k, l int8) {
-						ourft = game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
-						sv := ourft.Move(state)
-						if v, err := sv.After(); err == nil {
-							possib <- v
-						}
-						wg.Done()
-					}(i, j, k, l)
-				}
+	for oac.OK() {
+		wg.Add(1)
+		go func(ourft game.FromTo) {
+			sv := ourft.Move(state)
+			sv.PawnPromotion = a.PawnPromotion
+			if v, err := sv.After(); err == nil {
+				possib <- v
 			}
-		}
+			wg.Done()
+		}(game.FromTo(oac))
+		oac.P()
 	}
 	wg.Wait()
 	var newchance float64
@@ -99,40 +152,37 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 		<-hurryup
 	}
 	thoughts := make(map[game.FromTo]*float64)
-	var i, j, k, l int8
-	var ourft game.FromTo
+	var oac game.ACFT
 	countem := new(uint32)
 	atomic.StoreUint32(countem, 0)
 	var wg, gwg sync.WaitGroup
+	var tmx sync.Mutex
 	wg.Add(1)
-	for i = 0; i < 6; i++ {
-		for j = 0; j < 24; j++ {
-			for k = 0; k < 6; k++ {
-				for l = 0; l < 24; l++ {
-					go func(i, j, k, l int8) {
-						ourft = game.FromTo{game.Pos{i, j}, game.Pos{k, l}}
-						sv := ourft.Move(s)
-						if v, err := sv.After(); err == nil {
-							gwg.Add(1)
-							go func(n game.FromTo) {
-								atomic.AddUint32(countem, 1)
-								var newchance float64
-								wg.Wait()
-								newchance = 1.0 / float64(*countem)
-								ourchan := make(chan float64, 100)
-								makefloat := new(float64)
-								thoughts[n] = makefloat
-								go func(ch <-chan float64, ou *float64) {
-									*ou += <-ch
-								}(ourchan, makefloat)
-								a.Worker(newchance, ourchan, v, s.MovesNext)
-								gwg.Done()
-							}(ourft)
-						}
-					}(i, j, k, l)
-				}
+	for oac.OK() {
+		go func(ourft game.FromTo) {
+			sv := ourft.Move(s)
+			sv.PawnPromotion = a.PawnPromotion
+			if v, err := sv.After(); err == nil {
+				gwg.Add(1)
+				go func(n game.FromTo) {
+					atomic.AddUint32(countem, 1)
+					var newchance float64
+					wg.Wait()
+					newchance = 1.0 / float64(*countem)
+					ourchan := make(chan float64, 100)
+					makefloat := new(float64)
+					tmx.Lock()
+					thoughts[n] = makefloat
+					tmx.Unlock()
+					go func(ch <-chan float64, ou *float64) {
+						*ou += <-ch
+					}(ourchan, makefloat)
+					a.Worker(newchance, ourchan, v, s.MovesNext)
+					gwg.Done()
+				}(ourft)
 			}
-		}
+		}(game.FromTo(oac))
+		oac.P()
 	}
 	wg.Done()
 	go func() {
@@ -159,6 +209,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 		panic("len(ourfts)==0 !!!!")
 	}
 	ormov := ourfts[9].Move(s)
+	ormov.PawnPromotion = a.PawnPromotion
 	return &ormov
 }
 

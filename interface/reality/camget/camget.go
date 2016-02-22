@@ -1,7 +1,12 @@
-package reality
+package camget
+
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
 import "github.com/lazywei/go-opencv/opencv"
 import "fmt"
+
+//import "github.com/ArchieT/3manchess/game"
+import "github.com/ArchieT/3manchess/movedet/board"
 
 //import "log"
 
@@ -58,6 +63,11 @@ func (c Camera) GiveFrame() (*opencv.IplImage, error) {
 		return c.Capture.RetrieveFrame(1), GiveFrameError("Grab failed")
 	}
 	//return c.Capture.QueryFrame(), nil
+}
+
+func (v *View) GiveBoard() (*board.Board, error) {
+	var b board.Board
+	return &b, nil
 }
 
 func (v *View) Calibrate() {

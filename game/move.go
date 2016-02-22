@@ -1,12 +1,25 @@
 package game
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 //Move :  struct describing a single move with the situation before it
 type Move struct {
-	From Pos
-	To   Pos
+	From, To Pos
 	//	What        Fig
 	//	AlreadyHere Fig
-	Before *State
+	Before        *State
+	PawnPromotion FigType
+}
+
+type FromToProm struct {
+	FromTo        `json:"fromto"`
+	PawnPromotion FigType `json:"pawnpromotion"`
+}
+
+func (ftp FromToProm) Move(bef *State) Move {
+	m := ftp.FromTo.Move(bef)
+	m.PawnPromotion = ftp.PawnPromotion
+	return m
 }
 
 //IncorrectPos error
@@ -41,7 +54,7 @@ func (ft FromTo) To() Pos {
 
 //Move gives you a Move with the given Before *State
 func (ft FromTo) Move(before *State) Move {
-	return Move{ft.From(), ft.To(), before}
+	return Move{ft.From(), ft.To(), before, 0}
 }
 
 //Correct checks if the FromTo is Pos.Correct
@@ -132,57 +145,54 @@ func (e IllegalMoveError) Error() string {
 
 //CheckChecking :  is `who` in check?
 func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in check
-	var i, j int8
-	var where Pos
-	var czy bool
-	for i = 0; i < 6; i++ {
-		for j = 0; j < 24; j++ {
-			if tojefig := (*b)[i][j].Fig; tojefig.Color == who && tojefig.FigType == King {
-				where = Pos{i, j}
-				czy = true
-			}
+	if !pa.Give(who) {
+		panic("CheckChecking a dead player!: " + who.String())
+	}
+	var oac ACP
+	var opos Pos
+	for oac.OK() {
+		opos = Pos(oac)
+		if tjf := b.GPos(opos); tjf.Color() == who && tjf.FigType == King {
+			return b.ThreatChecking(opos, pa, DEFENPASSANT)
 		}
+		oac.P()
 	}
-	if !czy {
-		panic("King not found!!!")
-	}
-	return b.ThreatChecking(where, pa, DEFENPASSANT)
+	panic("King not found!!!: " + who.String())
 }
 
 //ThreatChecking checks if the piece on where Pos is 'in check'
 func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
-	var ourpos Pos
-	var i, j int8
-	who := (*b)[where[0]][where[1]].Color()
+	var opos Pos
+	who := b.GPos(where).Color()
 	var heyitscheck Check
-	for i = 0; i < 6; i++ {
-		for j = 0; j < 24; j++ {
-			ourpos = Pos{i, j}
-			if (*b)[i][j].NotEmpty && ((*b)[i][j].Color() != who) && pa.Give((*b)[i][j].Color()) &&
-				(b.AnyPiece(ourpos, where, DEFMOATSSTATE, FALSECASTLING, ep)) {
-				return Check{If: true, From: ourpos}
-			}
+	var oac ACP
+	for oac.OK() {
+		opos = Pos(oac)
+		if tjf := b.GPos(opos); tjf.NotEmpty && tjf.Color() != who && pa.Give(tjf.Color()) &&
+			b.AnyPiece(opos, where, DEFMOATSSTATE, FALSECASTLING, ep) {
+			return Check{If: true, From: opos}
 		}
+		oac.P()
 	}
 	return heyitscheck
 }
 
 //FriendsNAllies returns positions of our pieces and their pieces
 func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
-	var ourpos Pos
-	var i, j int8
+	var opos Pos
+	var oac ACP
 	my := make([]Pos, 0, 16)
 	oni := make(chan Pos, 32)
 	if pa[who] {
-		for i = 0; i < 6; i++ {
-			for j = 0; j < 24; j++ {
-				ourpos = Pos{i, j}
-				if (*b)[i][j].Color() == who {
-					my = append(my, ourpos)
-				} else if (*b)[i][j].NotEmpty && pa[(*b)[i][j].Color().UInt8()] {
-					oni <- ourpos
-				}
+		for oac.OK() {
+			opos = Pos(oac)
+			tjf := b.GPos(opos)
+			if tjf.Color() == who {
+				my = append(my, opos)
+			} else if tjf.NotEmpty && pa.Give(tjf.Color()) {
+				oni <- opos
 			}
+			oac.P()
 		}
 	}
 	return my, oni
@@ -226,6 +236,12 @@ func (b *Board) WeAreThreatened(who Color, pa PlayersAlive, ep EnPassant) <-chan
 
 //Possible is such a move? Returns an error, same error as After() would give you, ¡¡¡except for CheckChecking!!!
 func (m *Move) Possible() error {
+	if err := m.From.Correct(); err != nil {
+		return err
+	}
+	if err := m.To.Correct(); err != nil {
+		return err
+	}
 	if m.Where().Empty() {
 		return IllegalMoveError{m, "NothingHereAlready", "How do you move that which does not exist?"}
 	}
@@ -243,12 +259,6 @@ func (m *Move) Possible() error {
 
 //After : return the gamestate afterwards, also error
 func (m *Move) After() (*State, error) { //situation after
-	if err := m.From.Correct(); err != nil {
-		return nil, err
-	}
-	if err := m.To.Correct(); err != nil {
-		return nil, err
-	}
 	if merr := m.Possible(); merr != nil {
 		return nil, merr
 	}
@@ -363,6 +373,15 @@ func (m *Move) After() (*State, error) { //situation after
 		if moatbridging {
 			next.MoatsState[m.From[1]/8] = true
 			next.MoatsState[m.From[1]/8+1] = true
+		}
+		if m.To[0] == 0 && m.From[0] == 1 {
+			next.Board[m.To[0]][m.To[1]] = Square{NotEmpty: true, Fig: Fig{FigType: m.PawnPromotion, Color: m.What().Color, PawnCenter: false}}
+			switch m.PawnPromotion {
+			case ZeroFigType:
+				return &next, IllegalMoveError{m, "ZeroPromotion", "Promotion to Zero"}
+			case King:
+				return &next, IllegalMoveError{m, "KingPromotion", "Promotion to King"}
+			} //let's say that you can promote a pawn to a pawn
 		}
 	} else {
 		var empty Square

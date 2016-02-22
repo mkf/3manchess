@@ -1,5 +1,7 @@
 package player
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "github.com/ArchieT/3manchess/game"
 
 //Player is either AI or a human via some UI
@@ -15,6 +17,24 @@ type Player interface {
 	AreWeWaitingForYou() bool
 	HeyWeWaitingForYou(bool)
 	String() string
+	Map() map[string]interface{}
+	FromMap(map[string]interface{})
+	Data() PlayerData
+	FromData(PlayerData)
+}
+
+type PlayerGen interface {
+	Start() error
+	GenPlayer(name string) (Player, error)
+	String() string
+}
+
+type PlayerData struct {
+	WhoAmI        string  `json:"whoami"`
+	Name          string  `json:"name"`
+	Precision     float64 `json:"precision"`
+	Coefficient   float64 `json:"coefficient"`
+	PawnPromotion int8    `json:"pawnpromotion"`
 }
 
 //Gameplay is a list of players and the current gamestate pointer

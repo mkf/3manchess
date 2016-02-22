@@ -1,5 +1,7 @@
 package simple
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "sync"
 
 func MergeBool(cs ...<-chan bool) <-chan bool {

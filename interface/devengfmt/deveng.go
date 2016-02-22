@@ -1,10 +1,14 @@
 package devengfmt
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
 import "github.com/ArchieT/3manchess/simple"
 import "fmt"
 import "log"
+
+const WhoAmI string = "3manchess-devengfmt"
 
 type Developer struct {
 	Name      string
@@ -14,6 +18,34 @@ type Developer struct {
 	hurry     chan bool
 	gp        *player.Gameplay
 	waiting   bool
+}
+
+func (p *Developer) Map() map[string]interface{} {
+	return map[string]interface{}{
+		"Name":   p.Name,
+		"WhoAmI": WhoAmI,
+	}
+}
+
+func (p *Developer) FromMap(m map[string]interface{}) {
+	ok := true
+	var t interface{}
+	t, ok = m["Name"]
+	p.Name = t.(string)
+	if !ok {
+		panic("Name")
+	}
+}
+
+func (p *Developer) Data() player.PlayerData {
+	var d player.PlayerData
+	d.WhoAmI = WhoAmI
+	d.Name = p.Name
+	return d
+}
+
+func (p *Developer) FromData(d player.PlayerData) {
+	p.Name = d.Name
 }
 
 func (p *Developer) Initialize(gp *player.Gameplay) {

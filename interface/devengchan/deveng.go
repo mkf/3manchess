@@ -1,5 +1,7 @@
 package devengchan
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/player"
 
@@ -14,6 +16,20 @@ const (
 	DRAW        ResultCode = 1
 	LOSE        ResultCode = 2
 )
+
+const WhoAmI string = "3manchess-devengchan"
+
+type DevGen struct {
+	Name string
+}
+
+func (dg *DevGen) Start() error { return nil }
+func (dg *DevGen) GenPlayer(name string) (player.Player, error) {
+	var dev Developer
+	dev.Name = name
+	return player.Player(&dev), nil
+}
+func (dg *DevGen) String() string { return "devengchan" + dg.Name }
 
 type Developer struct {
 	Name         string
@@ -39,6 +55,34 @@ func (p *Developer) AskingForMove() <-chan *game.State {
 
 func (p *Developer) HereAreMoves() chan<- *game.Move {
 	return p.HereRMoves
+}
+
+func (p *Developer) Data() player.PlayerData {
+	var d player.PlayerData
+	d.WhoAmI = WhoAmI
+	d.Name = p.Name
+	return d
+}
+
+func (p *Developer) FromData(d player.PlayerData) {
+	p.Name = d.Name
+}
+
+func (p *Developer) Map() map[string]interface{} {
+	return map[string]interface{}{
+		"Name":   p.Name,
+		"WhoAmI": WhoAmI,
+	}
+}
+
+func (p *Developer) FromMap(m map[string]interface{}) {
+	ok := true
+	var nm interface{}
+	nm, ok = m["Name"]
+	p.Name = nm.(string)
+	if !ok {
+		panic("Name")
+	}
 }
 
 func (p *Developer) Initialize(gp *player.Gameplay) {

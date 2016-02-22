@@ -1,5 +1,7 @@
 package game
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 import "fmt"
 
 //MoatsState :  Black-White, White-Gray, Gray-Black  //true: bridged. Originally, true meant still active, i.e. non-bridged!!!
@@ -13,8 +15,41 @@ var DEFMOATSSTATE = MoatsState{false, false, false} //are they bridged?
 //Castling : White,Gray,Black King-side,Queen-side
 type Castling [3][2]bool
 
+func (cs Castling) Uint8() uint8 {
+	var u uint8
+	if cs[0][0] {
+		u++
+	}
+	if cs[0][1] {
+		u += 2
+	}
+	if cs[1][0] {
+		u += 4
+	}
+	if cs[1][1] {
+		u += 8
+	}
+	if cs[2][0] {
+		u += 16
+	}
+	if cs[2][1] {
+		u += 32
+	}
+	return u
+}
+
+func CastlingFromUint8(u uint8) Castling {
+	var cs Castling
+	cs[0][0] = u%2 == 1
+	cs[0][1] = u>>1%2 == 1
+	cs[1][0] = u>>2%2 == 1
+	cs[1][1] = u>>3%2 == 1
+	cs[2][0] = u>>4%2 == 1
+	cs[2][1] = u>>5 == 1
+	return cs
+}
+
 func forcastlingconv(c Color, b byte) (uint8, uint8) {
-	col := c.UInt8()
 	var ct uint8
 	switch b {
 	case 'k', 'K':
@@ -22,7 +57,7 @@ func forcastlingconv(c Color, b byte) (uint8, uint8) {
 	case 'q', 'Q':
 		ct = 1
 	}
-	return col, ct
+	return uint8(c) - 1, ct
 }
 
 //Give (color, K/Q)
@@ -76,13 +111,13 @@ type PlayersAlive [3]bool
 
 //Give : tell if a player is active by color
 func (pa PlayersAlive) Give(who Color) bool {
-	return pa[who.UInt8()]
+	return pa[who-1]
 }
 
 //Die : disactivate a player
 func (pa PlayersAlive) Die(who Color) PlayersAlive {
 	pan := pa
-	pan[who.UInt8()] = false
+	pan[who-1] = false
 	return pan
 }
 
@@ -110,6 +145,40 @@ type State struct {
 	HalfmoveClock
 	FullmoveNumber
 	PlayersAlive
+}
+
+type StateData struct {
+	Board          [144]byte
+	Moats          [3]bool
+	MovesNext      int8
+	Castling       uint8
+	EnPassant      [4]int8
+	HalfmoveClock  int8
+	FullmoveNumber int16
+	Alive          [3]bool
+}
+
+func (s *State) FromData(d *StateData) {
+	s.Board = BoardByte(d.Board[:])
+	s.MoatsState = MoatsState(d.Moats)
+	s.MovesNext = Color(d.MovesNext)
+	s.Castling = CastlingFromUint8(d.Castling)
+	s.EnPassant = EnPassant{{d.EnPassant[0], d.EnPassant[1]}, {d.EnPassant[2], d.EnPassant[3]}}
+	s.HalfmoveClock = HalfmoveClock(d.HalfmoveClock)
+	s.FullmoveNumber = FullmoveNumber(d.FullmoveNumber)
+	s.PlayersAlive = PlayersAlive(d.Alive)
+}
+
+func (s *State) Data() *StateData {
+	d := StateData{
+		Board: s.Board.Byte(), MovesNext: int8(s.MovesNext),
+		Moats:         [3]bool(s.MoatsState),
+		Castling:      s.Castling.Uint8(),
+		EnPassant:     [4]int8{s.EnPassant[0][0], s.EnPassant[0][1], s.EnPassant[1][0], s.EnPassant[1][1]},
+		HalfmoveClock: int8(s.HalfmoveClock), FullmoveNumber: int16(s.FullmoveNumber),
+		Alive: [3]bool(s.PlayersAlive),
+	}
+	return &d
 }
 
 //EvalDeath evaluates the death of whom is about to move next and returns the same pointer it got

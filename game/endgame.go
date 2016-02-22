@@ -1,27 +1,29 @@
 package game
 
+//© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
 //CanIMoveWOCheck — is there any move that would not end up in a check?
 func (s *State) CanIMoveWOCheck(who Color) bool {
-	var i, j, k, l int8
-	for i = 0; i < 6; i++ {
-		for j = 0; j < 24; j++ {
-			if tojefig := (*(s.Board))[i][j].Fig; tojefig.Color != who {
-				continue
-			}
-			from := Pos{i, j}
-			for k = 0; k < 6; k++ {
-				for l = 0; l < 24; l++ {
-					to := Pos{k, l}
-					if s.AnyPiece(from, to) {
-						m := Move{from, to, s}
-						_, err := m.After()
-						if err == nil {
-							return true
-						}
-					}
+	var oac, oacp ACP
+	var from Pos
+	for oac.OK() {
+		from = Pos(oac)
+		if s.Board.GPos(from).Fig.Color != who {
+			continue
+		}
+		oacp = ACP{0, 0}
+		for oacp.OK() {
+			to := Pos(oacp)
+			if s.AnyPiece(from, to) {
+				m := Move{from, to, s, Queen}
+				_, err := m.After()
+				if err == nil {
+					return true
 				}
 			}
+			oacp.P()
 		}
+		oac.P()
 	}
 	return false
 }
