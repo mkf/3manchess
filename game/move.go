@@ -195,6 +195,7 @@ func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
 			oac.P()
 		}
 	}
+	close(oni)
 	return my, oni
 }
 
@@ -210,6 +211,7 @@ func (b *Board) WeAreThreateningTypes(who Color, pa PlayersAlive, ep EnPassant) 
 			}
 		}
 	}
+	close(ret)
 	return ret
 }
 
@@ -229,6 +231,7 @@ func (b *Board) WeAreThreatened(who Color, pa PlayersAlive, ep EnPassant) <-chan
 			}
 		}
 	}
+	close(ret)
 	return ret
 }
 

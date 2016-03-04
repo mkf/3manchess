@@ -2,7 +2,7 @@ package game
 
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
-import "strconv"
+import "fmt"
 
 //FigType : type of a figure, piece type
 type FigType uint8
@@ -79,7 +79,7 @@ type Pos [2]int8
 
 //Pos.String : give a nice [0,0] string
 func (p Pos) String() string {
-	return "[" + strconv.Itoa(int(p[0])) + "," + strconv.Itoa(int(p[1])) + "]"
+	return fmt.Sprintf("[%v,%v]", p[0], p[1])
 }
 
 //Board : board array
