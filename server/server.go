@@ -8,7 +8,7 @@ type Server interface {
 	Initialize(username string, password string, database string) error
 	SaveGP(*GameplayData) (key int64, err error)
 	LoadGP(key int64, gp *GameplayData) error
-	SaveSD(*game.StateData) (key int64, err error)
+	SaveSD(sd *game.StateData, movekeyaddafter int64) (key int64, err error)
 	LoadSD(key int64, sd *game.StateData) error
 	SavePD(*player.PlayerData) (key int64, err error)
 	LoadPD(key int64, pd *player.PlayerData) error
@@ -25,12 +25,10 @@ type GameFollow struct {
 }
 
 type MoveData struct {
-	FromRank      int8
-	FromFile      int8
-	ToRank        int8
-	ToFile        int8
-	Before        int64
+	FromTo        [4]int8
+	BeforeGame    int64
 	PawnPromotion int8
+	Who           int64
 }
 
 func (md MoveData) Move(sr Server) game.Move {

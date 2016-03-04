@@ -21,7 +21,7 @@ func (m *MojSQL) Initialize(username string, password string, database string) e
 	return err
 }
 
-func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
+func (m *MojSQL) SaveSD(sd *game.StateData, movekeyaddafter int64) (key int64, err error) {
 	board := string(sd.Board[:])
 	moats := string(tobit(sd.Moats[:]))
 	castling := string(tobit(sd.Castling[:]))
@@ -44,7 +44,14 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	if err != nil {
 		return -1, err
 	}
-	return res.LastInsertId()
+	var lid int64
+	lid, err = res.LastInsertId()
+	var erro error
+	res, erro = m.conn.Exec("update 3manmv set aftergame=" + strconv.Itoa(id) + " where id=" + strconv.Itoa(movekeyaddafter))
+	if err == nil {
+		return lid, erro
+	}
+	return lid, err
 }
 
 func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
