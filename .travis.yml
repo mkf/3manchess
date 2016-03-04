@@ -15,13 +15,13 @@ before_install:
 install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
 - sh -c "mysql -e 'create database if not exists archiet;'; mysql archiet < $GOPATH/src/github.com/ArchieT/3manchess/server/mojsql/setup.sql"
-- go install -v -t -race github.com/ArchieT/3manchess/movedet
-- go install -v -t -race github.com/ArchieT/3manchess/player
-- go install -v -t -race github.com/ArchieT/3manchess/interface/devengfmt
-- go install -v -t -race github.com/ArchieT/3manchess/cmd/3manchess-devengfmt
-- go install -v -t -race github.com/ArchieT/3manchess/cmd/3manchess-devengchan
-- go install -v -t -race github.com/ArchieT/3manchess/ai/sitvalues
-- go install -v -t -race github.com/ArchieT/3manchess/interface/gui
+- go install -v -race github.com/ArchieT/3manchess/movedet
+- go install -v -race github.com/ArchieT/3manchess/player
+- go install -v -race github.com/ArchieT/3manchess/interface/devengfmt
+- go install -v -race github.com/ArchieT/3manchess/cmd/3manchess-devengfmt
+- go install -v -race github.com/ArchieT/3manchess/cmd/3manchess-devengchan
+- go install -v -race github.com/ArchieT/3manchess/ai/sitvalues
+- go install -v -race github.com/ArchieT/3manchess/interface/gui
 script:
 - go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp1.out
 - cat tmp1.out >> coverage.txt
