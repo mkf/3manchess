@@ -107,6 +107,7 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 	return a.ErrorChan
 }
 
+//Worker is the routine behind the Think; exported just in case
 func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State, whoarewe game.Color) {
 	state.EvalDeath()
 	if !(state.PlayersAlive.Give(whoarewe)) { //if we are dead
@@ -145,6 +146,7 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 	wg.Wait()
 }
 
+//Think is the function generating the Move; atm it does not return anything, but will return game.Move
 func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	a.curfixprec = a.FixedPrecision
 	hurryup := simple.MergeBool(hurry, a.hurry)
