@@ -15,8 +15,8 @@ type Server interface {
 	SaveMD(*MoveData) (key int64, err error)
 	LoadMD(key int64, md *MoveData) error
 	ListGP() ([]GameFollow, error)
-	//GetDerived selects all the moves where the gamestate is before
-	GetDerived(key int64) (keys []int64, err error)
+	////GetMovesFromState selects all the moves where the gamestate is before
+	//GetMovesFromState(key int64) (keys []int64, err error)
 }
 
 type GameFollow struct {
