@@ -19,13 +19,16 @@ var VALUES = map[game.FigType]int32{
 
 func (a *AIPlayer) SitValue(s *game.State) float64 {
 	who := s.MovesNext.Next().Next()
-	nasze, _ := s.Board.FriendsNAllies(who, s.PlayersAlive)
+	nasze, ich := s.Board.FriendsNAllies(who, s.PlayersAlive)
 	myatakujem := s.Board.WeAreThreateningTypes(who, s.PlayersAlive, s.EnPassant)
 	nasatakujo := s.Board.WeAreThreatened(who, s.PlayersAlive, s.EnPassant)
-	var own, myich, oninas int32
+	var own, theirs, myich, oninas int32
 	var zyjacy float64
 	for _, o := range nasze {
 		own += VALUES[(*s.Board)[o[0]][o[1]].FigType]
+	}
+	for o := range ich {
+		theirs += VALUES[(*s.Board)[o[0]][o[1]].FigType]
 	}
 	for n := range myatakujem {
 		myich += VALUES[n]
@@ -33,7 +36,7 @@ func (a *AIPlayer) SitValue(s *game.State) float64 {
 	for n := range nasatakujo {
 		oninas += VALUES[n]
 	}
-	zyjacy = float64(own)*(a.OwnedToThreatened) + float64(myich-oninas)
+	zyjacy = float64(own-theirs)*(a.OwnedToThreatened) + float64(myich-oninas)
 	if !s.PlayersAlive.Give(who) {
 		return -DEATH
 	}
