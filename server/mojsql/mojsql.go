@@ -47,5 +47,18 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	return res.LastInsertId()
 }
 
+func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
+	var id int64
+	give := m.conn.QueryRow("select id,board,moats,movesnext,castling,enpassant,halfmoveclock,fullmovenumber,alive from 3manst where id=" + key)
+	var board, moats, castling, enpassant, alive []byte
+	err := give.Scan(&id, &board, &moats, &sd.MovesNext, &castling, &enpassant, &sd.HalfmoveClock, &sd.FullmoveNumber, &alive)
+	if err != nil {
+		return err
+	}
+	var bmoats, bcastling, benpassant, balive []bool
+	bmoats, bcastling, balive = tobool(moats), tobool(castling), tobool(balive)
+	sd.Moats, sd.Castling, sd.EnPassant, sd.Alive = [3]bool(bmoats), [6]bool(bcastling), [4]int8(enpassant), [3]bool(balive)
+}
+
 func (m *MojSQL) SaveGP(gpd *server.GameplayData) (string, error) {
 }
