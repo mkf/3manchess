@@ -47,7 +47,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData, movekeyaddafter int64) (key int64, e
 	var lid int64
 	lid, err = res.LastInsertId()
 	var erro error
-	res, erro = m.conn.Exec("update 3manmv set aftergame=" + strconv.Itoa(id) + " where id=" + strconv.Itoa(movekeyaddafter))
+	res, erro = m.conn.Exec("update 3manmv set afterstate=" + strconv.Itoa(id) + " where id=" + strconv.Itoa(movekeyaddafter))
 	if err == nil {
 		return lid, erro
 	}
