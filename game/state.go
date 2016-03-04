@@ -151,7 +151,7 @@ type StateData struct {
 	Board          [144]byte
 	Moats          [3]bool
 	MovesNext      int8
-	Castling       uint8
+	Castling       [6]bool
 	EnPassant      [4]int8
 	HalfmoveClock  int8
 	FullmoveNumber int16
