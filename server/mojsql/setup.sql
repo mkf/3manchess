@@ -43,7 +43,7 @@ create table chessbot (
 	owner bigint not null,
 	ownname varchar(50),
 	player bigint not null unique key,
-	settings varchar(500),
+	settings varchar(300),
 	unique key everything ( whoami, owner, settings ),
 	constraint
 		foreign key (owner) references chessuser (id)
