@@ -79,6 +79,7 @@ create table 3manmv (
 	id bigint auto_increment primary key,
 	fromto binary(4) not null,
 	beforestate bigint not null,
+	afterstate bigint,
 	promotion tinyint not null,
 	constraint
 		foreign key (beforestate) references 3manst (id)
