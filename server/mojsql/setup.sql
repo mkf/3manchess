@@ -88,7 +88,8 @@ create table 3manmv (
 		on update restrict,
 	constraint
 		foreign key (who) references 3manplayer (id)
-		on update restrict
+		on update restrict,
+	unique (fromto, beforegame, promotion, who)
 ) engine = InnoDB;
 
 -- vi:ft=mysql
