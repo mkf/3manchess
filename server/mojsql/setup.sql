@@ -84,7 +84,7 @@ create table 3manmv (
 	promotion tinyint not null,
 	who bigint not null,
 	constraint
-		foreign key (beforestate) references 3mangp (id)
+		foreign key (beforegame) references 3mangp (id)
 		on update restrict,
 	constraint
 		foreign key (who) references 3manplayer (id)
