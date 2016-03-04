@@ -81,7 +81,7 @@ create table 3manmv (
 	fromto binary(4) not null,
 	beforegame bigint not null,
 	aftergame bigint,
-	promotion tinyint not null,
+	promotion tinyint,
 	who bigint not null,
 	constraint
 		foreign key (beforegame) references 3mangp (id)
@@ -89,7 +89,7 @@ create table 3manmv (
 	constraint
 		foreign key (who) references 3manplayer (id)
 		on update restrict,
-	unique (fromto, beforegame, promotion, who)
+	unique onemove(fromto, beforegame, promotion, who)
 ) engine = InnoDB;
 
 -- vi:ft=mysql
