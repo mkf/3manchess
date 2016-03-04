@@ -62,7 +62,7 @@ create table 3mangp (
 	black bigint not null, 
 	created datetime not null,
 	constraint
-		foreign key (state) references 3manst (id)
+		foreign key (lastmove) references 3manmv (id)
 		on update restrict,
 	constraint
 		foreign key (white) references 3manplayer (id)
