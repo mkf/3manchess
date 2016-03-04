@@ -5,7 +5,8 @@ package game
 import "testing"
 
 func TestSimpleGenNoPanic(t *testing.T) {
-	first := Move{Pos{1, 0}, Pos{3, 0}, &NEWGAME, 0}
+	newState := NewState()
+	first := Move{Pos{1, 0}, Pos{3, 0}, &newState, 0}
 	temp, err := first.After()
 	t.Log("first.After ", temp)
 	if err != nil {
