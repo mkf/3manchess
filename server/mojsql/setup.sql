@@ -81,8 +81,12 @@ create table 3manmv (
 	beforestate bigint not null,
 	afterstate bigint,
 	promotion tinyint not null,
+	who bigint not null,
 	constraint
 		foreign key (beforestate) references 3manst (id)
+		on update restrict,
+	constraint
+		foreign key (who) references 3manplayer (id)
 		on update restrict
 ) engine = InnoDB;
 
