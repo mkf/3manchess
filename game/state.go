@@ -162,7 +162,7 @@ func (s *State) FromData(d *StateData) {
 	s.Board = BoardByte(d.Board[:])
 	s.MoatsState = MoatsState(d.Moats)
 	s.MovesNext = Color(d.MovesNext)
-	s.Castling = CastlingFromUint8(d.Castling)
+	s.Castling = Castling(d.Castling)
 	s.EnPassant = EnPassant{{d.EnPassant[0], d.EnPassant[1]}, {d.EnPassant[2], d.EnPassant[3]}}
 	s.HalfmoveClock = HalfmoveClock(d.HalfmoveClock)
 	s.FullmoveNumber = FullmoveNumber(d.FullmoveNumber)
