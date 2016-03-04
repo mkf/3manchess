@@ -22,7 +22,7 @@ create table 3manplayer (
 	id bigint auto_increment primary key,
 	auth varchar(100) not null
 	-- name varchar(100) not null,
-) engine = InnoDB;
+) engine = InnoDB default charset=utf8;
 
 drop table if exists chessuser;
 create table chessuser (
@@ -34,7 +34,7 @@ create table chessuser (
 	constraint
 		foreign key (player) references 3manplayer (id)
 		on update restrict
-) engine = InnoDB;
+) engine = InnoDB default charset=utf8;
 
 drop table if exists chessbot;
 create table chessbot (
@@ -51,7 +51,7 @@ create table chessbot (
 	constraint
 		foreign key (player) references 3manplayer (id)
 		on update restrict
-) engine = InnoDB;
+) engine = InnoDB default charset=utf8;
 
 drop table if exists 3mangp;
 create table 3mangp (
@@ -61,9 +61,6 @@ create table 3mangp (
 	gray bigint not null, 
 	black bigint not null, 
 	created datetime not null,
-	constraint
-		foreign key (lastmove) references 3manmv (id)
-		on update restrict,
 	constraint
 		foreign key (white) references 3manplayer (id)
 		on update restrict,
@@ -94,5 +91,12 @@ create table 3manmv (
 		on update restrict,
 	unique onemove(fromto, beforegame, promotion, who)
 ) engine = InnoDB;
+
+alter table 3mangp (
+	constraint
+		foreign key (lastmove) references 3manmv (id)
+		on update restrict
+);
+
 
 -- vi:ft=mysql
