@@ -43,12 +43,13 @@ create table chessbot (
 	owner bigint not null,
 	ownname varchar(50),
 	player bigint not null unique key,
-	precise double ,
-	coefficient double ,
-	pawnpromotion tinyint ,
-	unique key everything ( whoami, owner, precise, coefficient, pawnpromotion ),
+	settings varchar(500),
+	unique key everything ( whoami, owner, settings ),
 	constraint
 		foreign key (owner) references chessuser (id)
+		on update restrict,
+	constraint
+		foreign key (player) references 3manplayer (id)
 		on update restrict
 ) engine = InnoDB;
 
