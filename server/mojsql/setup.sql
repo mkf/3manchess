@@ -79,12 +79,12 @@ drop table if exists 3manmv;
 create table 3manmv (
 	id bigint auto_increment primary key,
 	fromto binary(4) not null,
-	beforestate bigint not null,
-	afterstate bigint,
+	beforegame bigint not null,
+	aftergame bigint,
 	promotion tinyint not null,
 	who bigint not null,
 	constraint
-		foreign key (beforestate) references 3manst (id)
+		foreign key (beforestate) references 3mangp (id)
 		on update restrict,
 	constraint
 		foreign key (who) references 3manplayer (id)
