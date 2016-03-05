@@ -92,11 +92,10 @@ create table 3manmv (
 	unique onemove(fromto, beforegame, promotion, who)
 ) engine = InnoDB;
 
-alter table 3mangp (
-	constraint
+alter table 3mangp
+	add constraint
 		foreign key (lastmove) references 3manmv (id)
-		on update restrict
-);
+		on update restrict;
 
 
 -- vi:ft=mysql
