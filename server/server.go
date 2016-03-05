@@ -57,39 +57,12 @@ func LoadState(sr Server, key int64, s *game.State) error {
 }
 
 type GameplayData struct {
-	State, White, Gray, Black int64
-	Date                      time.Time
+	State              int64
+	White, Gray, Black *int64
+	Date               time.Time
 }
 
 type GameplayFollow struct {
 	Key int64
 	*GameplayData
-}
-
-func FromGameplay(sr Server, gp player.Gameplay) (*GameplayData, error) {
-	var d GameplayData
-	var err error
-	d.Date = time.Now()
-	d.State, err = SaveState(sr, gp.State)
-	if err != nil {
-		return &d, err
-	}
-	//d.White, err = SavePlayer(sr, gp.Players[game.White], c)
-	if err != nil {
-		return &d, err
-	}
-	//d.Gray, err = SavePlayer(sr, gp.Players[game.Gray], c)
-	if err != nil {
-		return &d, err
-	}
-	//d.Black, err = SavePlayer(sr, gp.Players[game.Black], c)
-	return &d, err
-}
-
-func SaveGameplay(sr Server, gp player.Gameplay, movekeyaddafter int64) (key int64, err error) {
-	d, err := FromGameplay(sr, gp, movekeyaddafter)
-	if err != nil {
-		return -1, err
-	}
-	return sr.SaveGP(d)
 }
