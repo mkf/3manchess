@@ -33,10 +33,10 @@ type MoveData struct {
 
 func (md MoveData) Move(sr Server) game.Move {
 	s := new(game.State)
-	LoadState(sr, md.Before, s)
+	LoadState(sr, md.BeforeGame, s)
 	return game.Move{
-		From:          Pos{md.FromRank, md.FromFile},
-		To:            Pos{md.ToRank, md.ToFile},
+		From:          game.Pos{md.FromTo[0], md.FromTo[1]},
+		To:            game.Pos{md.FromTo[2], md.FromTo[3]},
 		Before:        s,
 		PawnPromotion: game.FigType(md.PawnPromotion),
 	}
@@ -47,13 +47,13 @@ type StateFollow struct {
 	*game.StateData
 }
 
-func SaveState(sr Server, st *game.State) (key int64, err error) {
-	return sr.SaveSD(st.Data())
+func SaveState(sr Server, st *game.State, movekeyaddafter int64) (key int64, err error) {
+	return sr.SaveSD(st.Data(), movekeyaddafter)
 }
 
 func LoadState(sr Server, key int64, s *game.State) error {
 	var sd game.StateData
-	err := sr.LoadSD(k, &sd)
+	err := sr.LoadSD(key, &sd)
 	s.FromData(&sd)
 	return err
 }
@@ -87,30 +87,30 @@ type GameplayFollow struct {
 	*GameplayData
 }
 
-func FromGameplay(sr Server, gp player.Gameplay) (*GameplayData, error) {
+func FromGameplay(sr Server, gp player.Gameplay, movekeyaddafter int64) (*GameplayData, error) {
 	var d GameplayData
 	var err error
 	d.Date = time.Now()
-	d.State, err = SaveState(sr, gp.State)
+	d.State, err = SaveState(sr, gp.State, movekeyaddafter)
 	if err != nil {
-		return d, err
+		return &d, err
 	}
 	//d.White, err = SavePlayer(sr, gp.Players[game.White], c)
 	if err != nil {
-		return d, err
+		return &d, err
 	}
 	//d.Gray, err = SavePlayer(sr, gp.Players[game.Gray], c)
 	if err != nil {
-		return d, err
+		return &d, err
 	}
 	//d.Black, err = SavePlayer(sr, gp.Players[game.Black], c)
-	return d, err
+	return &d, err
 }
 
-func SaveGameplay(sr Server, gp player.Gameplay) (key int64, err error) {
-	d, err := FromGameplay(sr, gp)
+func SaveGameplay(sr Server, gp player.Gameplay, movekeyaddafter int64) (key int64, err error) {
+	d, err := FromGameplay(sr, gp, movekeyaddafter)
 	if err != nil {
-		return nil, err
+		return -1, err
 	}
 	return sr.SaveGP(d)
 }
