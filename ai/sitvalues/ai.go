@@ -86,7 +86,7 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 		wg.Add(1)
 		go func(ourft game.FromTo) {
 			sv := ourft.Move(state)
-			sv.PawnPromotion = a.PawnPromotion
+			sv.PawnPromotion = a.Conf.PawnPromotion
 			if v, err := sv.After(); err == nil {
 				possib <- v
 			}
@@ -109,7 +109,7 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 
 //Think is the function generating the Move; atm it does not return anything, but will return game.Move
 func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
-	a.curfixprec = a.FixedPrecision
+	a.curfixprec = a.Conf.FixedPrecision
 	hurryup := simple.MergeBool(hurry, a.hurry)
 	for i := len(hurryup); i > 0; i-- {
 		<-hurryup
@@ -124,7 +124,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	for oac.OK() {
 		go func(ourft game.FromTo) {
 			sv := ourft.Move(s)
-			sv.PawnPromotion = a.PawnPromotion
+			sv.PawnPromotion = a.Conf.PawnPromotion
 			if v, err := sv.After(); err == nil {
 				gwg.Add(1)
 				go func(n game.FromTo) {
@@ -172,7 +172,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 		panic("len(ourfts)==0 !!!!")
 	}
 	ormov := ourfts[9].Move(s)
-	ormov.PawnPromotion = a.PawnPromotion
+	ormov.PawnPromotion = a.Conf.PawnPromotion
 	return &ormov
 }
 
@@ -186,7 +186,7 @@ func (a *AIPlayer) HeyYouWon(_ *game.State)                         {}
 func (a *AIPlayer) HeyYouDrew(_ *game.State)                        {}
 
 func (a *AIPlayer) String() string {
-	return fmt.Sprintf("%s%e", "SVBotPrec", a.FixedPrecision)
+	return fmt.Sprintf("%s%e", "SVBotPrec", a.Conf.FixedPrecision) //TODO: print whoami and conf
 }
 
 func (a *AIPlayer) AreWeWaitingForYou() bool {
