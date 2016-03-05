@@ -8,7 +8,7 @@ type Server interface {
 	Initialize(username string, password string, database string) error
 	SaveGP(*GameplayData) (key int64, err error)
 	LoadGP(key int64, gp *GameplayData) error
-	SaveSD(sd *game.StateData, movekeyaddafter int64) (key int64, err error)
+	SaveSD(sd *game.StateData) (key int64, err error)
 	LoadSD(key int64, sd *game.StateData) error
 	//	SavePD(*player.PlayerData) (key int64, err error)
 	//	LoadPD(key int64, pd *player.PlayerData) error
