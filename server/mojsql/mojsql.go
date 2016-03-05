@@ -147,29 +147,38 @@ func (m *MojSQL) LogIn(login string, passwd string) (userid int64, authkey []byt
 	return authkey, err
 }
 
-func (m *MojSQL) Auth(userid int64, authkey []byte) error {
-	stmt, err := m.conn.Prepare("select id,3manplayer.auth from chessuser innej join 3manplayer where id=? and 3manplayer.auth=? and player=3manplayer.id")
+func (m *MojSQL) Auth(userid int64, authkey []byte) (bool, error) {
+	stmt, err := m.conn.Prepare("select exists (select id from chessuser join 3manplayer where id=? and 3manplayer.auth=? and player=3manplayer.id)")
 	if err != nil {
-		return err
+		return false, err
 	}
-	row := stmt.QueryRow(userid, authkey)
-	var u int64
-	var a []byte
-	err = row.Scan(&u, &a)
+	var a bool
+	err = stmt.QueryRow(userid, authkey).Scan(&a)
+	return a, err
+}
+
+func (m *MojSQL) BAuth(botid int64, authkey []byte) (bool, error) {
+	stmt, err := m.conn.Prepare("select exists (select id from chessbot join 3manplayer where id=? and 3manplayer.auth=? and player=3manplayer.id)")
 	if err != nil {
-		return err
+		return false, err
 	}
-	if u != userid {
-		return errors.New("AuthErrU")
+	var a bool
+	err = stmt.QueryRow(botid, authkey).Scan(&a)
+	return a, err
+}
+
+func (m *MojSQL) PAuth(playerid int64, authkey []byte) (bool, error) {
+	stmt, err := m.conn.Prepare("select exists (select id from 3manplayer where id=? and auth=?)")
+	if err != nil {
+		return false, err
 	}
-	if a != authkey {
-		return errors.New("AuthErrK")
-	}
-	return nil
+	var a bool
+	err = stmt.QueryRow(playerid, authkey).Scan(&a)
+	return a, err
 }
 
 func (m *MojSQL) NewBot(whoami []byte, userid int64, uauth []byte, ownname string, settings []byte) (botid int64, playerid int64, botauth []byte, err error) {
-	if err := m.Auth(userid, uauth); err != nil {
+	if ok, err := m.Auth(userid, uauth); !(ok && err == nil) {
 		return -1, -1, nil, err
 	}
 	playerid, authkey, err := m.NewPlayer()
@@ -188,7 +197,7 @@ func (m *MojSQL) NewBot(whoami []byte, userid int64, uauth []byte, ownname strin
 	return botid, playerid, botauth, err
 }
 
-func (m *MojSQL) BotOwner(botid int64) (login string, err error) {
+func (m *MojSQL) BotOwnerLogin(botid int64) (login string, err error) {
 	stmt, err := m.conn.Prepare("select chessuser.login from chessbot inner join chessuser where owner=chessuser.id and id=?")
 	if err != nil {
 		return "", err
@@ -204,7 +213,7 @@ func (m *MojSQL) BotOwner(botid int64) (login string, err error) {
 
 //WhoIsIt takes a playerid, and returns userid or bot id, then true if it is a bot or false if it's a user
 func (m *MojSQL) WhoIsIt(playerid int64) (id int64, isitabot bool, err error) {
-	stmt, err := m.conn.Prepare("set @playerid = ?; select id, '0' as isitabot from chessuser where player=@playerid union select id, '1' as isitabot from chessbot where player=@playerid")
+	stmt, err := m.conn.Prepare("set @playerid = ?; select id, '0' as isitabot from chessuser where player=@playerid union all select id, '1' as isitabot from chessbot where player=@playerid")
 	if err != nil {
 		return -1, false, err
 	}
@@ -215,5 +224,17 @@ func (m *MojSQL) WhoIsIt(playerid int64) (id int64, isitabot bool, err error) {
 	return id, isitabot, err
 }
 
-func (m *MojSQL) BotAuth(botid int64, uauth []byte) (playerid int64, botauth []byte, err error) {
+func (m *MojSQL) BotKey(botid int64, userid int64, uauth []byte) (playerid int64, botauth []byte, err error) {
+	if ok, err := m.Auth(userid, uauth); !(ok && err == nil) {
+		return -1, nil, err
+	}
+	stmt, err := m.conn.Prepare("select p.id,p.auth from chessbot b join 3manplayer p on b.player=p.id where b.id=?")
+	if err != nil {
+		return -1, nil, err
+	}
+	row := stmt.QueryRow(botid)
+	var playerid int64
+	var botauth []byte
+	err = row.Scan(&playerid, &botauth)
+	return playerid, botauth, err
 }
