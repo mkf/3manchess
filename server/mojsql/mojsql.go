@@ -76,3 +76,5 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 
 func (m *MojSQL) SaveGP(gpd *server.GameplayData) (string, error) {
 }
+
+//func (m *MojSQL) SignUp(login []byte, md5passwd []byte, name string,
