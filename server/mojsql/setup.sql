@@ -20,7 +20,7 @@ create table 3manst (
 drop table if exists 3manplayer;
 create table 3manplayer (
 	id bigint auto_increment primary key,
-	auth varchar(100) not null
+	auth varbinary(100) not null
 	-- name varchar(100) not null,
 ) engine = InnoDB default charset=utf8;
 
