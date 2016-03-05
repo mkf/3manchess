@@ -109,7 +109,7 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 
 //Think is the function generating the Move; atm it does not return anything, but will return game.Move
 func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
-	a.curfixprec = a.Conf.FixedPrecision
+	a.curfixprec = a.Conf.Precision
 	hurryup := simple.MergeBool(hurry, a.hurry)
 	for i := len(hurryup); i > 0; i-- {
 		<-hurryup
@@ -186,7 +186,7 @@ func (a *AIPlayer) HeyYouWon(_ *game.State)                         {}
 func (a *AIPlayer) HeyYouDrew(_ *game.State)                        {}
 
 func (a *AIPlayer) String() string {
-	return fmt.Sprintf("%s%e", "SVBotPrec", a.Conf.FixedPrecision) //TODO: print whoami and conf
+	return fmt.Sprintf("%s%e", "SVBotPrec", a.Conf.Precision) //TODO: print whoami and conf
 }
 
 func (a *AIPlayer) AreWeWaitingForYou() bool {
