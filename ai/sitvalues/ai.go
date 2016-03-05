@@ -29,16 +29,6 @@ type AIPlayer struct {
 	PawnPromotion     game.FigType //it will be possible to set it to 0 for automatic choice (not yet implemented)
 }
 
-func (a *AIPlayer) Data() player.PlayerData {
-	var d player.PlayerData
-	d.Precision = a.FixedPrecision
-	d.Coefficient = a.OwnedToThreatened
-	d.PawnPromotion = int8(a.PawnPromotion)
-	d.WhoAmI = WhoAmI
-	d.Name = a.Name
-	return d
-}
-
 func (a *AIPlayer) Map() map[string]interface{} {
 	m := make(map[string]interface{})
 	m["Precision"] = a.FixedPrecision
@@ -69,13 +59,6 @@ func (a *AIPlayer) FromMap(m map[string]interface{}) {
 	}
 	nm, ok = m["Name"]
 	a.Name = nm.(string)
-}
-
-func (a *AIPlayer) FromData(d player.PlayerData) {
-	a.FixedPrecision = d.Precision
-	a.OwnedToThreatened = d.Coefficient
-	a.PawnPromotion = game.FigType(d.PawnPromotion)
-	a.Name = d.Name
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
