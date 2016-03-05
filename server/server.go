@@ -10,8 +10,8 @@ type Server interface {
 	LoadGP(key int64, gp *GameplayData) error
 	SaveSD(sd *game.StateData, movekeyaddafter int64) (key int64, err error)
 	LoadSD(key int64, sd *game.StateData) error
-	SavePD(*player.PlayerData) (key int64, err error)
-	LoadPD(key int64, pd *player.PlayerData) error
+	//	SavePD(*player.PlayerData) (key int64, err error)
+	//	LoadPD(key int64, pd *player.PlayerData) error
 	SaveMD(*MoveData) (key int64, err error)
 	LoadMD(key int64, md *MoveData) error
 	ListGP() ([]GameFollow, error)
@@ -58,6 +58,7 @@ func LoadState(sr Server, key int64, s *game.State) error {
 	return err
 }
 
+/*
 type PlayerFollow struct {
 	Key int64
 	*player.PlayerData
@@ -74,6 +75,7 @@ func LoadPlayer(sr Server, key int64, p player.Player) error {
 	p.FromData(s)
 	return err
 }
+*/
 
 type GameplayData struct {
 	State, White, Gray, Black int64
@@ -93,15 +95,15 @@ func FromGameplay(sr Server, gp player.Gameplay) (*GameplayData, error) {
 	if err != nil {
 		return d, err
 	}
-	d.White, err = SavePlayer(sr, gp.Players[game.White], c)
+	//d.White, err = SavePlayer(sr, gp.Players[game.White], c)
 	if err != nil {
 		return d, err
 	}
-	d.Gray, err = SavePlayer(sr, gp.Players[game.Gray], c)
+	//d.Gray, err = SavePlayer(sr, gp.Players[game.Gray], c)
 	if err != nil {
 		return d, err
 	}
-	d.Black, err = SavePlayer(sr, gp.Players[game.Black], c)
+	//d.Black, err = SavePlayer(sr, gp.Players[game.Black], c)
 	return d, err
 }
 
