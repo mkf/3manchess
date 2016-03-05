@@ -56,10 +56,10 @@ create table chessbot (
 drop table if exists 3mangp;
 create table 3mangp (
 	id bigint auto_increment primary key, 
-	lastmove bigint not null, 
-	white bigint not null, 
-	gray bigint not null, 
-	black bigint not null, 
+	state bigint,
+	white bigint, 
+	gray bigint, 
+	black bigint, 
 	created datetime not null,
 	constraint
 		foreign key (white) references 3manplayer (id)
@@ -69,6 +69,9 @@ create table 3mangp (
 		on update restrict,
 	constraint
 		foreign key (black) references 3manplayer (id)
+		on update restrict,
+	constraint
+		foreign key (state) references 3manst (id)
 		on update restrict
 ) ENGINE = InnoDB;
 
@@ -77,7 +80,7 @@ create table 3manmv (
 	id bigint auto_increment primary key,
 	fromto binary(4) not null,
 	beforegame bigint not null,
-	afterstate bigint not null,
+	aftergame bigint not null,
 	promotion tinyint,
 	who bigint not null,
 	constraint
@@ -87,15 +90,10 @@ create table 3manmv (
 		foreign key (who) references 3manplayer (id)
 		on update restrict,
 	constraint
-		foreign key (afterstate) references 3manst (id)
+		foreign key (aftergame) references 3mangp (id)
 		on update restrict,
 	unique onemove(fromto, beforegame, promotion, who)
 ) engine = InnoDB;
-
-alter table 3mangp
-	add constraint
-		foreign key (lastmove) references 3manmv (id)
-		on update restrict;
 
 
 -- vi:ft=mysql
