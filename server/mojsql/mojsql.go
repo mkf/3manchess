@@ -202,6 +202,7 @@ func (m *MojSQL) BotOwner(botid int64) (login string, err error) {
 	return login, err
 }
 
+//WhoIsIt takes a playerid, and returns userid or bot id, then true if it is a bot or false if it's a user
 func (m *MojSQL) WhoIsIt(playerid int64) (id int64, isitachessbot bool, err error) {
 }
 
