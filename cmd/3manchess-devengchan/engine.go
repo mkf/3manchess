@@ -21,9 +21,9 @@ func main() {
 	fmt.Println("enter three precisions for white, gray, black bot (even if not active) in scientific notation, e.g. 1234.456e-78")
 	var wwp, gwp, bwp float64
 	fmt.Scanf("%e %e %e", &wwp, &gwp, &bwp)
-	awhite.FixedPrecision = wwp
-	agrey.FixedPrecision = gwp
-	ablack.FixedPrecision = bwp
+	awhite.Conf.Precision = wwp
+	agrey.Conf.Precision = gwp
+	ablack.Conf.Precision = bwp
 	var white, grey, black deveng.Developer
 	white.Name = "Whitey"
 	grey.Name = "Greyey"
