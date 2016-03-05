@@ -13,57 +13,37 @@ const DEFFIXPREC float64 = 0.0002
 
 const DEFPAWNPROMOTION = game.Queen
 
+const DEFOWN2THRTHD = 4
+
 const WhoAmI string = "3manchess-ai_sitvalues"
 
 type AIPlayer struct {
-	Name              string
-	errchan           chan error
-	ErrorChan         chan<- error
-	hurry             chan bool
-	HurryChan         chan<- bool
-	FixedPrecision    float64
-	curfixprec        float64
+	Name       string
+	errchan    chan error
+	ErrorChan  chan<- error
+	hurry      chan bool
+	HurryChan  chan<- bool
+	Conf       AIConfig
+	curfixprec float64
+	gp         *player.Gameplay
+	waiting    bool
+}
+
+type AIConfig struct {
+	Precision         float64
 	OwnedToThreatened float64
-	gp                *player.Gameplay
-	waiting           bool
 	PawnPromotion     game.FigType //it will be possible to set it to 0 for automatic choice (not yet implemented)
 }
 
-func (a *AIPlayer) Map() map[string]interface{} {
-	m := make(map[string]interface{})
-	m["Precision"] = a.FixedPrecision
-	m["OwnedToThreatened"] = a.OwnedToThreatened
-	m["PawnPromotion"] = a.PawnPromotion
-	m["WhoAmI"] = WhoAmI
-	m["Name"] = a.Name
-	return m
-}
-
-func (a *AIPlayer) FromMap(m map[string]interface{}) {
-	ok := true
-	var fp, ott, pp, nm interface{}
-	fp, ok = m["Precision"]
-	a.FixedPrecision = fp.(float64)
-	if !ok {
-		panic("Precision")
-	}
-	ott, ok = m["OwnedToThreatened"]
-	a.OwnedToThreatened = ott.(float64)
-	if !ok {
-		panic("OwnedToThreatened")
-	}
-	pp, ok = m["PawnPromotion"]
-	a.PawnPromotion = pp.(game.FigType)
-	if !ok {
-		panic("PawnPromotion")
-	}
-	nm, ok = m["Name"]
-	a.Name = nm.(string)
-}
-
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
-	if a.FixedPrecision == 0.0 {
-		a.FixedPrecision = DEFFIXPREC
+	if a.Conf.Precision == 0.0 {
+		a.Conf.Precision = DEFFIXPREC
+	}
+	if a.Conf.PawnPromotion == game.ZeroFigType {
+		a.Conf.PawnPromotion = DEFPAWNPROMOTION
+	}
+	if a.Conf.OwnedToThreatened == 0.0 {
+		a.Conf.OwnedToThreatened = DEFOWN2THRTHD
 	}
 	errchan := make(chan error)
 	a.errchan = errchan
@@ -72,9 +52,7 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 	a.hurry = hurry
 	a.HurryChan = hurry
 	a.gp = gp
-	if a.PawnPromotion == game.ZeroFigType {
-		a.PawnPromotion = DEFPAWNPROMOTION
-	}
+
 	go func() {
 		for b := range a.errchan {
 			panic(b)
