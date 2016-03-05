@@ -31,25 +31,32 @@ func (m *MojSQL) SaveSD(sd *game.StateData, movekeyaddafter int64) (key int64, e
 		`" and moats="` + moats + `" and movesnext=` + strconv.Itoa(sd.MovesNext) +
 		` and castling="` + castling + `" and enpassant="` + enpassant + `" and halfmoveclock=` + strconv.Itoa(sd.HalfmoveClock) +
 		` and fullmovenumber=` + strconv.Itoa(sd.FullmoveNumber) + ` and alive="` + alive)
+	log.Println(whether, err)
 	if err != nil {
 		return -1, err
 	}
 	if whether.Next() {
 		nasz := int64(-1)
 		err := whether.Scan(&nasz)
+		log.Println(nasz, err)
 		return nasz, err
 	}
 	res, err := m.conn.Exec(`insert into 3manst (board,moats,movesnext,castling,enpassant,halfmoveclock,fullmovenumber,alive) values ("` +
 		board + `","` + moats + `","` + strconv.Itoa(sd.MovesNext) + `","` + castling + `","` + enpassant + `","` + strconv.Itoa(sd.HalfmoveClock) + "," + strconv.Itoa(sd.FullmoveNumber) + `,"` + alive + `")`)
+	log.Println(res, err)
 	if err != nil {
 		return -1, err
 	}
 	var lid int64
 	lid, err = res.LastInsertId()
-	var erro error
-	res, erro = m.conn.Exec("update 3manmv set afterstate=" + strconv.Itoa(id) + " where id=" + strconv.Itoa(movekeyaddafter))
-	if err == nil {
-		return lid, erro
+	log.Println(lid, err)
+	if movekeyaddafter != -1 {
+		var erro error
+		res, erro = m.conn.Exec("update 3manmv set afterstate=" + strconv.Itoa(id) + " where id=" + strconv.Itoa(movekeyaddafter))
+		log.Println(res, erro)
+		if err == nil {
+			return lid, erro
+		}
 	}
 	return lid, err
 }
