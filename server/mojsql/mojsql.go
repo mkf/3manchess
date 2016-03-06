@@ -23,6 +23,14 @@ func (m *MojSQL) Initialize(username string, password string, database string) e
 	return err
 }
 
+func (m *MojSQL) TransactionStart() error {
+	return nil
+}
+
+func (m *MojSQL) TransactionEnd() error {
+	return nil
+}
+
 func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	board := string(sd.Board[:])
 	moats := string(tobit(sd.Moats[:]))

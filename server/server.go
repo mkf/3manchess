@@ -25,7 +25,8 @@ type GameFollow struct {
 type MoveData struct {
 	FromTo        [4]int8
 	BeforeGame    int64
-	PawnPromotion int8
+	AfterGame     int64
+	PawnPromotion *int8
 	Who           int64
 }
 
