@@ -42,8 +42,8 @@ func (md MoveData) Move(sr Server) game.Move {
 	}
 }
 
-func SaveState(sr Server, st *game.State, movekeyaddafter int64) (key int64, err error) {
-	return sr.SaveSD(st.Data(), movekeyaddafter)
+func SaveState(sr Server, st *game.State) (key int64, err error) {
+	return sr.SaveSD(st.Data())
 }
 
 func LoadState(sr Server, key int64, s *game.State) error {
