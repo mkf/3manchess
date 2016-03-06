@@ -107,6 +107,19 @@ func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
 	return res.LastInsertId()
 }
 
+func (m *MojSQL) LoadGP(key int64, gpd *server.GameplayData) error {
+	stmt, err := m.conn.Prepare("select state,white,gray,black,created from 3mangp where id=?")
+	if err != nil {
+		return err
+	}
+	var w, g, b sql.NullInt64
+	err = stmt.QueryRow(key).Scan(&gpd.State, &w, &g, &b, &gpd.Date)
+	nullint64(&gpd.White, w)
+	nullint64(&gpd.Gray, g)
+	nullint64(&gpd.Black, b)
+	return err
+}
+
 func (m *MojSQL) GetAuth(playerid int64) (authkey []byte, err error) {
 	stmt, err := m.conn.Prepare("select auth from 3manplayer where id=?")
 	if err != nil {
