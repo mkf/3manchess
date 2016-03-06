@@ -36,7 +36,7 @@ func (a *AIPlayer) SitValue(s *game.State) float64 {
 	for n := range nasatakujo {
 		oninas += VALUES[n]
 	}
-	zyjacy = float64(own-theirs)*(a.OwnedToThreatened) + float64(myich-oninas)
+	zyjacy = float64(own-theirs)*(a.Conf.OwnedToThreatened) + float64(myich-oninas)
 	if !s.PlayersAlive.Give(who) {
 		return -DEATH
 	}

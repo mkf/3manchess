@@ -8,79 +8,60 @@ import "github.com/ArchieT/3manchess/player"
 import "sync"
 import "sync/atomic"
 import "fmt"
+import "github.com/ArchieT/3manchess/ai"
+import "encoding/json"
 
 const DEFFIXPREC float64 = 0.0002
 
 const DEFPAWNPROMOTION = game.Queen
 
+const DEFOWN2THRTHD = 4.0
+
 const WhoAmI string = "3manchess-ai_sitvalues"
 
 type AIPlayer struct {
-	Name              string
-	errchan           chan error
-	ErrorChan         chan<- error
-	hurry             chan bool
-	HurryChan         chan<- bool
-	FixedPrecision    float64
-	curfixprec        float64
+	Name       string
+	errchan    chan error
+	ErrorChan  chan<- error
+	hurry      chan bool
+	HurryChan  chan<- bool
+	Conf       AIConfig
+	curfixprec float64
+	gp         *player.Gameplay
+	waiting    bool
+}
+
+func (a *AIPlayer) Config() ai.Config {
+	return a.Conf
+}
+
+type AIConfig struct {
+	Precision         float64
 	OwnedToThreatened float64
-	gp                *player.Gameplay
-	waiting           bool
 	PawnPromotion     game.FigType //it will be possible to set it to 0 for automatic choice (not yet implemented)
 }
 
-func (a *AIPlayer) Data() player.PlayerData {
-	var d player.PlayerData
-	d.Precision = a.FixedPrecision
-	d.Coefficient = a.OwnedToThreatened
-	d.PawnPromotion = int8(a.PawnPromotion)
-	d.WhoAmI = WhoAmI
-	d.Name = a.Name
-	return d
+func (c AIConfig) Byte() []byte {
+	o, e := json.Marshal(c)
+	if e != nil {
+		panic(e)
+	}
+	return o
 }
 
-func (a *AIPlayer) Map() map[string]interface{} {
-	m := make(map[string]interface{})
-	m["Precision"] = a.FixedPrecision
-	m["OwnedToThreatened"] = a.OwnedToThreatened
-	m["PawnPromotion"] = a.PawnPromotion
-	m["WhoAmI"] = WhoAmI
-	m["Name"] = a.Name
-	return m
-}
-
-func (a *AIPlayer) FromMap(m map[string]interface{}) {
-	ok := true
-	var fp, ott, pp, nm interface{}
-	fp, ok = m["Precision"]
-	a.FixedPrecision = fp.(float64)
-	if !ok {
-		panic("Precision")
-	}
-	ott, ok = m["OwnedToThreatened"]
-	a.OwnedToThreatened = ott.(float64)
-	if !ok {
-		panic("OwnedToThreatened")
-	}
-	pp, ok = m["PawnPromotion"]
-	a.PawnPromotion = pp.(game.FigType)
-	if !ok {
-		panic("PawnPromotion")
-	}
-	nm, ok = m["Name"]
-	a.Name = nm.(string)
-}
-
-func (a *AIPlayer) FromData(d player.PlayerData) {
-	a.FixedPrecision = d.Precision
-	a.OwnedToThreatened = d.Coefficient
-	a.PawnPromotion = game.FigType(d.PawnPromotion)
-	a.Name = d.Name
+func (c AIConfig) String() string {
+	return string(c.Byte())
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
-	if a.FixedPrecision == 0.0 {
-		a.FixedPrecision = DEFFIXPREC
+	if a.Conf.Precision == 0.0 {
+		a.Conf.Precision = DEFFIXPREC
+	}
+	if a.Conf.PawnPromotion == game.ZeroFigType {
+		a.Conf.PawnPromotion = DEFPAWNPROMOTION
+	}
+	if a.Conf.OwnedToThreatened == 0.0 {
+		a.Conf.OwnedToThreatened = DEFOWN2THRTHD
 	}
 	errchan := make(chan error)
 	a.errchan = errchan
@@ -89,9 +70,7 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 	a.hurry = hurry
 	a.HurryChan = hurry
 	a.gp = gp
-	if a.PawnPromotion == game.ZeroFigType {
-		a.PawnPromotion = DEFPAWNPROMOTION
-	}
+
 	go func() {
 		for b := range a.errchan {
 			panic(b)
@@ -125,7 +104,7 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 		wg.Add(1)
 		go func(ourft game.FromTo) {
 			sv := ourft.Move(state)
-			sv.PawnPromotion = a.PawnPromotion
+			sv.PawnPromotion = a.Conf.PawnPromotion
 			if v, err := sv.After(); err == nil {
 				possib <- v
 			}
@@ -148,7 +127,7 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 
 //Think is the function generating the Move; atm it does not return anything, but will return game.Move
 func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
-	a.curfixprec = a.FixedPrecision
+	a.curfixprec = a.Conf.Precision
 	hurryup := simple.MergeBool(hurry, a.hurry)
 	for i := len(hurryup); i > 0; i-- {
 		<-hurryup
@@ -163,7 +142,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 	for oac.OK() {
 		go func(ourft game.FromTo) {
 			sv := ourft.Move(s)
-			sv.PawnPromotion = a.PawnPromotion
+			sv.PawnPromotion = a.Conf.PawnPromotion
 			if v, err := sv.After(); err == nil {
 				gwg.Add(1)
 				go func(n game.FromTo) {
@@ -211,7 +190,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) *game.Move {
 		panic("len(ourfts)==0 !!!!")
 	}
 	ormov := ourfts[9].Move(s)
-	ormov.PawnPromotion = a.PawnPromotion
+	ormov.PawnPromotion = a.Conf.PawnPromotion
 	return &ormov
 }
 
@@ -225,7 +204,7 @@ func (a *AIPlayer) HeyYouWon(_ *game.State)                         {}
 func (a *AIPlayer) HeyYouDrew(_ *game.State)                        {}
 
 func (a *AIPlayer) String() string {
-	return fmt.Sprintf("%s%e", "SVBotPrec", a.FixedPrecision)
+	return fmt.Sprintf("%s%e", "SVBotPrec", a.Conf.Precision) //TODO: print whoami and conf
 }
 
 func (a *AIPlayer) AreWeWaitingForYou() bool {

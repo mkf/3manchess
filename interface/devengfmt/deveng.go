@@ -37,17 +37,6 @@ func (p *Developer) FromMap(m map[string]interface{}) {
 	}
 }
 
-func (p *Developer) Data() player.PlayerData {
-	var d player.PlayerData
-	d.WhoAmI = WhoAmI
-	d.Name = p.Name
-	return d
-}
-
-func (p *Developer) FromData(d player.PlayerData) {
-	p.Name = d.Name
-}
-
 func (p *Developer) Initialize(gp *player.Gameplay) {
 	errchan := make(chan error)
 	p.errchan = errchan
