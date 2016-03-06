@@ -20,6 +20,22 @@ func nullint8(d **int8, s sql.NullInt64) {
 	}
 }
 
+func tonullint64(d *int64) sql.NullInt64 {
+	var n sql.NullInt64
+	n.Valid = (d != nil)
+	if n.Valid {
+		n.Int64 = *d
+	}
+}
+
+func tonullint8(d *int8) sql.NullInt64 {
+	var n sql.NullInt64
+	n.Valid = (d != nil)
+	if n.Valid {
+		n.Int64 = int8(*d)
+	}
+}
+
 func makebit(b bool) byte {
 	if b {
 		return '1'

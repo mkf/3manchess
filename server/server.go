@@ -12,7 +12,7 @@ type Server interface {
 	LoadSD(key int64, sd *game.StateData) error
 	SaveMD(*MoveData) (key int64, err error)
 	LoadMD(key int64, md *MoveData) error
-	ListGP() ([]GameFollow, error)
+	ListGP(uint) ([]GameplayFollow, error)
 	////GetMovesFromState selects all the moves where the gamestate is before
 	//GetMovesFromState(key int64) (keys []int64, err error)
 }
@@ -53,15 +53,12 @@ func LoadState(sr Server, key int64, s *game.State) error {
 	return err
 }
 
-/*
+type GameplayFollow struct {
+	Key           int64 `json:"id"`
+	*GameplayData `json:"game"`
+}
+
 type StateFollow struct {
 	Key int64
 	*game.StateData
 }
-*/
-
-/*
-type GameplayFollow struct {
-	Key int64 `json:"id"`
-	*GameplayData `json:"game"`
-}*/

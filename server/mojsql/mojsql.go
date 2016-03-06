@@ -120,6 +120,18 @@ func (m *MojSQL) LoadGP(key int64, gpd *server.GameplayData) error {
 	return err
 }
 
+func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
+	stmt, err := m.conn.Prepare("insert into 3manmv (fromto,beforegame,aftergame,promotion,who) values (?,?,?,?,?)")
+	if err != nil {
+		return -1, err
+	}
+	res, err := stmt.Exec([4]byte(md.FromTo)[:], md.BeforeGame, md.AfterGame, tonullint8(md.PawnPromotion), md.Who)
+	if err != nil {
+		return err
+	}
+	return res.LastInsertId()
+}
+
 func (m *MojSQL) GetAuth(playerid int64) (authkey []byte, err error) {
 	stmt, err := m.conn.Prepare("select auth from 3manplayer where id=?")
 	if err != nil {
