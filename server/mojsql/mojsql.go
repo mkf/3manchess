@@ -70,14 +70,13 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 }
 
 func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
-	var id int64
-	givestmt, err := m.conn.Prepare("select id,board,moats,movesnext,castling,enpassant,halfmoveclock,fullmovenumber,alive from 3manst where id=?")
+	givestmt, err := m.conn.Prepare("select board,moats,movesnext,castling,enpassant,halfmoveclock,fullmovenumber,alive from 3manst where id=?")
 	if err != nil {
 		return err
 	}
 	give := givestmt.QueryRow(key)
 	var board, moats, castling, enpassant, alive []byte
-	err = give.Scan(&id, &board, &moats, &sd.MovesNext, &castling, &enpassant, &sd.HalfmoveClock, &sd.FullmoveNumber, &alive)
+	err = give.Scan(&board, &moats, &sd.MovesNext, &castling, &enpassant, &sd.HalfmoveClock, &sd.FullmoveNumber, &alive)
 	if err != nil {
 		return err
 	}
@@ -86,7 +85,42 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 	sd.Moats, sd.Castling, sd.EnPassant, sd.Alive = [3]bool(bmoats), [6]bool(bcastling), [4]int8(enpassant), [3]bool(balive)
 }
 
-func (m *MojSQL) SaveGP(gpd *server.GameplayData) (string, error) {
+func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
+	white := gpd.White != nil
+	gray := gpd.Gray != nil
+	black := gpd.Black != nil
+	players := make([]int64, 0, 3)
+	querystr := "insert into 3mangp (state"
+	if white {
+		querystr += ",white"
+		players = append(players, *(gpd.White))
+	}
+	if gray {
+		querystr += ",gray"
+		players = append(players, *(gpd.Gray))
+	}
+	if black {
+		querystr += ",black"
+		players = append(players, *(gpd.Black))
+	}
+	querystr += ") values ("
+	for i := 1; i <= len(players); i++ {
+		if i < len(players) {
+			querystr += "?,"
+		} else if i == len(players) {
+			querystr += "?"
+		}
+	}
+	querystr += ")"
+	stmt, err := m.conn.Prepare(querystr)
+	if err != nil {
+		return -1, err
+	}
+	res, err := stmt.Exec(players...)
+	if err != nil {
+		return -1, err
+	}
+	return res.LastInsertId()
 }
 
 func (m *MojSQL) GetAuth(playerid int64) (authkey []byte, err error) {

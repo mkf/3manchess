@@ -17,9 +17,10 @@ type Server interface {
 	//GetMovesFromState(key int64) (keys []int64, err error)
 }
 
-type GameFollow struct {
-	Id            int64 `json:"id"`
-	*GameplayData `json:"game"`
+type GameplayData struct {
+	State              int64
+	White, Gray, Black *int64
+	Date               time.Time
 }
 
 type MoveData struct {
@@ -41,11 +42,6 @@ func (md MoveData) Move(sr Server) game.Move {
 	}
 }
 
-type StateFollow struct {
-	Key int64
-	*game.StateData
-}
-
 func SaveState(sr Server, st *game.State, movekeyaddafter int64) (key int64, err error) {
 	return sr.SaveSD(st.Data(), movekeyaddafter)
 }
@@ -57,13 +53,15 @@ func LoadState(sr Server, key int64, s *game.State) error {
 	return err
 }
 
-type GameplayData struct {
-	State              int64
-	White, Gray, Black *int64
-	Date               time.Time
-}
-
-type GameplayFollow struct {
+/*
+type StateFollow struct {
 	Key int64
-	*GameplayData
+	*game.StateData
 }
+*/
+
+/*
+type GameplayFollow struct {
+	Key int64 `json:"id"`
+	*GameplayData `json:"game"`
+}*/
