@@ -120,6 +120,42 @@ func (m *MojSQL) LoadGP(key int64, gpd *server.GameplayData) error {
 	return err
 }
 
+func (m *MojSQL) ListGP(many uint) ([]server.GameplayFollow, error) {
+	qstr := "select id,state,white,gray,black,created from 3mangp order by created desc"
+	l := many != 0
+	ar := make(uint, 0, 1)
+	ile := 500
+	if l {
+		qstr += " limit ?"
+		ar = append(many, ar)
+		ile = l
+	}
+	stmt, err := m.conn.Prepare(qstr)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := stmt.Query(ar...)
+	if err != nil {
+		return nil, err
+	}
+	h := make([]server.GameplayFollow, 0, ile)
+	for rows.Next() {
+		var id int64
+		var gd server.GameplayData
+		var w, g, b sql.NullInt64
+		err = rows.Scan(&id, &gd.State, &w, &g, &b, &gd.Date)
+		nullint64(&gd.White, w)
+		nullint64(&gd.Gray, g)
+		nullint64(&gd.Black, b)
+		h = append(server.GameplayFollow{id, &gd}, h)
+		if err != nil {
+			return h, err
+		}
+	}
+	err := rows.Close()
+	return h, err
+}
+
 func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
 	stmt, err := m.conn.Prepare("insert into 3manmv (fromto,beforegame,aftergame,promotion,who) values (?,?,?,?,?)")
 	if err != nil {
