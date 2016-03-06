@@ -42,7 +42,7 @@ type AIConfig struct {
 }
 
 func (c AIConfig) Byte() []byte {
-	o, e := json.Marshal(*c)
+	o, e := json.Marshal(c)
 	if e != nil {
 		panic(e)
 	}
