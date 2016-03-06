@@ -1,6 +1,6 @@
 package server
 
-import "github.com/ArchieT/3manchess/player"
+//import "github.com/ArchieT/3manchess/player"
 import "github.com/ArchieT/3manchess/game"
 import "time"
 
