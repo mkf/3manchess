@@ -15,7 +15,7 @@ const DEFFIXPREC float64 = 0.0002
 
 const DEFPAWNPROMOTION = game.Queen
 
-const DEFOWN2THRTHD = 4
+const DEFOWN2THRTHD = 4.0
 
 const WhoAmI string = "3manchess-ai_sitvalues"
 
