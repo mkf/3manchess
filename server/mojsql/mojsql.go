@@ -132,6 +132,19 @@ func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
 	return res.LastInsertId()
 }
 
+func (m *MojSQL) LoadMD(key int64, md *server.MoveData) error {
+	stmt, err := m.conn.Prepare("select fromto,beforegame,aftergame,promotion,who from 3manmv where id=?")
+	if err != nil {
+		return err
+	}
+	var p sql.NullInt64
+	var ft []byte
+	err = stmt.QueryRow(key).Scan(&ft, &md.BeforeGame, md.AfterGame, &p, md.Who)
+	nullint8(&md.PawnPromotion, p)
+	md.FromTo = [4]int8{ft[0], ft[1], ft[2], ft[3]}
+	return err
+}
+
 func (m *MojSQL) GetAuth(playerid int64) (authkey []byte, err error) {
 	stmt, err := m.conn.Prepare("select auth from 3manplayer where id=?")
 	if err != nil {
