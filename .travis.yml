@@ -22,6 +22,7 @@ install:
 - go install -v -race github.com/ArchieT/3manchess/cmd/3manchess-devengchan
 - go install -v -race github.com/ArchieT/3manchess/ai/sitvalues
 - go install -v -race github.com/ArchieT/3manchess/interface/gui
+- go install -v -race github.com/ArchieT/3manchess/server
 script:
 - go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp1.out
 - cat tmp1.out >> coverage.txt
