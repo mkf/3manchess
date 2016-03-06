@@ -23,6 +23,7 @@ install:
 - go install -v -race github.com/ArchieT/3manchess/ai/sitvalues
 - go install -v -race github.com/ArchieT/3manchess/interface/gui
 - go install -v -race github.com/ArchieT/3manchess/server
+- go install -v -race github.com/ArchieT/3manchess/server/mojsql
 script:
 - go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp1.out
 - cat tmp1.out >> coverage.txt

@@ -4,11 +4,8 @@ import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/server"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
-import "strconv"
 
 import "log"
-
-import "errors"
 
 type MojSQL struct {
 	conn *sql.DB
@@ -35,7 +32,8 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	board := string(sd.Board[:])
 	moats := string(tobit(sd.Moats[:]))
 	castling := string(tobit(sd.Castling[:]))
-	enpassant := string([4]byte(sd.EnPassant)[:])
+	eenp := fourbyte(sd.EnPassant)
+	enpassant := string(eenp[:])
 	alive := string(tobit(sd.Alive[:]))
 	whetherstmt, err := m.conn.Prepare("select id from 3manst where board=? and moats=? and movesnext=? and castling=? and enpassant=? and halfmoveclock=? and fullmovenumber=? and alive=?")
 	log.Println(whetherstmt, err)
@@ -80,9 +78,10 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 	if err != nil {
 		return err
 	}
-	var bmoats, bcastling, benpassant, balive []bool
-	bmoats, bcastling, balive = tobool(moats), tobool(castling), tobool(balive)
-	sd.Moats, sd.Castling, sd.EnPassant, sd.Alive = [3]bool(bmoats), [6]bool(bcastling), [4]int8(enpassant), [3]bool(balive)
+	var bmoats, bcastling, balive []bool
+	bmoats, bcastling, balive = tobool(moats), tobool(castling), tobool(alive)
+	sd.Moats, sd.Castling, sd.EnPassant, sd.Alive = bas3(bmoats), bas6(bcastling), fourint8(yas4(enpassant)), bas3(balive)
+	return err
 }
 
 func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
@@ -90,7 +89,8 @@ func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	players := make([]int64, 0, 3)
+	players := make([]interface{}, 0, 3)
+	players = append(players, gpd.State, gpd.Date)
 	if gpd.White != nil {
 		players = append(players, *(gpd.White))
 	}
@@ -100,7 +100,7 @@ func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
 	if gpd.Black != nil {
 		players = append(players, *(gpd.Black))
 	}
-	res, err := stmt.Exec(gpd.State, gpd.Date, players...)
+	res, err := stmt.Exec(players...)
 	if err != nil {
 		return -1, err
 	}
@@ -123,12 +123,12 @@ func (m *MojSQL) LoadGP(key int64, gpd *server.GameplayData) error {
 func (m *MojSQL) ListGP(many uint) ([]server.GameplayFollow, error) {
 	qstr := "select id,state,white,gray,black,created from 3mangp order by created desc"
 	l := many != 0
-	ar := make(uint, 0, 1)
-	ile := 500
+	ar := make([]interface{}, 0, 1)
+	ile := uint(500)
 	if l {
 		qstr += " limit ?"
-		ar = append(many, ar)
-		ile = l
+		ar = append(ar, many)
+		ile = many
 	}
 	stmt, err := m.conn.Prepare(qstr)
 	if err != nil {
@@ -147,12 +147,12 @@ func (m *MojSQL) ListGP(many uint) ([]server.GameplayFollow, error) {
 		nullint64(&gd.White, w)
 		nullint64(&gd.Gray, g)
 		nullint64(&gd.Black, b)
-		h = append(server.GameplayFollow{id, &gd}, h)
+		h = append(h, server.GameplayFollow{id, &gd})
 		if err != nil {
 			return h, err
 		}
 	}
-	err := rows.Close()
+	err = rows.Close()
 	return h, err
 }
 
@@ -161,9 +161,10 @@ func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
 	if err != nil {
 		return -1, err
 	}
-	res, err := stmt.Exec([4]byte(md.FromTo)[:], md.BeforeGame, md.AfterGame, md.PawnPromotion, md.Who)
+	fb := fourbyte(md.FromTo)
+	res, err := stmt.Exec(fb[:], md.BeforeGame, md.AfterGame, md.PawnPromotion, md.Who)
 	if err != nil {
-		return err
+		return -1, err
 	}
 	return res.LastInsertId()
 }
@@ -175,7 +176,7 @@ func (m *MojSQL) LoadMD(key int64, md *server.MoveData) error {
 	}
 	var ft []byte
 	err = stmt.QueryRow(key).Scan(&ft, &md.BeforeGame, md.AfterGame, &md.PawnPromotion, &md.Who)
-	md.FromTo = [4]int8{ft[0], ft[1], ft[2], ft[3]}
+	md.FromTo = fourint8(yas4(ft))
 	return err
 }
 
@@ -185,7 +186,6 @@ func (m *MojSQL) GetAuth(playerid int64) (authkey []byte, err error) {
 		return nil, err
 	}
 	row := stmt.QueryRow(playerid)
-	var authkey []byte
 	err = row.Scan(&authkey)
 	return authkey, err
 }
@@ -195,41 +195,39 @@ func (m *MojSQL) NewPlayer() (playerid int64, authkey []byte, err error) {
 	if err != nil {
 		return -1, nil, err
 	}
-	playerid, err := res.LastInsertId()
+	playerid, err = res.LastInsertId()
 	if err != nil {
 		return playerid, nil, err
 	}
-	authkey, err := m.GetAuth(playerid)
+	authkey, err = m.GetAuth(playerid)
 	return playerid, authkey, err
 }
 
 func (m *MojSQL) SignUp(login string, passwd string, name string) (userid int64, playerid int64, authkey []byte, err error) {
-	playerid, authkey, err := m.NewPlayer()
+	playerid, authkey, err = m.NewPlayer()
 	if err != nil {
 		return -1, playerid, authkey, err
 	}
-	stmt, err = m.conn.Prepare("insert into chessuser (login,passwd,name,player) values (?,sha2(?,256),?,?)")
+	stmt, err := m.conn.Prepare("insert into chessuser (login,passwd,name,player) values (?,sha2(?,256),?,?)")
 	if err != nil {
 		return -1, playerid, authkey, err
 	}
-	res, err = stmt.Exec(login, passwd, name, playerid)
+	res, err := stmt.Exec(login, passwd, name, playerid)
 	if err != nil {
 		return -1, playerid, authkey, err
 	}
-	userid, err := res.LastInsertId()
+	userid, err = res.LastInsertId()
 	return userid, playerid, authkey, err
 }
 
 func (m *MojSQL) LogIn(login string, passwd string) (userid int64, authkey []byte, err error) {
 	stmt, err := m.conn.Prepare("select id,3manplayer.auth from chessuser inner join 3manplayer where login=? and passwd=sha2(?,256) and player=3manplayer.id")
 	if err != nil {
-		return nil, err
+		return
 	}
 	row := stmt.QueryRow(login, passwd)
-	var userid int64
-	var authkey []byte
 	err = row.Scan(&userid, &authkey)
-	return authkey, err
+	return
 }
 
 func (m *MojSQL) Auth(userid int64, authkey []byte) (bool, error) {
@@ -263,37 +261,34 @@ func (m *MojSQL) PAuth(playerid int64, authkey []byte) (bool, error) {
 }
 
 func (m *MojSQL) NewBot(whoami []byte, userid int64, uauth []byte, ownname string, settings []byte) (botid int64, playerid int64, botauth []byte, err error) {
-	if ok, err := m.Auth(userid, uauth); !(ok && err == nil) {
-		return -1, -1, nil, err
+	botid, playerid = -1, -1
+	ok, err := m.Auth(userid, uauth)
+	if !(ok && err == nil) {
+		return
 	}
-	playerid, authkey, err := m.NewPlayer()
+	playerid, botauth, err = m.NewPlayer()
 	if err != nil {
-		return -1, playerid, botauth, err
+		return
 	}
 	stmt, err := m.conn.Prepare("insert into chessbot (whoami,owner,ownname,player,settings) values (?,?,?,?,?)")
 	if err != nil {
-		return -1, playerid, botauth, err
+		return
 	}
 	res, err := stmt.Exec(whoami, userid, ownname, playerid, settings)
 	if err != nil {
-		return -1, playerid, botauth, err
+		return
 	}
-	botid, err := res.LastInsertId()
-	return botid, playerid, botauth, err
+	botid, err = res.LastInsertId()
+	return
 }
 
 func (m *MojSQL) BotOwnerLogin(botid int64) (login string, err error) {
 	stmt, err := m.conn.Prepare("select chessuser.login from chessbot inner join chessuser where owner=chessuser.id and id=?")
 	if err != nil {
-		return "", err
+		return
 	}
-	row, err := m.conn.QueryRow(botid)
-	if err != nil {
-		return "", err
-	}
-	var login string
-	err = row.Scan(&login)
-	return login, err
+	err = stmt.QueryRow(botid).Scan(&login)
+	return
 }
 
 //WhoIsIt takes a playerid, and returns userid or bot id, then true if it is a bot or false if it's a user
@@ -303,10 +298,8 @@ func (m *MojSQL) WhoIsIt(playerid int64) (id int64, isitabot bool, err error) {
 		return -1, false, err
 	}
 	row := stmt.QueryRow(playerid)
-	var id int64
-	var isitabot bool
 	err = row.Scan(&id, &isitabot)
-	return id, isitabot, err
+	return
 }
 
 func (m *MojSQL) BotKey(botid int64, userid int64, uauth []byte) (playerid int64, botauth []byte, err error) {
@@ -318,8 +311,6 @@ func (m *MojSQL) BotKey(botid int64, userid int64, uauth []byte) (playerid int64
 		return -1, nil, err
 	}
 	row := stmt.QueryRow(botid)
-	var playerid int64
-	var botauth []byte
 	err = row.Scan(&playerid, &botauth)
 	return playerid, botauth, err
 }
