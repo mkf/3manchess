@@ -81,7 +81,7 @@ create table 3manmv (
 	fromto binary(4) not null,
 	beforegame bigint not null,
 	aftergame bigint not null,
-	promotion tinyint,
+	promotion tinyint not null,
 	who bigint not null,
 	constraint
 		foreign key (beforegame) references 3mangp (id)
