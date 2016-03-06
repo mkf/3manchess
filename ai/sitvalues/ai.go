@@ -41,7 +41,7 @@ type AIConfig struct {
 	PawnPromotion     game.FigType //it will be possible to set it to 0 for automatic choice (not yet implemented)
 }
 
-func (c *AIConfig) Byte() []byte {
+func (c AIConfig) Byte() []byte {
 	o, e := json.Marshal(*c)
 	if e != nil {
 		panic(e)
@@ -49,7 +49,7 @@ func (c *AIConfig) Byte() []byte {
 	return o
 }
 
-func (c *AIConfig) String() string {
+func (c AIConfig) String() string {
 	return string(c.Byte())
 }
 
