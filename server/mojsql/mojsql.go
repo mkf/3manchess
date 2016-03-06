@@ -86,37 +86,21 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 }
 
 func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
-	white := gpd.White != nil
-	gray := gpd.Gray != nil
-	black := gpd.Black != nil
-	players := make([]int64, 0, 3)
-	querystr := "insert into 3mangp (state"
-	if white {
-		querystr += ",white"
-		players = append(players, *(gpd.White))
-	}
-	if gray {
-		querystr += ",gray"
-		players = append(players, *(gpd.Gray))
-	}
-	if black {
-		querystr += ",black"
-		players = append(players, *(gpd.Black))
-	}
-	querystr += ") values ("
-	for i := 1; i <= len(players); i++ {
-		if i < len(players) {
-			querystr += "?,"
-		} else if i == len(players) {
-			querystr += "?"
-		}
-	}
-	querystr += ")"
-	stmt, err := m.conn.Prepare(querystr)
+	stmt, err := m.conn.Prepare("insert into 3mangp (state,created,white,gray,black) values (?,?,?,?,?)")
 	if err != nil {
 		return -1, err
 	}
-	res, err := stmt.Exec(players...)
+	players := make([]int64, 0, 3)
+	if gpd.White != nil {
+		players = append(players, *(gpd.White))
+	}
+	if gpd.Gray != nil {
+		players = append(players, *(gpd.Gray))
+	}
+	if gpd.Black != nil {
+		players = append(players, *(gpd.Black))
+	}
+	res, err := stmt.Exec(gpd.State, gpd.Date, players...)
 	if err != nil {
 		return -1, err
 	}
