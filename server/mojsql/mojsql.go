@@ -282,15 +282,17 @@ func (m *MojSQL) NewBot(whoami []byte, userid int64, uauth []byte, ownname strin
 	return
 }
 
-func (m *MojSQL) BotOwnerLogin(botid int64) (login string, err error) {
-	stmt, err := m.conn.Prepare("select chessuser.login from chessbot inner join chessuser where owner=chessuser.id and id=?")
+//BotOwnerLoginAndName : BOTID → OWNER(LOGIN+NAME)   //TO BE DEPRECATED
+func (m *MojSQL) BotOwnerLoginAndName(botid int64) (login string, name string, err error) {
+	stmt, err := m.conn.Prepare("select chessuser.login,chessuser.name from chessbot inner join chessuser where owner=chessuser.id and id=?")
 	if err != nil {
 		return
 	}
-	err = stmt.QueryRow(botid).Scan(&login)
+	err = stmt.QueryRow(botid).Scan(&login, &name)
 	return
 }
 
+//WhoIsIt : PLAYERID → (BOT/USER)(ID) + ?[BOT/USER]?
 //WhoIsIt takes a playerid, and returns userid or bot id, then true if it is a bot or false if it's a user
 func (m *MojSQL) WhoIsIt(playerid int64) (id int64, isitabot bool, err error) {
 	stmt, err := m.conn.Prepare("set @playerid = ?; select id, '0' as isitabot from chessuser where player=@playerid union all select id, '1' as isitabot from chessbot where player=@playerid")
@@ -302,6 +304,7 @@ func (m *MojSQL) WhoIsIt(playerid int64) (id int64, isitabot bool, err error) {
 	return
 }
 
+//BotKey : BOTID+USER(ID+AUTH) → BOT(PLAYERID+AUTH)
 func (m *MojSQL) BotKey(botid int64, userid int64, uauth []byte) (playerid int64, botauth []byte, err error) {
 	if ok, err := m.Auth(userid, uauth); !(ok && err == nil) {
 		return -1, nil, err
