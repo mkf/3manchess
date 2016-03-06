@@ -60,7 +60,7 @@ create table 3mangp (
 	white bigint, 
 	gray bigint, 
 	black bigint, 
-	created datetime default current_timestamp,
+	created timestamp default current_timestamp,
 	constraint
 		foreign key (white) references 3manplayer (id)
 		on update restrict,
