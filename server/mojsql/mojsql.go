@@ -180,6 +180,7 @@ func (m *MojSQL) LoadMD(key int64, md *server.MoveData) error {
 	return err
 }
 
+//GetAuth : PLAYER(ID) → PLAYER(AUTH)
 func (m *MojSQL) GetAuth(playerid int64) (authkey []byte, err error) {
 	stmt, err := m.conn.Prepare("select auth from 3manplayer where id=?")
 	if err != nil {
@@ -190,6 +191,7 @@ func (m *MojSQL) GetAuth(playerid int64) (authkey []byte, err error) {
 	return authkey, err
 }
 
+//NewPlayer creates a new player and gives PLAYER(ID + AUTH)
 func (m *MojSQL) NewPlayer() (playerid int64, authkey []byte, err error) {
 	res, err := m.conn.Exec("insert into 3manplayer (auth) values (md5(rand()))")
 	if err != nil {
@@ -203,6 +205,7 @@ func (m *MojSQL) NewPlayer() (playerid int64, authkey []byte, err error) {
 	return playerid, authkey, err
 }
 
+//SignUp : NEW_USER(LOGIN + PASSWD + NAME) → USER(ID + PLAYERID + AUTH)
 func (m *MojSQL) SignUp(login string, passwd string, name string) (userid int64, playerid int64, authkey []byte, err error) {
 	playerid, authkey, err = m.NewPlayer()
 	if err != nil {
@@ -220,6 +223,7 @@ func (m *MojSQL) SignUp(login string, passwd string, name string) (userid int64,
 	return userid, playerid, authkey, err
 }
 
+//LogIn : USER(LOGIN + PASSWD) → USER(ID + AUTH)
 func (m *MojSQL) LogIn(login string, passwd string) (userid int64, authkey []byte, err error) {
 	stmt, err := m.conn.Prepare("select id,3manplayer.auth from chessuser inner join 3manplayer where login=? and passwd=sha2(?,256) and player=3manplayer.id")
 	if err != nil {
@@ -230,6 +234,7 @@ func (m *MojSQL) LogIn(login string, passwd string) (userid int64, authkey []byt
 	return
 }
 
+//Auth authenticates by UserID
 func (m *MojSQL) Auth(userid int64, authkey []byte) (bool, error) {
 	stmt, err := m.conn.Prepare("select exists (select id from chessuser join 3manplayer where id=? and 3manplayer.auth=? and player=3manplayer.id)")
 	if err != nil {
@@ -240,6 +245,7 @@ func (m *MojSQL) Auth(userid int64, authkey []byte) (bool, error) {
 	return a, err
 }
 
+//BAuth authenticates by BotID
 func (m *MojSQL) BAuth(botid int64, authkey []byte) (bool, error) {
 	stmt, err := m.conn.Prepare("select exists (select id from chessbot join 3manplayer where id=? and 3manplayer.auth=? and player=3manplayer.id)")
 	if err != nil {
@@ -250,6 +256,7 @@ func (m *MojSQL) BAuth(botid int64, authkey []byte) (bool, error) {
 	return a, err
 }
 
+//PAuth authenticates by PlayerID
 func (m *MojSQL) PAuth(playerid int64, authkey []byte) (bool, error) {
 	stmt, err := m.conn.Prepare("select exists (select id from 3manplayer where id=? and auth=?)")
 	if err != nil {
@@ -260,6 +267,7 @@ func (m *MojSQL) PAuth(playerid int64, authkey []byte) (bool, error) {
 	return a, err
 }
 
+//NewBot : NEW_BOT(WHOAMI+OWNNAME+SETTINGS) + USER(ID+AUTH) → BOT(ID + PLAYERID + AUTH)
 func (m *MojSQL) NewBot(whoami []byte, userid int64, uauth []byte, ownname string, settings []byte) (botid int64, playerid int64, botauth []byte, err error) {
 	botid, playerid = -1, -1
 	ok, err := m.Auth(userid, uauth)
