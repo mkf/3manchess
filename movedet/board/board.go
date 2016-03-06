@@ -1,5 +1,5 @@
 //Package board provides a straightforward representation of a board, not containing
-//the PawnCenter bool in its structs, which could be misleading when omitted.
+//the PawnCenter bool in its structs, which could be misleading if omitted.
 package board
 
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
