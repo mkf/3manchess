@@ -8,6 +8,8 @@ import "github.com/ArchieT/3manchess/player"
 import "sync"
 import "sync/atomic"
 import "fmt"
+import "github.com/ArchieT/3manchess/ai"
+import "encoding/json"
 
 const DEFFIXPREC float64 = 0.0002
 
@@ -29,10 +31,26 @@ type AIPlayer struct {
 	waiting    bool
 }
 
+func (a *AIPlayer) Config() ai.Config {
+	return a.Conf
+}
+
 type AIConfig struct {
 	Precision         float64
 	OwnedToThreatened float64
 	PawnPromotion     game.FigType //it will be possible to set it to 0 for automatic choice (not yet implemented)
+}
+
+func (c *AIConfig) Byte() []byte {
+	o, e := json.Marshal(*c)
+	if e != nil {
+		panic(e)
+	}
+	return o
+}
+
+func (c *AIConfig) String() string {
+	return string(c.Byte())
 }
 
 func (a *AIPlayer) Initialize(gp *player.Gameplay) {
