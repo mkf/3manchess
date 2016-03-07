@@ -326,6 +326,24 @@ func (m *MojSQL) BotOwnerLoginAndName(botid int64) (login string, name string, e
 	return
 }
 
+func (m *MojSQL) UserInfo(userid int64) (login string, name string, playerid int64, err error) {
+	stmt, err := m.conn.Prepare("select login,name,player from chessuser where id=?")
+	if err != nil {
+		return
+	}
+	err = stmt.QueryRow(userid).Scan(&login, &name, &playerid)
+	return
+}
+
+func (m *MojSQL) BotInfo(botid int64) (whoami []byte, owner int64, ownname string, player int64, settings []byte, err error) {
+	stmt, err := m.conn.Prepare("select whoami,owner,ownname,player,settings from chessbot where id=?")
+	if err != nil {
+		return
+	}
+	err = stmt.QueryRow(botid).Scan(&whoami, &owner, &ownname, &player, &settings)
+	return
+}
+
 //WhoIsIt : PLAYERID → (BOT/USER)(ID) + ?[BOT/USER]¿
 //WhoIsIt takes a playerid, and returns userid or bot id, then true if it is a bot or false if it's a user
 func (m *MojSQL) WhoIsIt(playerid int64) (id int64, isitabot bool, err error) {

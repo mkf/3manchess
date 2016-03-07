@@ -24,6 +24,8 @@ type Server interface {
 	NewBot(whoami []byte, userid int64, uauth []byte, ownname string, settings []byte) (botid int64, playerid int64, botauth []byte)
 	WhoIsIt(playerid int64) (id int64, isitabot bool, err error)
 	BotKey(botid int64, userid int64, uauth []byte) (playerid int64, botauth []byte, err error)
+	UserInfo(userid int64) (login string, name string, playerid int64, err error)
+	BotInfo(botid int64) (whoami []byte, owner int64, ownname string, player int64, settings []byte, err error)
 }
 
 type GameplayData struct {
