@@ -54,8 +54,19 @@ func LoadState(sr Server, key int64, s *game.State) error {
 }
 
 type GameplayFollow struct {
-	Key           int64 `json:"id"`
-	*GameplayData `json:"game"`
+	Key          int64 `json:"id"`
+	GameplayData `json:"game"`
+}
+
+type MoveFollow struct {
+	Key      int64 `json:"id"`
+	MoveData `json:"move"`
+}
+
+type AfterMoveFollow struct {
+	MoveFollow   `json:"movefollow"`
+	SamePlayers  bool `json:"sameplayers"`
+	YourMoveNext bool `json:"yourmovenext"`
 }
 
 type StateFollow struct {

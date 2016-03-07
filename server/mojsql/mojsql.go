@@ -120,7 +120,7 @@ func (m *MojSQL) LoadGP(key int64, gpd *server.GameplayData) error {
 	return err
 }
 
-func (m *MojSQL) ListGP(many uint) ([]server.GameplayFollow, error) {
+func (m *MojSQL) ListGP(many uint) (h []server.GameplayFollow, err error) {
 	qstr := "select id,state,white,gray,black,created from 3mangp order by created desc"
 	l := many != 0
 	ar := make([]interface{}, 0, 1)
@@ -132,13 +132,13 @@ func (m *MojSQL) ListGP(many uint) ([]server.GameplayFollow, error) {
 	}
 	stmt, err := m.conn.Prepare(qstr)
 	if err != nil {
-		return nil, err
+		return
 	}
 	rows, err := stmt.Query(ar...)
 	if err != nil {
-		return nil, err
+		return
 	}
-	h := make([]server.GameplayFollow, 0, ile)
+	h = make([]server.GameplayFollow, 0, ile)
 	for rows.Next() {
 		var id int64
 		var gd server.GameplayData
@@ -147,37 +147,63 @@ func (m *MojSQL) ListGP(many uint) ([]server.GameplayFollow, error) {
 		nullint64(&gd.White, w)
 		nullint64(&gd.Gray, g)
 		nullint64(&gd.Black, b)
-		h = append(h, server.GameplayFollow{id, &gd})
+		h = append(h, server.GameplayFollow{id, gd})
 		if err != nil {
-			return h, err
+			return
 		}
 	}
 	err = rows.Close()
-	return h, err
+	return
 }
 
 func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
 	stmt, err := m.conn.Prepare("insert into 3manmv (fromto,beforegame,aftergame,promotion,who) values (?,?,?,?,?)")
+	key = -1
 	if err != nil {
-		return -1, err
+		return
 	}
 	fb := fourbyte(md.FromTo)
 	res, err := stmt.Exec(fb[:], md.BeforeGame, md.AfterGame, md.PawnPromotion, md.Who)
 	if err != nil {
-		return -1, err
+		return
 	}
 	return res.LastInsertId()
 }
 
-func (m *MojSQL) LoadMD(key int64, md *server.MoveData) error {
+func (m *MojSQL) LoadMD(key int64, md *server.MoveData) (err error) {
 	stmt, err := m.conn.Prepare("select fromto,beforegame,aftergame,promotion,who from 3manmv where id=?")
 	if err != nil {
-		return err
+		return
 	}
 	var ft []byte
-	err = stmt.QueryRow(key).Scan(&ft, &md.BeforeGame, md.AfterGame, &md.PawnPromotion, &md.Who)
+	err = stmt.QueryRow(key).Scan(&ft, &md.BeforeGame, &md.AfterGame, &md.PawnPromotion, &md.Who)
 	md.FromTo = fourint8(yas4(ft))
-	return err
+	return
+}
+
+func (m *MojSQL) AfterMD(beforegp int64) (out []server.AfterMoveFollow, err error) {
+	stmt, err := m.conn.Prepare("select id,fromto,aftergame,promotion,who,exists(select id from 3mangp join 3mangp n on n.white=white and n.black=black and n.gray=gray where id=aftergame) from 3manmv where beforegame=?")
+	if err != nil {
+		return
+	}
+	rows, err := stmt.Query(beforegp)
+	if err != nil {
+		return
+	}
+	out = make([]server.AfterMoveFollow, 0, 1)
+	for rows.Next() {
+		var neww server.AfterMoveFollow
+		var ft []byte
+		neww.MoveFollow.MoveData.BeforeGame = beforegp
+		err = rows.Scan(&neww.MoveFollow.Key, &ft, &neww.MoveFollow.MoveData.AfterGame, &neww.MoveFollow.MoveData.PawnPromotion, &neww.MoveFollow.MoveData.Who, &neww.SamePlayers)
+		neww.MoveFollow.MoveData.FromTo = fourint8(yas4(ft))
+		out = append(out, neww)
+		if err != nil {
+			return
+		}
+	}
+	err = rows.Close()
+	return
 }
 
 //GetAuth : PLAYER(ID) → PLAYER(AUTH)
