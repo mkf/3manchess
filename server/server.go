@@ -13,8 +13,17 @@ type Server interface {
 	SaveMD(*MoveData) (key int64, err error)
 	LoadMD(key int64, md *MoveData) error
 	ListGP(uint) ([]GameplayFollow, error)
-	////GetMovesFromState selects all the moves where the gamestate is before
-	//GetMovesFromState(key int64) (keys []int64, err error)
+	AfterMD(beforegp int64) ([]AfterMoveFollow, error)
+	GetAuth(playerid int64) (authkey []byte, err error)
+	NewPlayer() (playerid int64, authkey []byte, err error)
+	SignUp(login string, passwd string, name string) (userid int64, playerid int64, authkey []byte, err error)
+	LogIn(login string, passwd string) (userid int64, authkey []byte, err error)
+	Auth(userid int64, authkey []byte) (bool, error)
+	BAuth(botid int64, authkey []byte) (bool, error)
+	Pauth(playerid int64, authkey []byte) (bool, error)
+	NewBot(whoami []byte, userid int64, uauth []byte, ownname string, settings []byte) (botid int64, playerid int64, botauth []byte)
+	WhoIsIt(playerid int64) (id int64, isitabot bool, err error)
+	BotKey(botid int64, userid int64, uauth []byte) (playerid int64, botauth []byte, err error)
 }
 
 type GameplayData struct {
