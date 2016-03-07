@@ -64,9 +64,9 @@ type MoveFollow struct {
 }
 
 type AfterMoveFollow struct {
-	MoveFollow   `json:"movefollow"`
-	SamePlayers  bool `json:"sameplayers"`
-	YourMoveNext bool `json:"yourmovenext"`
+	MoveFollow  `json:"movefollow"`
+	SamePlayers bool `json:"sameplayers"`
+	//YourMoveNext bool `json:"yourmovenext"`
 }
 
 type StateFollow struct {
