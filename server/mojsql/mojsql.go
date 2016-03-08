@@ -181,8 +181,8 @@ func (m *MojSQL) LoadMD(key int64, md *server.MoveData) (err error) {
 	return
 }
 
-func (m *MojSQL) AfterMD(beforegp int64) (out []server.AfterMoveFollow, err error) {
-	stmt, err := m.conn.Prepare("select id,fromto,aftergame,promotion,who,exists(select id from 3mangp join 3mangp n on n.white=white and n.black=black and n.gray=gray where id=aftergame) from 3manmv where beforegame=?")
+func (m *MojSQL) AfterMDwPlayers(beforegp int64, players [3]int64) (out []server.AfterMoveFollow, err error) {
+	stmt, err := m.conn.Prepare("select id,fromto,aftergame,promotion,who,exists(select id from 3mangp on white=? and gray=? and black=? where id=aftergame) from 3manmv where beforegame=?")
 	if err != nil {
 		return
 	}
