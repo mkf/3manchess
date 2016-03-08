@@ -186,17 +186,17 @@ func (m *MojSQL) AfterMDwPlayers(beforegp int64, players [3]int64) (out []server
 	if err != nil {
 		return
 	}
-	rows, err := stmt.Query(beforegp)
+	rows, err := stmt.Query(beforegp, players[0], players[1], players[2])
 	if err != nil {
 		return
 	}
-	out = make([]server.AfterMoveFollow, 0, 1)
+	out = make([]server.MoveFollow, 0, 1)
 	for rows.Next() {
-		var neww server.AfterMoveFollow
+		var neww server.MoveFollow
 		var ft []byte
-		neww.MoveFollow.MoveData.BeforeGame = beforegp
-		err = rows.Scan(&neww.MoveFollow.Key, &ft, &neww.MoveFollow.MoveData.AfterGame, &neww.MoveFollow.MoveData.PawnPromotion, &neww.MoveFollow.MoveData.Who, &neww.SamePlayers)
-		neww.MoveFollow.MoveData.FromTo = fourint8(yas4(ft))
+		neww.MoveData.BeforeGame = beforegp
+		err = rows.Scan(&neww.Key, &ft, &neww.MoveData.AfterGame, &neww.MoveData.PawnPromotion, &neww.MoveData.Who)
+		neww.MoveData.FromTo = fourint8(yas4(ft))
 		out = append(out, neww)
 		if err != nil {
 			return
