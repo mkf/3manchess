@@ -181,6 +181,32 @@ func (m *MojSQL) LoadMD(key int64, md *server.MoveData) (err error) {
 	return
 }
 
+func (m *MojSQL) AfterMD(beforegp int64) (out []server.MoveFollow, err error) {
+	stmt, err := m.conn.Prepare("select id,fromto,aftergame,promotion,who from 3manmv where beforegame=?")
+	if err != nil {
+		return
+	}
+	rows, err := stmt.Query(beforegp)
+	if err != nil {
+		return
+	}
+	out = make([]server.MoveFollow, 0, 1)
+	for rows.Next() {
+		var neww server.MoveFollow
+		var ft []byte
+		neww.MoveData.BeforeGame = beforegp
+		err = rows.Scan(&neww.Key, &ft, &neww.MoveData.AfterGame, &neww.MoveData.PawnPromotion, &neww.MoveData.Who)
+		neww.MoveData.FromTo = fourint8(yas4(ft))
+		out = append(out, neww)
+		if err != nil {
+			return
+		}
+	}
+	err = rows.Close()
+	return
+}
+
+//AfterMDwPlayers takes the before GameplayID and W,G,B players and returns the after gameplays with the same players
 func (m *MojSQL) AfterMDwPlayers(beforegp int64, players [3]int64) (out []server.MoveFollow, err error) {
 	stmt, err := m.conn.Prepare("select id,fromto,aftergame,promotion,who from 3manmv join 3mangp g on g.id=aftergame where beforegame=? and n.white=? and n.gray=? and n.black=?")
 	if err != nil {

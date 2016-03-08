@@ -13,6 +13,7 @@ type Server interface {
 	SaveMD(*MoveData) (key int64, err error)
 	LoadMD(key int64, md *MoveData) error
 	ListGP(uint) ([]GameplayFollow, error)
+	AfterMD(beforegp int64) ([]MoveFollow, error)
 	AfterMDwPlayers(beforegp int64, players [3]int64) ([]MoveFollow, error)
 	GetAuth(playerid int64) (authkey []byte, err error)
 	NewPlayer() (playerid int64, authkey []byte, err error)
