@@ -99,10 +99,6 @@ func (gp *Gameplay) Turn() (breaking bool) {
 }
 
 func (gp *Gameplay) Procedure(end chan<- bool) {
-	var move *game.Move
-	var after *game.State
-	var hurry chan bool
-	var err error
 	gp.State.EvalDeath()
 	if !gp.GiveResult() {
 		for !gp.Turn() {
