@@ -86,11 +86,8 @@ func (gp *Gameplay) Procedure(end chan<- bool) {
 	var after *game.State
 	var hurry chan bool
 	var err error
-	for {
-		gp.State.EvalDeath()
-		if gp.GiveResult() {
-			break
-		}
+	gp.State.EvalDeath()
+	for !gp.GiveResult() {
 		gp.Players[gp.State.MovesNext].HeyWeWaitingForYou(true)
 		hurry = make(chan bool)
 		move = gp.Players[gp.State.MovesNext].HeyItsYourMove(gp.State, hurry)
@@ -99,6 +96,7 @@ func (gp *Gameplay) Procedure(end chan<- bool) {
 			gp.Players[gp.State.MovesNext].ErrorChannel() <- err
 			continue
 		}
+		after.EvalDeath()
 		gp.State = after
 		for _, ci := range game.COLORS {
 			gp.Players[ci].HeySituationChanges(move, after)
