@@ -82,6 +82,12 @@ func (gp *Gameplay) GiveResult() (breaking bool) {
 	return
 }
 
+func (gp *Gameplay) Lifes() (end bool) {
+	log.Println("LifesFunc")
+	gp.State.EvalDeath()
+	return gp.GiveResult()
+}
+
 func (gp *Gameplay) Turn() (breaking bool) {
 	gp.Players[gp.State.MovesNext].HeyWeWaitingForYou(true)
 	hurry := make(chan bool)
@@ -102,8 +108,7 @@ func (gp *Gameplay) Turn() (breaking bool) {
 
 func (gp *Gameplay) Procedure(end chan<- bool) {
 	log.Println("Procedure")
-	gp.State.EvalDeath()
-	if !gp.GiveResult() {
+	if !gp.Lifes() {
 		log.Println("Given")
 		for !gp.Turn() {
 			log.Println("Turning...")
