@@ -101,10 +101,14 @@ func (gp *Gameplay) Turn() (breaking bool) {
 }
 
 func (gp *Gameplay) Procedure(end chan<- bool) {
+	log.Println("Procedure")
 	gp.State.EvalDeath()
 	if !gp.GiveResult() {
+		log.Println("Given")
 		for !gp.Turn() {
+			log.Println("Turning...")
 		}
 	}
+	log.Println("NotTurningAnymore")
 	end <- false
 }
