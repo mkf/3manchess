@@ -11,6 +11,8 @@ type MojSQL struct {
 	conn *sql.DB
 }
 
+func (m *MojSQL) Interface() server.Server { return m }
+
 func (m *MojSQL) Initialize(username string, password string, database string) error {
 	conn, err := sql.Open("mysql", username+":"+password+"@/"+database)
 	m.conn = conn
