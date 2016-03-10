@@ -87,12 +87,12 @@ func (gp *Gameplay) Procedure(end chan<- bool) {
 	var hurry chan bool
 	var err error
 	for {
-		hurry = make(chan bool)
 		gp.State.EvalDeath()
 		if gp.GiveResult() {
 			break
 		}
 		gp.Players[gp.State.MovesNext].HeyWeWaitingForYou(true)
+		hurry = make(chan bool)
 		move = gp.Players[gp.State.MovesNext].HeyItsYourMove(gp.State, hurry)
 		after, err = move.After()
 		if err != nil {
