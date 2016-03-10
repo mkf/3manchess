@@ -67,8 +67,8 @@ func (gp *Gameplay) GiveResult() (breaking bool) {
 			gp.Players[ci].HeyYouLost(gp.State)
 		}
 	}
-	listem = gp.State.PlayersAlive.ListEm()
-	switch len(lsitem) {
+	listem := gp.State.PlayersAlive.ListEm()
+	switch len(listem) {
 	case 1:
 		gp.Players[listem[0]].HeyYouWon(gp.State)
 		breaking = true
@@ -85,7 +85,6 @@ func (gp *Gameplay) Procedure(end chan<- bool) {
 	var move *game.Move
 	var after *game.State
 	var hurry chan bool
-	var listem []game.Color
 	var err error
 	for {
 		hurry = make(chan bool)
