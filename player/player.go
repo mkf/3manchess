@@ -3,6 +3,7 @@ package player
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
 import "github.com/ArchieT/3manchess/game"
+import "log" //debug
 
 //Player is either AI or a human via some UI
 type Player interface {
@@ -88,6 +89,7 @@ func (gp *Gameplay) Turn() (breaking bool) {
 	after, err := move.After()
 	if err != nil {
 		gp.Players[gp.State.MovesNext].ErrorChannel() <- err
+		log.Println(err)
 		return gp.Turn()
 	}
 	after.EvalDeath()
