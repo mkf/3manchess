@@ -81,25 +81,31 @@ func (gp *Gameplay) GiveResult() (breaking bool) {
 	return
 }
 
+func (gp *Gameplay) Turn() (breaking bool) {
+	gp.Players[gp.State.MovesNext].HeyWeWaitingForYou(true)
+	hurry := make(chan bool)
+	move := gp.Players[gp.State.MovesNext].HeyItsYourMove(gp.State, hurry)
+	after, err := move.After()
+	if err != nil {
+		gp.Players[gp.State.MovesNext].ErrorChannel() <- err
+		return gp.Turn()
+	}
+	after.EvalDeath()
+	gp.State = after
+	for _, ci := range game.COLORS {
+		gp.Players[ci].HeySituationChanges(move, after)
+	}
+	return gp.GiveResult()
+}
+
 func (gp *Gameplay) Procedure(end chan<- bool) {
 	var move *game.Move
 	var after *game.State
 	var hurry chan bool
 	var err error
 	gp.State.EvalDeath()
-	for !gp.GiveResult() {
-		gp.Players[gp.State.MovesNext].HeyWeWaitingForYou(true)
-		hurry = make(chan bool)
-		move = gp.Players[gp.State.MovesNext].HeyItsYourMove(gp.State, hurry)
-		after, err = move.After()
-		if err != nil {
-			gp.Players[gp.State.MovesNext].ErrorChannel() <- err
-			continue
-		}
-		after.EvalDeath()
-		gp.State = after
-		for _, ci := range game.COLORS {
-			gp.Players[ci].HeySituationChanges(move, after)
+	if !gp.GiveResult() {
+		for !gp.Turn() {
 		}
 	}
 	end <- false
