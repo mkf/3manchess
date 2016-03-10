@@ -60,6 +60,27 @@ func NewGame(ourplayers map[game.Color]Player, end chan<- bool) *Gameplay {
 	return &gp
 }
 
+//GiveResult does *not* run EvalDeath!
+func (gp *Gameplay) GiveResult() (breaking bool) {
+	for _, ci := range game.COLORS {
+		if !gp.State.PlayersAlive.Give(ci) {
+			gp.Players[ci].HeyYouLost(gp.State)
+		}
+	}
+	listem = gp.State.PlayersAlive.ListEm()
+	switch len(lsitem) {
+	case 1:
+		gp.Players[listem[0]].HeyYouWon(gp.State)
+		breaking = true
+	case 0:
+		for _, ci := range game.COLORS { //TODO: Draw only if alive before
+			gp.Players[ci].HeyYouDrew(gp.State)
+		}
+		breaking = true
+	}
+	return
+}
+
 func (gp *Gameplay) Procedure(end chan<- bool) {
 	var move *game.Move
 	var after *game.State
@@ -69,20 +90,7 @@ func (gp *Gameplay) Procedure(end chan<- bool) {
 	for {
 		hurry = make(chan bool)
 		gp.State.EvalDeath()
-		for _, ci := range game.COLORS {
-			if !gp.State.PlayersAlive.Give(ci) {
-				gp.Players[ci].HeyYouLost(gp.State)
-			}
-		}
-		listem = gp.State.PlayersAlive.ListEm()
-		if len(listem) == 1 {
-			gp.Players[listem[0]].HeyYouWon(gp.State)
-			break
-		}
-		if len(listem) == 0 {
-			for _, ci := range game.COLORS {
-				gp.Players[ci].HeyYouDrew(gp.State)
-			}
+		if gp.GiveResult() {
 			break
 		}
 		gp.Players[gp.State.MovesNext].HeyWeWaitingForYou(true)
