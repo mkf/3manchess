@@ -192,7 +192,7 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	var gpg GameplayGive
-	gpg.Key, err = server.AddGame(mu.Server, gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, gpp.Date)
+	gpg.Key, err = server.AddGame(mu.Server, &gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, gpp.Date)
 	if err != nil {
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -201,6 +201,60 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(gpg); err != nil {
+		panic(err)
+	}
+}
+
+type TurnPost struct {
+	Before          int64 `json:"beforegame"`
+	game.FromToProm `json:"fromtoprom"`
+	WhoPlayer       Authorization `json:"whoplayer"`
+}
+
+type MoveAndAfterKeys struct {
+	MoveKey      int64 `json:"move"`
+	AfterGameKey int64 `json:"after"`
+}
+
+func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
+	var turnp TurnPost
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+	w.Header().Set("Content=Type", "application/json; charset=UTF-8")
+	if err := json.Unmarshal(body, &turnp); err != nil {
+		w.WriteHeader(422)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	if ok, err := mu.Server.PAuth(turnp.WhoPlayer.ID, turnp.WhoPlayer.AuthKey); !(ok && err == nil) {
+		if !ok {
+			w.WriteHeader(http.StatusForbidden)
+			if err := json.NewEncoder(w).Encode(false); err != nil {
+				panic(err)
+			}
+		} else if err != nil {
+			w.WriteHeader(422)
+			if err := json.NewEncoder(w).Encode(err); err != nil {
+				panic(err)
+			}
+		}
+	}
+	var maak MoveAndAfterKeys
+	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, turnp.Before, turnp.FromToProm, turnp.Who.ID)
+	if err != nil {
+		w.WriteHeader(422)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(w).Encode(maak); err != nil {
 		panic(err)
 	}
 }
