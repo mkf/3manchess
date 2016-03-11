@@ -60,7 +60,7 @@ func (mu *Multi) NewRouter() *mux.Router {
 		{"APIMove", "GET", "/api/move/{moveId}", mu.APIMove},
 		{"APILogin", "POST", "/api/login", mu.APILogin},
 		{"APIWhoIsIt", "GET", "/api/player/{playerId}", mu.APIWhoIsIt},
-		{"APIUserInto", "GET", "/api/user/{userId}", mu.APIUserInfo},
+		{"APIUserInfo", "GET", "/api/user/{userId}", mu.APIUserInfo},
 		{"APIBotInfo", "GET", "/api/bot/{botId}", mu.APIBotInfo},
 		{"APIBotKey", "POST", "/api/botkey", mu.APIBotKey},
 	}
@@ -410,6 +410,97 @@ func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(gp); err != nil {
+		panic(err)
+	}
+}
+
+type InfoWhoIsIt struct {
+	ID       int64 `json:"id"`
+	IsItABot bool  `json:"isitabot"`
+}
+
+func (mu *Multi) APIWhoIsIt(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	var iwit InfoWhoIsIt
+	key, err := strconv.ParseInt(vars["playerId"], 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	iwit.ID, iwit.IsItABot, err = mu.Server.WhoIsIt(key)
+	if err != nil {
+		w.WriteHeader(421)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(iwit); err != nil {
+		panic(err)
+	}
+}
+
+type InfoUser struct {
+	Login  string `json:"login"`
+	Name   string `json:"name"`
+	Player int64  `json:"playerid"`
+}
+
+func (mu *Multi) APIUserInfo(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	var iu InfoUser
+	key, err := strconv.ParseInt(vars["userId"], 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	iu.Login, iu.Name, iu.Player, err = mu.Server.UserInfo(key)
+	if err != nil {
+		w.WriteHeader(421)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(iu); err != nil {
+		panic(err)
+	}
+}
+
+type InfoBot struct {
+	WhoAmI   []byte `json:"whoami"`
+	Owner    int64  `json:"ownerid"`
+	OwnName  string `json:"ownname"`
+	Player   int64  `json:"playerid"`
+	Settings []byte `json:"settings"`
+}
+
+func (mu *Multi) APIBotInfo(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	var sib InfoBot
+	key, err := strconv.ParseInt(vars["botId"], 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	sib.WhoAmI, sib.Owner, sib.OwnName, sib.Player, sib.Settings, err = mu.Server.BotInfo(key)
+	if err != nil {
+		w.WriteHeader(421)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(sib); err != nil {
 		panic(err)
 	}
 }
