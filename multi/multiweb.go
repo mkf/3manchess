@@ -246,7 +246,7 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	var maak MoveAndAfterKeys
-	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, turnp.Before, turnp.FromToProm, turnp.Who.ID)
+	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, turnp.Before, turnp.FromToProm, turnp.WhoPlayer.ID)
 	if err != nil {
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
