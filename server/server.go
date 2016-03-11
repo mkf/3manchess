@@ -74,7 +74,7 @@ func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int
 	}
 	befga.Date = time.Now()
 	var sta game.State
-	err = LoadState(sr, befores, &sta)
+	err = LoadState(sr, befga.State, &sta)
 	if err != nil {
 		return
 	}
@@ -87,18 +87,18 @@ func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int
 		befga.Black = &who
 	}
 	mov := ftp.Move(&sta)
-	afts := MoveIt(&mov, nullminusone(befga.White), nullminusone(befga.Gray), nullminusone(befga.Black))
-	aftskey, err = sr.SaveSD(afts.Data())
+	afts := MoveIt(&mov, [3]int64{nullminusone(befga.White), nullminusone(befga.Gray), nullminusone(befga.Black)})
+	aftskey, err := sr.SaveSD(afts.Data())
 	if err != nil {
 		return
 	}
-	befga.State = aftkey
+	befga.State = aftskey
 	aftkey, err = sr.SaveGP(&befga)
 	if err != nil {
 		return
 	}
 	mdfin := MoveData{
-		FromTo:        [4]uint8{ftp.FromTo.From()[0], ftp.FromTo.From()[1], ftp.FromTo.To()[0], ftp.FromTo.To()[1]},
+		FromTo:        [4]int8{ftp.FromTo.From()[0], ftp.FromTo.From()[1], ftp.FromTo.To()[0], ftp.FromTo.To()[1]},
 		BeforeGame:    before,
 		AfterGame:     aftkey,
 		PawnPromotion: int8(ftp.PawnPromotion),
