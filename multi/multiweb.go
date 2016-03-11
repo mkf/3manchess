@@ -14,6 +14,7 @@ import "io/ioutil"
 import "log"
 import "fmt"
 import "github.com/gorilla/mux"
+import "strconv"
 
 type Multi struct {
 	server.Server
@@ -206,7 +207,6 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 }
 
 type TurnPost struct {
-	Before          int64 `json:"beforegame"`
 	game.FromToProm `json:"fromtoprom"`
 	WhoPlayer       Authorization `json:"whoplayer"`
 }
@@ -217,6 +217,7 @@ type MoveAndAfterKeys struct {
 }
 
 func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 	var turnp TurnPost
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -225,7 +226,7 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	w.Header().Set("Content=Type", "application/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.Unmarshal(body, &turnp); err != nil {
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -246,7 +247,14 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	var maak MoveAndAfterKeys
-	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, turnp.Before, turnp.FromToProm, turnp.WhoPlayer.ID)
+	ourint, err := strconv.ParseInt(vars["gameId"], 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, ourint, turnp.FromToProm, turnp.WhoPlayer.ID)
 	if err != nil {
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -255,6 +263,78 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(maak); err != nil {
+		panic(err)
+	}
+}
+
+func (mu *Multi) APIPlay(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	var gp server.GameplayData
+	key, err := strconv.ParseInt(vars["gameId"], 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	err = mu.Server.LoadGP(key, &gp)
+	if err != nil {
+		w.WriteHeader(421)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(gp); err != nil {
+		panic(err)
+	}
+}
+
+func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	var gp game.StateData
+	key, err := strconv.ParseInt(vars["stateId"], 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	err = mu.Server.LoadSD(key, &gp)
+	if err != nil {
+		w.WriteHeader(421)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(gp); err != nil {
+		panic(err)
+	}
+}
+
+func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	var gp server.MoveData
+	key, err := strconv.ParseInt(vars["moveId"], 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	err = mu.Server.LoadMD(key, &gp)
+	if err != nil {
+		w.WriteHeader(421)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(gp); err != nil {
 		panic(err)
 	}
 }
