@@ -101,8 +101,8 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.Unmarshal(body, &su); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422) //unprocessable entity
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -111,6 +111,7 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	var gi SignUpGive
 	uu, pp, aa, ee := mu.Server.SignUp(su.Login, su.Passwd, su.Name)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(ee); err != nil {
 			panic(err)
@@ -119,6 +120,7 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	gi.User = uu
 	gi.Player = pp
 	gi.Auth = aa
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(gi); err != nil {
 		panic(err)
@@ -134,8 +136,8 @@ func (mu *Multi) APILogin(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.Unmarshal(body, &li); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -144,11 +146,13 @@ func (mu *Multi) APILogin(w http.ResponseWriter, r *http.Request) {
 	var aut Authorization
 	aut.ID, aut.AuthKey, err = mu.Server.LogIn(li.Login, li.Passwd)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusForbidden)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(aut); err != nil {
 		panic(err)
@@ -169,8 +173,8 @@ func (mu *Multi) APIBotKey(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.Unmarshal(body, &bkg); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -179,11 +183,13 @@ func (mu *Multi) APIBotKey(w http.ResponseWriter, r *http.Request) {
 	var aut Authorization
 	aut.ID, aut.AuthKey, err = mu.Server.BotKey(bkg.BotID, bkg.UserAuth.ID, bkg.UserAuth.AuthKey)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusForbidden)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(aut); err != nil {
 		panic(err)
@@ -217,8 +223,8 @@ func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.Unmarshal(body, &nbp); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -228,11 +234,13 @@ func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 	nbg.Botid, nbg.PlayerID, nbg.AuthKey, err =
 		mu.Server.NewBot(nbp.WhoAmI, nbp.UserAuth.ID, nbp.UserAuth.AuthKey, nbp.OwnName, nbp.Settings)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(nbg); err != nil {
 		panic(err)
@@ -260,8 +268,8 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.Unmarshal(body, &gpp); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -270,11 +278,13 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 	var gpg GameplayGive
 	gpg.Key, err = server.AddGame(mu.Server, &gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, gpp.Date)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(gpg); err != nil {
 		panic(err)
@@ -301,8 +311,8 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.Unmarshal(body, &turnp); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -310,11 +320,13 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 	}
 	if ok, err := mu.Server.PAuth(turnp.WhoPlayer.ID, turnp.WhoPlayer.AuthKey); !(ok && err == nil) {
 		if !ok {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			w.WriteHeader(http.StatusForbidden)
 			if err := json.NewEncoder(w).Encode(false); err != nil {
 				panic(err)
 			}
 		} else if err != nil {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			w.WriteHeader(422)
 			if err := json.NewEncoder(w).Encode(err); err != nil {
 				panic(err)
@@ -324,6 +336,7 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 	var maak MoveAndAfterKeys
 	ourint, err := strconv.ParseInt(vars["gameId"], 10, 64)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusBadRequest)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -331,11 +344,13 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 	}
 	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, ourint, turnp.FromToProm, turnp.WhoPlayer.ID)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(maak); err != nil {
 		panic(err)
@@ -344,10 +359,10 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 
 func (mu *Multi) APIPlay(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	var gp server.GameplayData
 	key, err := strconv.ParseInt(vars["gameId"], 10, 64)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusBadRequest)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -355,11 +370,13 @@ func (mu *Multi) APIPlay(w http.ResponseWriter, r *http.Request) {
 	}
 	err = mu.Server.LoadGP(key, &gp)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(421)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(gp); err != nil {
 		panic(err)
@@ -368,10 +385,10 @@ func (mu *Multi) APIPlay(w http.ResponseWriter, r *http.Request) {
 
 func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	var gp game.StateData
 	key, err := strconv.ParseInt(vars["stateId"], 10, 64)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusBadRequest)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -379,11 +396,13 @@ func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
 	}
 	err = mu.Server.LoadSD(key, &gp)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(421)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(gp); err != nil {
 		panic(err)
@@ -392,10 +411,10 @@ func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
 
 func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	var gp server.MoveData
 	key, err := strconv.ParseInt(vars["moveId"], 10, 64)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusBadRequest)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -403,11 +422,13 @@ func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	}
 	err = mu.Server.LoadMD(key, &gp)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(421)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(gp); err != nil {
 		panic(err)
@@ -421,10 +442,10 @@ type InfoWhoIsIt struct {
 
 func (mu *Multi) APIWhoIsIt(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	var iwit InfoWhoIsIt
 	key, err := strconv.ParseInt(vars["playerId"], 10, 64)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusBadRequest)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -432,11 +453,13 @@ func (mu *Multi) APIWhoIsIt(w http.ResponseWriter, r *http.Request) {
 	}
 	iwit.ID, iwit.IsItABot, err = mu.Server.WhoIsIt(key)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(421)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(iwit); err != nil {
 		panic(err)
@@ -451,10 +474,10 @@ type InfoUser struct {
 
 func (mu *Multi) APIUserInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	var iu InfoUser
 	key, err := strconv.ParseInt(vars["userId"], 10, 64)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusBadRequest)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -462,11 +485,13 @@ func (mu *Multi) APIUserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	iu.Login, iu.Name, iu.Player, err = mu.Server.UserInfo(key)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(421)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(iu); err != nil {
 		panic(err)
@@ -483,10 +508,10 @@ type InfoBot struct {
 
 func (mu *Multi) APIBotInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	var sib InfoBot
 	key, err := strconv.ParseInt(vars["botId"], 10, 64)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusBadRequest)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -494,11 +519,13 @@ func (mu *Multi) APIBotInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	sib.WhoAmI, sib.Owner, sib.OwnName, sib.Player, sib.Settings, err = mu.Server.BotInfo(key)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(421)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(sib); err != nil {
 		panic(err)
