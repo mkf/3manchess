@@ -58,6 +58,11 @@ func (mu *Multi) NewRouter() *mux.Router {
 		{"APITurn", "POST", "/api/play/{gameId}", mu.APITurn},
 		{"APIState", "GET", "/api/state/{stateId}", mu.APIState},
 		{"APIMove", "GET", "/api/move/{moveId}", mu.APIMove},
+		{"APILogin", "POST", "/api/login", mu.APILogin},
+		{"APIWhoIsIt", "GET", "/api/player/{playerId}", mu.APIWhoIsIt},
+		{"APIUserInto", "GET", "/api/user/{userId}", mu.APIUserInfo},
+		{"APIBotInfo", "GET", "/api/bot/{botId}", mu.APIBotInfo},
+		{"APIBotKey", "POST", "/api/botkey", mu.APIBotKey},
 	}
 	for _, route := range routes {
 		var handler http.Handler
@@ -66,6 +71,11 @@ func (mu *Multi) NewRouter() *mux.Router {
 		router.Methods(route.Method).Path(route.Pattern).Name(route.Name).Handler(handler)
 	}
 	return router
+}
+
+type LoggingIn struct {
+	Login  string `json:"login"`
+	Passwd string `json:"passwd"`
 }
 
 func (mu *Multi) APIIndex(w http.ResponseWriter, r *http.Request) { fmt.Fprintln(w, "Index is here") }
@@ -111,6 +121,36 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	gi.Auth = aa
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(gi); err != nil {
+		panic(err)
+	}
+}
+
+func (mu *Multi) APILogin(w http.ResponseWriter, r *http.Request) {
+	var li LoggingIn
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if err := json.Unmarshal(body, &li); err != nil {
+		w.WriteHeader(422)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	var aut Authorization
+	aut.ID, aut.AuthKey, err = mu.Server.LogIn(li.Login, li.Passwd)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(aut); err != nil {
 		panic(err)
 	}
 }
