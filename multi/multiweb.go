@@ -1,6 +1,7 @@
 package multi
 
-//import "github.com/ArchieT/3manchess/game"
+import "github.com/ArchieT/3manchess/game"
+
 //import "github.com/ArchieT/3manchess/player"
 import "net/http"
 import "github.com/ArchieT/3manchess/server"
@@ -158,6 +159,48 @@ func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(nbg); err != nil {
+		panic(err)
+	}
+}
+
+type GameplayPost struct {
+	State game.StateData `json:"state"`
+	White *int64         `json:"whiteplayer"`
+	Gray  *int64         `json:"grayplayer"`
+	Black *int64         `json:"blackplayer"`
+	Date  time.Time      `json:"when"`
+}
+
+type GameplayGive struct {
+	Key int64 `json:"gameid"`
+}
+
+func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
+	var gpp GameplayPost
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if err := json.Unmarshal(body, &gpp); err != nil {
+		w.WriteHeader(422)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	var gpg GameplayGive
+	gpg.Key, err = server.AddGame(mu.Server, gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, gpp.Date)
+	if err != nil {
+		w.WriteHeader(422)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(w).Encode(gpg); err != nil {
 		panic(err)
 	}
 }

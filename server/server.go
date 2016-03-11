@@ -56,8 +56,8 @@ func (md MoveData) Move(sr Server) game.Move {
 	}
 }
 
-func AddGame(sr Server, st *game.State, players [3]*int64, when time.Time) (key int64, err error) {
-	sk, err := sr.SaveSD(st.Data())
+func AddGame(sr Server, st *game.StateData, players [3]*int64, when time.Time) (key int64, err error) {
+	sk, err := sr.SaveSD(st)
 	if err != nil {
 		return
 	}
