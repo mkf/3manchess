@@ -91,8 +91,8 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.Unmarshal(body, &su); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422) //unprocessable entity
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
@@ -101,7 +101,6 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	var gi SignUpGive
 	uu, pp, aa, ee := mu.Server.SignUp(su.Login, su.Passwd, su.Name)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
 		if err := json.NewEncoder(w).Encode(ee); err != nil {
 			panic(err)
@@ -110,5 +109,57 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	gi.User = uu
 	gi.Player = pp
 	gi.Auth = aa
-	//ciag dalszy, wg poradnika restful thenewstack
+	w.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(w).Encode(t); err != nil {
+		panic(err)
+	}
+}
+
+type Authorization struct {
+	ID      int64  `json:"id"`
+	AuthKey []byte `json:"authkey"`
+}
+
+type NewBotPost struct {
+	WhoAmI   []byte        `json:"whoami"`
+	UserAuth Authorization `json:"owner"`
+	OwnName  string        `json:"ownname"`
+	Settings []byte        `json:"settings"`
+}
+
+type NewBotGive struct {
+	Botid    int64
+	PlayerID int64
+	AuthKey  []byte
+}
+
+func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
+	var nbp NewBotPost
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if err := json.Unmarshal(body, &nbp); err != nil {
+		w.WriteHeader(422)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	var nbg NewBotGive
+	nbg.Botid, nbg.PlayerID, nbg.AuthKey, err =
+		mu.Server.NewBot(nbp.WhoAmI, nbp.UserAuth.ID, nbp.UserAuth.AuthKey, nbp.OwnName, nbp.Settings)
+	if err != nil {
+		w.WriteHeader(422)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(w).Encode(nbg); err != nil {
+		panic(err)
+	}
 }
