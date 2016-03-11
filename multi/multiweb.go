@@ -50,10 +50,12 @@ var routes = Routes{
 	{"Index", "GET", "/", Index},
 	{"APIIndex", "GET", "/api", APIIndex},
 	{"APISignUp", "POST", "/api/signup", APISignUp},
-	{"APIAuth", "POST", "/api/auth", APIAuth},
-	{"APICreate", "POST", "/api/play", APICreate},
+	{"APIAuth", "POST", "/api/newbot", APINewBot},
+	{"APICreate", "POST", "/api/addgame", APIAddGame},
 	{"APIPlay", "GET", "/api/play/{gameId}", APIPlay},
-	{"APIMove", "POST", "/api/play/{gameId}", APIMove},
+	{"APITurn", "POST", "/api/play/{gameId}", APITurn},
+	{"APIState", "GET", "/api/state/{stateId}", APIState},
+	{"APIMove", "GET", "/api/move/{moveId}", APIMove},
 }
 
 func NewRouter() *mux.Router {
