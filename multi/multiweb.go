@@ -6,10 +6,8 @@ import "net/http"
 import "github.com/ArchieT/3manchess/server"
 
 //import "golang.org/x/net/context"
-//import "html/template"
 import "time"
-
-import "fmt"
+import "encoding/json"
 import "io"
 import "io/ioutil"
 import "log"
@@ -21,7 +19,7 @@ type Multi struct {
 }
 
 func (mu *Multi) Run() {
-	router := NewRouter()
+	router := mu.NewRouter()
 	log.Fatal(http.ListenAndServe(":8082", router))
 }
 
@@ -39,7 +37,7 @@ func Logger(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
-			inner.ServerHTTP(w, r)
+			inner.ServeHTTP(w, r)
 			log.Printf("%s\t%s\t%s\t%s", r.Method, r.RequestURI, name, time.Since(start))
 		})
 }
@@ -59,7 +57,7 @@ func (mu *Multi) NewRouter() *mux.Router {
 		{"APIState", "GET", "/api/state/{stateId}", mu.APIState},
 		{"APIMove", "GET", "/api/move/{moveId}", mu.APIMove},
 	}
-	for _, router := range routes {
+	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc
 		handler = Logger(handler, route.Name)
@@ -110,7 +108,7 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	gi.Player = pp
 	gi.Auth = aa
 	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(t); err != nil {
+	if err := json.NewEncoder(w).Encode(gi); err != nil {
 		panic(err)
 	}
 }
