@@ -155,6 +155,41 @@ func (mu *Multi) APILogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type BotKeyGetting struct {
+	BotID    int64         `json:"botid"`
+	UserAuth Authorization `json:"userauth"`
+}
+
+func (mu *Multi) APIBotKey(w http.ResponseWriter, r *http.Request) {
+	var bkg BotKeyGetting
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if err := json.Unmarshal(body, &bkg); err != nil {
+		w.WriteHeader(422)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	var aut Authorization
+	aut.ID, aut.AuthKey, err = mu.Server.BotKey(bkg.BotID, bkg.UserAuth.ID, bkg.UserAuth.AuthKey)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(aut); err != nil {
+		panic(err)
+	}
+}
+
 type Authorization struct {
 	ID      int64  `json:"id"`
 	AuthKey []byte `json:"authkey"`
