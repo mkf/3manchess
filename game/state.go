@@ -164,14 +164,14 @@ type State struct {
 }
 
 type StateData struct {
-	Board          [144]byte
-	Moats          [3]bool
-	MovesNext      int8
-	Castling       [6]bool
-	EnPassant      [4]int8
-	HalfmoveClock  int8
-	FullmoveNumber int16
-	Alive          [3]bool
+	Board          [144]byte `json:"boardrepr"`
+	Moats          [3]bool   `json:"moatsstate"`
+	MovesNext      int8      `json:"movesnext"`
+	Castling       [6]bool   `json:"castling"`
+	EnPassant      [4]int8   `json:"enpassant"`
+	HalfmoveClock  int8      `json:"halfmoveclock"`
+	FullmoveNumber int16     `json:"fullmovenumber"`
+	Alive          [3]bool   `json:"alivecolors"`
 }
 
 func (s *State) FromData(d *StateData) {
