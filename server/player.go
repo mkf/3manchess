@@ -55,5 +55,5 @@ func MoveIt(m *game.Move, ids [3]int64) *game.State {
 	go func() {
 		p.Turn()
 	}()
-	return <-r[m.Before.MovesNext].GiveMove(m)
+	return <-r[m.Before.MovesNext].GiveMove(m) //TODO: void dealock if somethings not OK with (m *game.Move)
 }

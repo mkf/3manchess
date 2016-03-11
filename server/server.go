@@ -30,17 +30,19 @@ type Server interface {
 }
 
 type GameplayData struct {
-	State              int64
-	White, Gray, Black *int64
-	Date               time.Time
+	State int64     `json:"stateid"`
+	White *int64    `json:"whiteplayer"`
+	Gray  *int64    `json:"grayplayer"`
+	Black *int64    `json:"blackplayer"`
+	Date  time.Time `json:"when"`
 }
 
 type MoveData struct {
-	FromTo        [4]int8
-	BeforeGame    int64
-	AfterGame     int64
-	PawnPromotion int8
-	Who           int64
+	FromTo        [4]int8 `json:"fromto"`
+	BeforeGame    int64   `json:"beforegp"`
+	AfterGame     int64   `json:"aftergp"`
+	PawnPromotion int8    `json:"pawnpromotion"`
+	Who           int64   `json:"playerid"`
 }
 
 func (md MoveData) Move(sr Server) game.Move {
@@ -54,8 +56,62 @@ func (md MoveData) Move(sr Server) game.Move {
 	}
 }
 
-func SaveState(sr Server, st *game.State) (key int64, err error) {
-	return sr.SaveSD(st.Data())
+func AddGame(sr Server, st *game.State, players [3]*int64, when time.Time) (key int64, err error) {
+	sk, err := sr.SaveSD(st.Data())
+	if err != nil {
+		return
+	}
+	gpd := GameplayData{sk, players[0], players[1], players[2], when}
+	key, err = sr.SaveGP(&gpd)
+	return
+}
+
+func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int64, aftkey int64, err error) {
+	var befga GameplayData
+	err = sr.LoadGP(before, &befga)
+	if err != nil {
+		return
+	}
+	befga.Date = time.Now()
+	var sta game.State
+	err = LoadState(sr, befores, &sta)
+	if err != nil {
+		return
+	}
+	switch sta.MovesNext {
+	case game.White:
+		befga.White = &who
+	case game.Gray:
+		befga.Gray = &who
+	case game.Black:
+		befga.Black = &who
+	}
+	mov := ftp.Move(&sta)
+	afts := MoveIt(&mov, nullminusone(befga.White), nullminusone(befga.Gray), nullminusone(befga.Black))
+	aftskey, err = sr.SaveSD(afts.Data())
+	if err != nil {
+		return
+	}
+	befga.State = aftkey
+	aftkey, err = sr.SaveGP(&befga)
+	if err != nil {
+		return
+	}
+	mdfin := MoveData{
+		FromTo:        [4]uint8{ftp.FromTo.From()[0], ftp.FromTo.From()[1], ftp.FromTo.To()[0], ftp.FromTo.To()[1]},
+		BeforeGame:    before,
+		AfterGame:     aftkey,
+		PawnPromotion: int8(ftp.PawnPromotion),
+		Who:           who}
+	mkey, err = sr.SaveMD(&mdfin)
+	return
+}
+
+func nullminusone(q *int64) int64 {
+	if q == nil {
+		return -1
+	}
+	return *q
 }
 
 func LoadState(sr Server, key int64, s *game.State) error {
