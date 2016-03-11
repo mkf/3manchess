@@ -47,7 +47,10 @@ type MoveData struct {
 
 func (md MoveData) Move(sr Server) game.Move {
 	s := new(game.State)
-	LoadState(sr, md.BeforeGame, s)
+	err := LoadState(sr, md.BeforeGame, s)
+	if err != nil {
+		panic(err)
+	}
 	return game.Move{
 		From:          game.Pos{md.FromTo[0], md.FromTo[1]},
 		To:            game.Pos{md.FromTo[2], md.FromTo[3]},
