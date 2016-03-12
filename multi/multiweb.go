@@ -109,6 +109,7 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	log.Println("signing up: ", su)
 	var gi SignUpGive
 	gi.User, gi.Player, gi.Auth, err = mu.Server.SignUp(su.Login, su.Passwd, su.Name)
 	if err != nil {
