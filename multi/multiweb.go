@@ -109,11 +109,11 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	var gi SignUpGive
-	uu, pp, aa, ee := mu.Server.SignUp(su.Login, su.Passwd, su.Name)
+	uu, pp, aa, err := mu.Server.SignUp(su.Login, su.Passwd, su.Name)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(ee); err != nil {
+		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
