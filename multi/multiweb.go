@@ -107,9 +107,10 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+		return
 	}
 	var gi SignUpGive
-	uu, pp, aa, err := mu.Server.SignUp(su.Login, su.Passwd, su.Name)
+	gi.User, gi.Player, gi.Auth, err = mu.Server.SignUp(su.Login, su.Passwd, su.Name)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422)
@@ -117,9 +118,6 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 	}
-	gi.User = uu
-	gi.Player = pp
-	gi.Auth = aa
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(gi); err != nil {
@@ -229,6 +227,7 @@ func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+		return
 	}
 	var nbg NewBotGive
 	nbg.Botid, nbg.PlayerID, nbg.AuthKey, err =
@@ -274,6 +273,7 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+		return
 	}
 	var gpg GameplayGive
 	gpg.Key, err = server.AddGame(mu.Server, &gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, gpp.Date)
@@ -317,6 +317,7 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+		return
 	}
 	if ok, err := mu.Server.PAuth(turnp.WhoPlayer.ID, turnp.WhoPlayer.AuthKey); !(ok && err == nil) {
 		if !ok {
@@ -332,6 +333,7 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 				panic(err)
 			}
 		}
+		return
 	}
 	var maak MoveAndAfterKeys
 	ourint, err := strconv.ParseInt(vars["gameId"], 10, 64)
@@ -341,6 +343,7 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+		return
 	}
 	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, ourint, turnp.FromToProm, turnp.WhoPlayer.ID)
 	if err != nil {
