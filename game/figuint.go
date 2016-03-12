@@ -71,6 +71,7 @@ func BoardByte(s []byte) *Board {
 	return &b
 }
 
+//Byte() returns all 6 concatenated ranks, where each rank is 24 squares, each represented by Square.Uint8
 func (b *Board) Byte() [24 * 6]byte {
 	var d [24 * 6]byte
 	var oac ACP
