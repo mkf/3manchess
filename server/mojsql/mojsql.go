@@ -20,6 +20,7 @@ func (m *MojSQL) Initialize(username string, password string, database string) e
 	if err != nil {
 		return err
 	}
+	err = m.conn.Ping()
 	return err
 }
 
