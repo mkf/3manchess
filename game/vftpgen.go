@@ -11,12 +11,14 @@ func VFTPGen(gamestate *State) <-chan FromToProm {
 			ft := FromTo(oac)
 			move := Move{ft.From(), ft.To(), gamestate, Queen}
 			if _, err := move.After(); err == nil {
-				all_valid <- FromToProm{ft, Queen}
 				fig := (*gamestate).Board.GPos(ft.From()).Fig
 				if fig.FigType == Pawn && fig.PawnCenter && ft.From()[0] == 1 {
+					all_valid <- FromToProm{ft, Queen}
 					all_valid <- FromToProm{ft, Rook}
 					all_valid <- FromToProm{ft, Bishop}
 					all_valid <- FromToProm{ft, Knight}
+				} else {
+					all_valid <- FromToProm{ft, ZeroFigType}
 				}
 			}
 			oac.P()
