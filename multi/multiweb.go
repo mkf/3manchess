@@ -120,6 +120,7 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	gi.User, gi.Player, gi.Auth, err = mu.Server.SignUp(su.Login, su.Passwd, su.Name)
 	if err != nil {
 		giveerror(w, r, err, 422)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -139,11 +140,13 @@ func (mu *Multi) APILogin(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := json.Unmarshal(body, &li); err != nil {
 		giveerror(w, r, err, 422)
+		return
 	}
 	var aut Authorization
 	aut.ID, aut.AuthKey, err = mu.Server.LogIn(li.Login, li.Passwd)
 	if err != nil {
 		giveerror(w, r, err, http.StatusForbidden)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -168,11 +171,13 @@ func (mu *Multi) APIBotKey(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := json.Unmarshal(body, &bkg); err != nil {
 		giveerror(w, r, err, 422)
+		return
 	}
 	var aut Authorization
 	aut.ID, aut.AuthKey, err = mu.Server.BotKey(bkg.BotID, bkg.UserAuth.ID, bkg.UserAuth.AuthKey)
 	if err != nil {
 		giveerror(w, r, err, http.StatusForbidden)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -217,6 +222,7 @@ func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 		mu.Server.NewBot(nbp.WhoAmI, nbp.UserAuth.ID, nbp.UserAuth.AuthKey, nbp.OwnName, nbp.Settings)
 	if err != nil {
 		giveerror(w, r, err, 422)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -254,6 +260,7 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 	gpg.Key, err = server.AddGame(mu.Server, &gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, gpp.Date)
 	if err != nil {
 		giveerror(w, r, err, 422)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -303,6 +310,7 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, ourint, turnp.FromToProm, turnp.WhoPlayer.ID)
 	if err != nil {
 		giveerror(w, r, err, 422)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -317,10 +325,12 @@ func (mu *Multi) APIPlay(w http.ResponseWriter, r *http.Request) {
 	key, err := strconv.ParseInt(vars["gameId"], 10, 64)
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest)
+		return
 	}
 	err = mu.Server.LoadGP(key, &gp)
 	if err != nil {
 		giveerror(w, r, err, 421)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -335,10 +345,12 @@ func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
 	key, err := strconv.ParseInt(vars["stateId"], 10, 64)
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest)
+		return
 	}
 	err = mu.Server.LoadSD(key, &gp)
 	if err != nil {
 		giveerror(w, r, err, 421)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -353,10 +365,12 @@ func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	key, err := strconv.ParseInt(vars["moveId"], 10, 64)
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest)
+		return
 	}
 	err = mu.Server.LoadMD(key, &gp)
 	if err != nil {
 		giveerror(w, r, err, 421)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -376,10 +390,12 @@ func (mu *Multi) APIWhoIsIt(w http.ResponseWriter, r *http.Request) {
 	key, err := strconv.ParseInt(vars["playerId"], 10, 64)
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest)
+		return
 	}
 	iwit.ID, iwit.IsItABot, err = mu.Server.WhoIsIt(key)
 	if err != nil {
 		giveerror(w, r, err, 421)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -400,10 +416,12 @@ func (mu *Multi) APIUserInfo(w http.ResponseWriter, r *http.Request) {
 	key, err := strconv.ParseInt(vars["userId"], 10, 64)
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest)
+		return
 	}
 	iu.Login, iu.Name, iu.Player, err = mu.Server.UserInfo(key)
 	if err != nil {
 		giveerror(w, r, err, 421)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -426,10 +444,12 @@ func (mu *Multi) APIBotInfo(w http.ResponseWriter, r *http.Request) {
 	key, err := strconv.ParseInt(vars["botId"], 10, 64)
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest)
+		return
 	}
 	sib.WhoAmI, sib.Owner, sib.OwnName, sib.Player, sib.Settings, err = mu.Server.BotInfo(key)
 	if err != nil {
 		giveerror(w, r, err, 421)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
