@@ -11,7 +11,7 @@ addons:
 
 matrix:
   include:
-      go: 1.6
+    - go: 1.6
       env: TESTUJEMY_MARIADB=10.1
       addons:
        mariadb: '10.1'
