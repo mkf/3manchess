@@ -11,10 +11,7 @@ addons:
 
 matrix:
   include:
-    - go: 1.6
-      addons:
-       mariadb: '5.5'
-    - go: 1.6
+      go: 1.6
       addons:
        mariadb: '10.1'
 
