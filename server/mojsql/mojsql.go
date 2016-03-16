@@ -15,7 +15,7 @@ func (m *MojSQL) Interface() server.Server { return m }
 
 func (m *MojSQL) Initialize(username string, password string, database string) error {
 	conn, err := sql.Open("mysql", username+":"+password+"@unix(/var/run/mysql/mysql.sock)/"+database)
-	go func() { defer conn.Close() }()
+	//go func() { defer conn.Close() }()
 	m.conn = conn
 	if err != nil {
 		return err
