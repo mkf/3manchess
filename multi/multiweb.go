@@ -15,6 +15,7 @@ import "log"
 import "fmt"
 import "github.com/gorilla/mux"
 import "strconv"
+import "errors"
 
 type Multi struct {
 	server.Server
@@ -92,6 +93,15 @@ type SignUpGive struct {
 	Auth   []byte `json:"authkey"`
 }
 
+func giveerror(w http.ResponseWriter, r *http.Request, e error, h int) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(h)
+	log.Println(h, e)
+	if err := json.NewEncoder(w).Encode(e); err != nil {
+		panic(err)
+	}
+}
+
 func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	var su SignUpPost
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
@@ -102,22 +112,14 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &su); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422) //unprocessable entity
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 422)
 		return
 	}
 	log.Println("signing up: ", su)
 	var gi SignUpGive
 	gi.User, gi.Player, gi.Auth, err = mu.Server.SignUp(su.Login, su.Passwd, su.Name)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 422)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -136,20 +138,12 @@ func (mu *Multi) APILogin(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &li); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 422)
 	}
 	var aut Authorization
 	aut.ID, aut.AuthKey, err = mu.Server.LogIn(li.Login, li.Passwd)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusForbidden)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, http.StatusForbidden)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -173,20 +167,12 @@ func (mu *Multi) APIBotKey(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &bkg); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 422)
 	}
 	var aut Authorization
 	aut.ID, aut.AuthKey, err = mu.Server.BotKey(bkg.BotID, bkg.UserAuth.ID, bkg.UserAuth.AuthKey)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusForbidden)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, http.StatusForbidden)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -223,22 +209,14 @@ func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &nbp); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 422)
 		return
 	}
 	var nbg NewBotGive
 	nbg.Botid, nbg.PlayerID, nbg.AuthKey, err =
 		mu.Server.NewBot(nbp.WhoAmI, nbp.UserAuth.ID, nbp.UserAuth.AuthKey, nbp.OwnName, nbp.Settings)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 422)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -269,21 +247,13 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &gpp); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 422)
 		return
 	}
 	var gpg GameplayGive
 	gpg.Key, err = server.AddGame(mu.Server, &gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, gpp.Date)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 422)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -313,46 +283,26 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &turnp); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 422)
 		return
 	}
 	if ok, err := mu.Server.PAuth(turnp.WhoPlayer.ID, turnp.WhoPlayer.AuthKey); !(ok && err == nil) {
 		if !ok {
-			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-			w.WriteHeader(http.StatusForbidden)
-			if err := json.NewEncoder(w).Encode(false); err != nil {
-				panic(err)
-			}
+			giveerror(w, r, errors.New("Auth failed"), http.StatusForbidden)
 		} else if err != nil {
-			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-			w.WriteHeader(422)
-			if err := json.NewEncoder(w).Encode(err); err != nil {
-				panic(err)
-			}
+			giveerror(w, r, err, 422)
 		}
 		return
 	}
 	var maak MoveAndAfterKeys
 	ourint, err := strconv.ParseInt(vars["gameId"], 10, 64)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, http.StatusBadRequest)
 		return
 	}
 	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, ourint, turnp.FromToProm, turnp.WhoPlayer.ID)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 422)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -366,19 +316,11 @@ func (mu *Multi) APIPlay(w http.ResponseWriter, r *http.Request) {
 	var gp server.GameplayData
 	key, err := strconv.ParseInt(vars["gameId"], 10, 64)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, http.StatusBadRequest)
 	}
 	err = mu.Server.LoadGP(key, &gp)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(421)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 421)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -392,19 +334,11 @@ func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
 	var gp game.StateData
 	key, err := strconv.ParseInt(vars["stateId"], 10, 64)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, http.StatusBadRequest)
 	}
 	err = mu.Server.LoadSD(key, &gp)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(421)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 421)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -418,19 +352,11 @@ func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	var gp server.MoveData
 	key, err := strconv.ParseInt(vars["moveId"], 10, 64)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, http.StatusBadRequest)
 	}
 	err = mu.Server.LoadMD(key, &gp)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(421)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 421)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -449,19 +375,11 @@ func (mu *Multi) APIWhoIsIt(w http.ResponseWriter, r *http.Request) {
 	var iwit InfoWhoIsIt
 	key, err := strconv.ParseInt(vars["playerId"], 10, 64)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, http.StatusBadRequest)
 	}
 	iwit.ID, iwit.IsItABot, err = mu.Server.WhoIsIt(key)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(421)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 421)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -481,19 +399,11 @@ func (mu *Multi) APIUserInfo(w http.ResponseWriter, r *http.Request) {
 	var iu InfoUser
 	key, err := strconv.ParseInt(vars["userId"], 10, 64)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, http.StatusBadRequest)
 	}
 	iu.Login, iu.Name, iu.Player, err = mu.Server.UserInfo(key)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(421)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 421)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -515,19 +425,11 @@ func (mu *Multi) APIBotInfo(w http.ResponseWriter, r *http.Request) {
 	var sib InfoBot
 	key, err := strconv.ParseInt(vars["botId"], 10, 64)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, http.StatusBadRequest)
 	}
 	sib.WhoAmI, sib.Owner, sib.OwnName, sib.Player, sib.Settings, err = mu.Server.BotInfo(key)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(421)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		giveerror(w, r, err, 421)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
