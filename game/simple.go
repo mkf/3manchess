@@ -39,27 +39,20 @@ func (a *ACFT) G() (bool, FromTo) {
 func VFTPGen(gamestate *State) <-chan FromToProm {
 	all_valid := make(chan FromToProm)
 	go func() {
-		var y1, x1, y2, x2 int8
-		for y1 = 0; y1 < 6; y1++ {
-			for x1 = 0; x1 < 24; x1++ {
-				for y2 = 0; y2 < 6; y2++ {
-					for x2 = 0; x2 < 24; x2++ {
-						p1 := Pos{y1, x1}
-						p2 := Pos{y2, x2}
-						fromto := FromTo{p1, p2}
-						move := Move{p1, p2, gamestate, Queen}
-						if _, err := move.After(); err == nil {
-							all_valid <- FromToProm{fromto, Queen}
-							fig := (*gamestate).Board[y1][x1].Fig
-							if fig.FigType == Pawn && fig.PawnCenter && y1 == 1 {
-								all_valid <- FromToProm{fromto, Rook}
-								all_valid <- FromToProm{fromto, Bishop}
-								all_valid <- FromToProm{fromto, Knight}
-							}
-						}
-					}
+		var oac ACFT
+		for oac.OK() {
+			ft := FromTo(oac)
+			move := Move{ft.From(), ft.To(), gamestate, Queen}
+			if _, err := move.After(); err == nil {
+				all_valid <- FromToProm{ft, Queen}
+				fig := (*gamestate).Board.GPos(ft.From()).Fig
+				if fig.FigType == Pawn && fig.PawnCenter && ft.From()[0] == 1 {
+					all_valid <- FromToProm{ft, Rook}
+					all_valid <- FromToProm{ft, Bishop}
+					all_valid <- FromToProm{ft, Knight}
 				}
 			}
+			oac.P()
 		}
 		close(all_valid)
 	}()
