@@ -96,7 +96,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8, though
 	var move_to_apply game.Move
 	var bestsitval float64
 	bestsitval = 1000000
-	for state := range game.ASAOMGen(s) { // APAOM - All States After Opponents' Moves
+	for state := range game.ASAOMGen(s) {
 		mythoughts[index][0] = a.SitValue(state)
 		if int(depth) != 0 {
 			bestsitval = -1000000
