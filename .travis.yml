@@ -36,7 +36,9 @@ install:
 - go install -v -race github.com/ArchieT/3manchess/server
 - go install -v -race github.com/ArchieT/3manchess/server/mojsql
 - go install -v -race github.com/ArchieT/3manchess/multi
+- go install -v -race github.com/ArchieT/3manchess/cmd/trychessserver
 script:
+- trychessserver -d archiet &
 - go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp1.out
 - cat tmp1.out >> coverage.txt
 - go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmp2.out
