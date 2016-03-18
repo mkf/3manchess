@@ -100,8 +100,11 @@ type OurError struct {
 	Where   string `json:"where"`
 }
 
-func (oe OurError) Error() string {
+func (oe *OurError) Error() string {
 	a, e := json.Marshal(oe)
+	if e != nil {
+		panic(e)
+	}
 	return string(a)
 }
 
