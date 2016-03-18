@@ -183,7 +183,7 @@ func (b *Board) FriendsNAllies(who Color, pa PlayersAlive) ([]Pos, <-chan Pos) {
 	var oac ACP
 	my := make([]Pos, 0, 16)
 	oni := make(chan Pos, 32)
-	if pa[who] {
+	if pa.Give(who) {
 		for oac.OK() {
 			opos = Pos(oac)
 			tjf := b.GPos(opos)
