@@ -91,7 +91,6 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []floa
 	}
 	mythoughts := make(map[int][]float64)
 	index := 0 // index is for mythoughts map
-	bestthought := make([]float64, depth+1)
 	var bestsitval float64
 	for state := range game.ASAOMGen(s, whoarewe) {
 		mythoughts[index] = append(mythoughts[index], a.SitValue(state)) // fills in first element of mythoughts[index]
@@ -101,15 +100,10 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []floa
 				move_to_apply := game.Move{mymove.FromTo[0], mymove.FromTo[1], state, mymove.PawnPromotion}
 				newstate, _ := move_to_apply.After()
 				newthought := append([]float64{mythoughts[index][0]}, a.Worker(newstate, whoarewe, depth)...) // new slice of size (depth+1)
-				if newthought[depth] > bestsitval {
+				if newthought[depth] > bestsitval { // we have found (so far) the best response to opponents' moves (state after 2 ops' moves)
 					bestsitval = newthought[depth]
-					for i := 0; i <= int(depth); i++ {
-						mythoughts[index][i] = newthought[i]
-					}
+					mythoughts[index] = newthought
 				}
-			}
-			for i := 1; i <= int(depth); i++ {
-				mythoughts[index][i] = bestthought[i]
 			}
 		}
 		index++
@@ -117,9 +111,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []floa
 	bestsitval = 1000000
 	for i := 0; i < index; i++ {
 		if mythoughts[i][depth] < bestsitval { // we need to find the best opponents' moves to test our strategy
-			for j := 0; j <= int(depth); j++ {
-				minmax_slice[j] = mythoughts[i][j]
-			}
+			minmax_slice = mythoughts[i]
 		}
 	}
 	return minmax_slice
@@ -138,10 +130,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 	for move := range game.VFTPGen(s) {
 		move_to_apply := game.Move{move.FromTo[0], move.FromTo[1], s, move.PawnPromotion}
 		newstate, _ := move_to_apply.After()
-		minmax_slice := a.Worker(newstate, s.MovesNext, a.Conf.Depth)
-		for _, sitval := range minmax_slice {
-			thoughts[move] = append(thoughts[move], sitval)
-		}
+		thoughts[move] = a.Worker(newstate, s.MovesNext, a.Conf.Depth)
 		if thoughts[move][a.Conf.Depth] > bestsitval {
 			bestmove = move
 			bestsitval = thoughts[move][a.Conf.Depth]
