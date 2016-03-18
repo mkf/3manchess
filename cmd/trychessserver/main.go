@@ -3,7 +3,7 @@ package main
 //import "github.com/ArchieT/3manchess/server"
 import "github.com/ArchieT/3manchess/server/mojsql"
 import "github.com/ArchieT/3manchess/multi"
-import "fmt"
+import "os"
 import "log"
 import "flag"
 import "github.com/coreos/pkg/flagutil"
