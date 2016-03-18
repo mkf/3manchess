@@ -1,4 +1,4 @@
-package sitvalues
+package constsitval
 
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
