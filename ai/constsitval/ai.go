@@ -5,6 +5,7 @@ package constsitval
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/simple"
 import "github.com/ArchieT/3manchess/player"
+
 //import "sync"
 //import "sync/atomic"
 import "fmt"
@@ -20,15 +21,14 @@ const DEFOWN2THRTHD = 4.0
 const WhoAmI string = "3manchess-ai_constsitval"
 
 type AIPlayer struct {
-	Name       string
-	errchan    chan error
-	ErrorChan  chan<- error
-	hurry      chan bool
-	HurryChan  chan<- bool
-	Conf       AIConfig
-	depth      int8
-	gp         *player.Gameplay
-	waiting    bool
+	Name      string
+	errchan   chan error
+	ErrorChan chan<- error
+	hurry     chan bool
+	HurryChan chan<- bool
+	Conf      AIConfig
+	gp        *player.Gameplay
+	waiting   bool
 }
 
 func (a *AIPlayer) Config() ai.Config {
@@ -83,8 +83,8 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 }
 
 //Worker is the routine behind the Think; exported just in case
-func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []float64  {
-	minmax_slice := make([]float64, depth + 1)
+func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []float64 {
+	minmax_slice := make([]float64, depth+1)
 	if depth < 0 { // negative depth may be considered error in the future
 		minmax_slice[0] = a.SitValue(s)
 		return minmax_slice
@@ -103,9 +103,9 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []floa
 			for mymove := range game.VFTPGen(state) {
 				move_to_apply = game.Move{mymove.FromTo[0], mymove.FromTo[1], state, mymove.PawnPromotion}
 				newstate, _ := move_to_apply.After()
-				newthought := append([]float64{mythoughts[index][0]}, a.Worker(newstate, s.MovesNext, a.depth)...)
-				if newthought[a.depth - 1] > bestsitval {
-					bestsitval = minmax_slice[a.depth - 1]
+				newthought := append([]float64{mythoughts[index][0]}, a.Worker(newstate, s.MovesNext, depth)...)
+				if newthought[a.Conf.Depth-1] > bestsitval {
+					bestsitval = minmax_slice[depth-1]
 					bestthought[0] = a.SitValue(newstate)
 					for i := 1; i <= int(depth); i++ {
 						mythoughts[index][i] = newthought[i]
@@ -116,12 +116,12 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []floa
 				mythoughts[index][i] = bestthought[i]
 			}
 		}
-		index++;
+		index++
 	}
 	bestsitval = 1000000
 	minmax_slice[0] = mythoughts[0][0] // we assume game hadn't finished so far
 	for i := 0; i < index; i++ {
-		if newthought[a.depth - 1] < bestsitval { // we need to find the best opponents' moves to test our strategy
+		if newthought[depth-1] < bestsitval { // we need to find the best opponents' moves to test our strategy
 			for j := i; j <= int(depth); j++ {
 				minmax_slice[j] = mythoughts[i][j]
 			}
@@ -132,7 +132,6 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []floa
 
 //Think is the function generating the Move
 func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
-	a.depth = a.Conf.Depth
 	hurryup := simple.MergeBool(hurry, a.hurry)
 	for i := len(hurryup); i > 0; i-- {
 		<-hurryup
@@ -144,13 +143,13 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 	for move := range game.VFTPGen(s) {
 		move_to_apply := game.Move{move.FromTo[0], move.FromTo[1], s, move.PawnPromotion}
 		newstate, _ := move_to_apply.After()
-		minmax_slice := a.Worker(newstate, s.MovesNext, a.depth)
+		minmax_slice := a.Worker(newstate, s.MovesNext, a.Conf.Depth)
 		for i, sitval := range minmax_slice {
 			thoughts[move][i] = sitval
 		}
-		if thoughts[move][a.depth] > bestsitval {
+		if thoughts[move][a.Conf.Depth] > bestsitval {
 			bestmove = move
-			bestsitval = thoughts[move][a.depth]
+			bestsitval = thoughts[move][a.Conf.Depth]
 		}
 	}
 	return game.Move{bestmove.FromTo[0], bestmove.FromTo[1], s, bestmove.PawnPromotion}
