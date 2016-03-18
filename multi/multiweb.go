@@ -100,6 +100,11 @@ type OurError struct {
 	Where   string `json:"where"`
 }
 
+func (oe OurError) Error() string {
+	a, e := json.Marshal(oe)
+	return string(a)
+}
+
 func giveerror(w http.ResponseWriter, r *http.Request, e error, h int, where string) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(h)
