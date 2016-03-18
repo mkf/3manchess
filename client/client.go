@@ -41,13 +41,45 @@ func (s *Service) SignUp(sp multi.SignUpPost) (*multi.SignUpGive, *http.Response
 	return give, resp, err
 }
 
-func (s *Service) LogIn(lp multi.LoggingIn) (*multi.Authorization, *http.Response, error) {}
+func (s *Service) LogIn(lp multi.LoggingIn) (*multi.Authorization, *http.Response, error) {
+	give := new(multi.Authorization)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Post("api/login").BodyJSON(lp).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
 
-func (s *Service) BotKey(bkg multi.BotKeyGetting) (*multi.Authorization, *http.Response, error) {}
+func (s *Service) BotKey(bkg multi.BotKeyGetting) (*multi.Authorization, *http.Response, error) {
+	give := new(multi.Authorization)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Post("api/botkey").BodyJSON(bkg).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
 
-func (s *Service) NewBot(nbp multi.NewBotPost) (*multi.NewBotGive, *http.Response, error) {}
+func (s *Service) NewBot(nbp multi.NewBotPost) (*multi.NewBotGive, *http.Response, error) {
+	give := new(multi.NewBotGive)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Post("api/newbot").BodyJSON(nbp).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
 
-func (s *Service) AddGame(gpp multi.GameplayPost) (*multi.GameplayGive, *http.Response, error) {}
+func (s *Service) AddGame(gpp multi.GameplayPost) (*multi.GameplayGive, *http.Response, error) {
+	give := new(multi.GameplayGive)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Post("api/addgame").BodyJSON(gpp).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
 
 func (s *Service) Turn(gameid int64, turnp multi.TurnPost) (*multi.MoveAndAfterKeys, *http.Response, error) {
 }
