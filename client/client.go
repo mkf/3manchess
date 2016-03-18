@@ -82,16 +82,71 @@ func (s *Service) AddGame(gpp multi.GameplayPost) (*multi.GameplayGive, *http.Re
 }
 
 func (s *Service) Turn(gameid int64, turnp multi.TurnPost) (*multi.MoveAndAfterKeys, *http.Response, error) {
+	give := new(multi.MoveAndAfterKeys)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Post(fmt.Sprintf("api/play/%d", gameid)).BodyJSON(turnp).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
 }
 
-func (s *Service) Play(gameid int64) (*server.GameplayData, *http.Response, error) {}
+func (s *Service) Play(gameid int64) (*server.GameplayData, *http.Response, error) {
+	give := new(server.GameplayData)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Get(fmt.Sprintf("api/play/%d", gameid)).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
 
-func (s *Service) State(stateid int64) (*game.StateData, *http.Response, error) {}
+func (s *Service) State(stateid int64) (*game.StateData, *http.Response, error) {
+	give := new(game.StateData)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Get(fmt.Sprintf("api/state/%d", stateid)).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
 
-func (s *Service) Move(moveid int64) (*server.MoveData, *http.Response, error) {}
+func (s *Service) Move(moveid int64) (*server.MoveData, *http.Response, error) {
+	give := new(server.MoveData)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Get(fmt.Sprintf("api/move/%d", moveid)).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
 
-func (s *Service) WhoIsIt(playerid int64) (*multi.InfoWhoIsIt, *http.Response, error) {}
+func (s *Service) WhoIsIt(playerid int64) (*multi.InfoWhoIsIt, *http.Response, error) {
+	give := new(multi.InfoWhoIsIt)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Get(fmt.Sprintf("api/player/%d", playerid)).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
 
-func (s *Service) UserInfo(userid int64) (*multi.InfoUser, *http.Response, error) {}
+func (s *Service) UserInfo(userid int64) (*multi.InfoUser, *http.Response, error) {
+	give := new(multi.InfoUser)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Get(fmt.Sprintf("api/user/%d", userid)).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
 
-func (s *Service) BotInfo(botid int64) (*multi.InfoBot, *http.Response, error) {}
+func (s *Service) BotInfo(botid int64) (*multi.InfoBot, *http.Response, error) {
+	give := new(multi.InfoBot)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Get(fmt.Sprintf("api/bot/%d", botid)).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
