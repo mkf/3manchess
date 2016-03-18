@@ -23,6 +23,7 @@ before_install:
 - go get golang.org/x/tools/cmd/cover
 - go get github.com/go-sql-driver/mysql
 - go get github.com/gorilla/mux
+- go get github.com/coreos/pkg/flagutil
 install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
 - sh -c "mysql -e 'create database if not exists archiet;'; mysql archiet < $GOPATH/src/github.com/ArchieT/3manchess/server/mojsql/setup.sql"
