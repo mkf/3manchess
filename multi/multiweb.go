@@ -16,6 +16,7 @@ import "fmt"
 import "github.com/gorilla/mux"
 import "strconv"
 import "errors"
+import "reflect"
 
 type Multi struct {
 	server.Server
@@ -93,11 +94,22 @@ type SignUpGive struct {
 	Auth   []byte `json:"authkey"`
 }
 
-func giveerror(w http.ResponseWriter, r *http.Request, e error, h int) {
+type OurError struct {
+	Type    string `json:"type"`
+	Content string `json:"content"`
+	Where   string `json:"where"`
+}
+
+func giveerror(w http.ResponseWriter, r *http.Request, e error, h int, where string) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(h)
-	log.Println(h, e)
-	if err := json.NewEncoder(w).Encode(e); err != nil {
+	oe := OurError{
+		Type:    reflect.TypeOf(e).String(),
+		Content: e.Error(),
+		Where:   where,
+	}
+	log.Println(h, oe, e)
+	if err := json.NewEncoder(w).Encode(oe); err != nil {
 		panic(err)
 	}
 }
@@ -112,14 +124,14 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &su); err != nil {
-		giveerror(w, r, err, 422)
+		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
 	log.Println("signing up: ", su)
 	var gi SignUpGive
 	gi.User, gi.Player, gi.Auth, err = mu.Server.SignUp(su.Login, su.Passwd, su.Name)
 	if err != nil {
-		giveerror(w, r, err, 422)
+		giveerror(w, r, err, 422, "server_signup")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -139,13 +151,13 @@ func (mu *Multi) APILogin(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &li); err != nil {
-		giveerror(w, r, err, 422)
+		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
 	var aut Authorization
 	aut.ID, aut.AuthKey, err = mu.Server.LogIn(li.Login, li.Passwd)
 	if err != nil {
-		giveerror(w, r, err, http.StatusForbidden)
+		giveerror(w, r, err, http.StatusForbidden, "server_login")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -170,13 +182,13 @@ func (mu *Multi) APIBotKey(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &bkg); err != nil {
-		giveerror(w, r, err, 422)
+		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
 	var aut Authorization
 	aut.ID, aut.AuthKey, err = mu.Server.BotKey(bkg.BotID, bkg.UserAuth.ID, bkg.UserAuth.AuthKey)
 	if err != nil {
-		giveerror(w, r, err, http.StatusForbidden)
+		giveerror(w, r, err, http.StatusForbidden, "server_botkey")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -214,14 +226,14 @@ func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &nbp); err != nil {
-		giveerror(w, r, err, 422)
+		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
 	var nbg NewBotGive
 	nbg.Botid, nbg.PlayerID, nbg.AuthKey, err =
 		mu.Server.NewBot(nbp.WhoAmI, nbp.UserAuth.ID, nbp.UserAuth.AuthKey, nbp.OwnName, nbp.Settings)
 	if err != nil {
-		giveerror(w, r, err, 422)
+		giveerror(w, r, err, 422, "server_newbot")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -253,13 +265,13 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &gpp); err != nil {
-		giveerror(w, r, err, 422)
+		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
 	var gpg GameplayGive
 	gpg.Key, err = server.AddGame(mu.Server, &gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, gpp.Date)
 	if err != nil {
-		giveerror(w, r, err, 422)
+		giveerror(w, r, err, 422, "server_addgame")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -290,26 +302,26 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &turnp); err != nil {
-		giveerror(w, r, err, 422)
+		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
 	if ok, err := mu.Server.PAuth(turnp.WhoPlayer.ID, turnp.WhoPlayer.AuthKey); !(ok && err == nil) {
 		if !ok {
-			giveerror(w, r, errors.New("Auth failed"), http.StatusForbidden)
+			giveerror(w, r, errors.New("Auth failed"), http.StatusForbidden, "server_pauth_notok")
 		} else if err != nil {
-			giveerror(w, r, err, 422)
+			giveerror(w, r, err, 422, "server_pauth")
 		}
 		return
 	}
 	var maak MoveAndAfterKeys
 	ourint, err := strconv.ParseInt(vars["gameId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest)
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 		return
 	}
 	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, ourint, turnp.FromToProm, turnp.WhoPlayer.ID)
 	if err != nil {
-		giveerror(w, r, err, 422)
+		giveerror(w, r, err, 422, "server_movegame")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -324,12 +336,12 @@ func (mu *Multi) APIPlay(w http.ResponseWriter, r *http.Request) {
 	var gp server.GameplayData
 	key, err := strconv.ParseInt(vars["gameId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest)
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 		return
 	}
 	err = mu.Server.LoadGP(key, &gp)
 	if err != nil {
-		giveerror(w, r, err, 421)
+		giveerror(w, r, err, 421, "server_loadgp")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -344,12 +356,12 @@ func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
 	var gp game.StateData
 	key, err := strconv.ParseInt(vars["stateId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest)
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 		return
 	}
 	err = mu.Server.LoadSD(key, &gp)
 	if err != nil {
-		giveerror(w, r, err, 421)
+		giveerror(w, r, err, 421, "server_loadsd")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -364,12 +376,12 @@ func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	var gp server.MoveData
 	key, err := strconv.ParseInt(vars["moveId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest)
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 		return
 	}
 	err = mu.Server.LoadMD(key, &gp)
 	if err != nil {
-		giveerror(w, r, err, 421)
+		giveerror(w, r, err, 421, "server_loadmd")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -389,12 +401,12 @@ func (mu *Multi) APIWhoIsIt(w http.ResponseWriter, r *http.Request) {
 	var iwit InfoWhoIsIt
 	key, err := strconv.ParseInt(vars["playerId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest)
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 		return
 	}
 	iwit.ID, iwit.IsItABot, err = mu.Server.WhoIsIt(key)
 	if err != nil {
-		giveerror(w, r, err, 421)
+		giveerror(w, r, err, 421, "server_whoisit")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -415,12 +427,12 @@ func (mu *Multi) APIUserInfo(w http.ResponseWriter, r *http.Request) {
 	var iu InfoUser
 	key, err := strconv.ParseInt(vars["userId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest)
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 		return
 	}
 	iu.Login, iu.Name, iu.Player, err = mu.Server.UserInfo(key)
 	if err != nil {
-		giveerror(w, r, err, 421)
+		giveerror(w, r, err, 421, "server_userinfo")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -443,12 +455,12 @@ func (mu *Multi) APIBotInfo(w http.ResponseWriter, r *http.Request) {
 	var sib InfoBot
 	key, err := strconv.ParseInt(vars["botId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest)
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 		return
 	}
 	sib.WhoAmI, sib.Owner, sib.OwnName, sib.Player, sib.Settings, err = mu.Server.BotInfo(key)
 	if err != nil {
-		giveerror(w, r, err, 421)
+		giveerror(w, r, err, 421, "server_botinfo")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
