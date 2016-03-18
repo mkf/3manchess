@@ -377,7 +377,9 @@ func (m *MojSQL) BotInfo(botid int64) (whoami []byte, owner int64, ownname strin
 //WhoIsIt : PLAYERID → (BOT/USER)(ID) + ?[BOT/USER]¿
 //WhoIsIt takes a playerid, and returns userid or bot id, then true if it is a bot or false if it's a user
 func (m *MojSQL) WhoIsIt(playerid int64) (id int64, isitabot bool, err error) {
-	stmt, err := m.conn.Prepare("set @playerid = ?; select id, '0' as isitabot from chessuser where player=@playerid union all select id, '1' as isitabot from chessbot where player=@playerid")
+	stmt, err := m.conn.Prepare(
+		`set @playerid = ?; 
+		select id, '0' as isitabot from chessuser where player=@playerid union all select id, '1' as isitabot from chessbot where player=@playerid`)
 	if err != nil {
 		return -1, false, err
 	}
