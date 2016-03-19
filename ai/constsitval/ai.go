@@ -80,15 +80,18 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 	if depth > 0 {
 		log.Println("=== WORKER === || Depth: 1 || State: ", s, " — START")
 	}
-	minmax_slice := make([]float64, depth+1)
+	minmax_slice := make([]float64, 0, depth+1)
 	mythoughts := make(map[int][]float64)
 	index := 0 // index is for mythoughts map
 	var bestsitval float64
+	var move_impossible bool
 	for state := range game.ASAOMGen(s, whoarewe) {
 		mythoughts[index] = append(mythoughts[index], a.SitValue(state)) // fills in first element of mythoughts[index]
 		if int(depth) > 0 {
 			bestsitval = -1000000
+			move_impossible = true
 			for mymove := range game.VFTPGen(state) {
+				move_impossible = false
 				move_to_apply := mymove.Move(state)
 				newstate, _ := move_to_apply.After()
 				fmt.Printf("S")
@@ -102,6 +105,15 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 					bestsitval = newthought[depth]
 					mythoughts[index] = newthought
 				}
+			}
+			if move_impossible { // we died or in stalemate to that point
+				mythoughts[index] = append(mythoughts[index], a.Worker(state, whoarewe, depth-1)...)
+				/* Below is a slightly faster, more obfuscated way
+				newthought := make([]float64, depth+1)
+				for i := 0; i <= int(depth); i++ {
+					newthought[i] = mythoughts[index][0]
+				}
+				mythoughts[index] = newthought */
 			}
 		}
 		index++
@@ -132,7 +144,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 	var bestsitval float64
 	bestsitval = -1000000
 	for move := range game.VFTPGen(s) {
-		move_to_apply := game.Move{move.FromTo[0], move.FromTo[1], s, move.PawnPromotion}
+		move_to_apply := move.Move(s)
 		newstate, _ := move_to_apply.After()
 		thoughts[move] = a.Worker(newstate, s.MovesNext, a.Conf.Depth)
 		if thoughts[move][a.Conf.Depth] > bestsitval {
