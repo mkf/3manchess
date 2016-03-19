@@ -20,9 +20,9 @@ create table 3manst (
 drop table if exists 3manplayer;
 create table 3manplayer (
 	id bigint auto_increment primary key,
-	auth varchar(100) not null
+	auth varbinary(100) not null
 	-- name varchar(100) not null,
-) engine = InnoDB;
+) engine = InnoDB default charset=utf8;
 
 drop table if exists chessuser;
 create table chessuser (
@@ -34,7 +34,7 @@ create table chessuser (
 	constraint
 		foreign key (player) references 3manplayer (id)
 		on update restrict
-) engine = InnoDB;
+) engine = InnoDB default charset=utf8;
 
 drop table if exists chessbot;
 create table chessbot (
@@ -43,26 +43,24 @@ create table chessbot (
 	owner bigint not null,
 	ownname varchar(50),
 	player bigint not null unique key,
-	precise double ,
-	coefficient double ,
-	pawnpromotion tinyint ,
-	unique key everything ( whoami, owner, precise, coefficient, pawnpromotion ),
+	settings varbinary(500),
+	unique key everything ( whoami, owner, settings ),
 	constraint
 		foreign key (owner) references chessuser (id)
+		on update restrict,
+	constraint
+		foreign key (player) references 3manplayer (id)
 		on update restrict
-) engine = InnoDB;
+) engine = InnoDB default charset=utf8;
 
 drop table if exists 3mangp;
 create table 3mangp (
 	id bigint auto_increment primary key, 
-	state bigint not null, 
-	white bigint not null, 
-	gray bigint not null, 
-	black bigint not null, 
-	created datetime not null,
-	constraint
-		foreign key (state) references 3manst (id)
-		on update restrict,
+	state bigint,
+	white bigint, 
+	gray bigint, 
+	black bigint, 
+	created timestamp default current_timestamp,
 	constraint
 		foreign key (white) references 3manplayer (id)
 		on update restrict,
@@ -71,6 +69,9 @@ create table 3mangp (
 		on update restrict,
 	constraint
 		foreign key (black) references 3manplayer (id)
+		on update restrict,
+	constraint
+		foreign key (state) references 3manst (id)
 		on update restrict
 ) ENGINE = InnoDB;
 
@@ -78,11 +79,21 @@ drop table if exists 3manmv;
 create table 3manmv (
 	id bigint auto_increment primary key,
 	fromto binary(4) not null,
-	beforestate bigint not null,
+	beforegame bigint not null,
+	aftergame bigint not null,
 	promotion tinyint not null,
+	who bigint not null,
 	constraint
-		foreign key (beforestate) references 3manst (id)
-		on update restrict
+		foreign key (beforegame) references 3mangp (id)
+		on update restrict,
+	constraint
+		foreign key (who) references 3manplayer (id)
+		on update restrict,
+	constraint
+		foreign key (aftergame) references 3mangp (id)
+		on update restrict,
+	unique onemove(fromto, beforegame, promotion, who)
 ) engine = InnoDB;
+
 
 -- vi:ft=mysql

@@ -2,19 +2,16 @@ package game
 
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
+//Uint8 returns   [[ _ P C C C T T T ]]
 func (f *Fig) Uint8() uint8 {
-	if f.FigType == 0 || f.Color == 0 {
-		return 0
+	return (bool2uint8(bool(f.PawnCenter)) << 6) + (uint8(f.Color) << 3) + uint8(f.FigType)
+}
+
+func bool2uint8(b bool) uint8 {
+	if b {
+		return 1
 	}
-	c := uint8(f.Color) - 1
-	t := uint8(f.FigType) - 1
-	var p uint8
-	if f.PawnCenter && f.FigType == Pawn {
-		p = 1
-	} else {
-		p = 0
-	}
-	return c*7 + t + p
+	return 0
 }
 
 func (s *Square) Uint8() uint8 {
@@ -33,14 +30,9 @@ func SqUint8(i uint8) Square {
 
 func FigUint8(i uint8) Fig {
 	var f Fig
-	f.Color = Color(i/7 + 1)
-	t := i % 7
-	f.PawnCenter = t == 6
-	if f.PawnCenter {
-		f.FigType = Pawn
-	} else {
-		f.FigType = FigType(t + 1)
-	}
+	f.PawnCenter = PawnCenter((i >> 7) > 0)
+	f.Color = Color((i >> 3) & 7)
+	f.FigType = FigType(i & 7)
 	return f
 }
 
@@ -71,6 +63,7 @@ func BoardByte(s []byte) *Board {
 	return &b
 }
 
+//Byte() returns all 6 concatenated ranks, where each rank is 24 squares, each represented by Square.Uint8
 func (b *Board) Byte() [24 * 6]byte {
 	var d [24 * 6]byte
 	var oac ACP

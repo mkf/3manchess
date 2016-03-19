@@ -38,6 +38,14 @@ func (cs Castling) Uint8() uint8 {
 	return u
 }
 
+func (cs Castling) Array() [6]bool {
+	var b [6]bool
+	for i := 0; i < 5; i++ {
+		b[i] = cs[i>>1][i%2]
+	}
+	return b
+}
+
 func CastlingFromUint8(u uint8) Castling {
 	var cs Castling
 	cs[0][0] = u%2 == 1
@@ -46,6 +54,14 @@ func CastlingFromUint8(u uint8) Castling {
 	cs[1][1] = u>>3%2 == 1
 	cs[2][0] = u>>4%2 == 1
 	cs[2][1] = u>>5 == 1
+	return cs
+}
+
+func CastlingFromArray(b [6]bool) Castling {
+	var cs Castling
+	for i := 0; i < 5; i++ {
+		cs[i>>1][i%2] = b[i]
+	}
 	return cs
 }
 
@@ -148,21 +164,21 @@ type State struct {
 }
 
 type StateData struct {
-	Board          [144]byte
-	Moats          [3]bool
-	MovesNext      int8
-	Castling       uint8
-	EnPassant      [4]int8
-	HalfmoveClock  int8
-	FullmoveNumber int16
-	Alive          [3]bool
+	Board          [144]byte `json:"boardrepr"`
+	Moats          [3]bool   `json:"moatsstate"`
+	MovesNext      int8      `json:"movesnext"`
+	Castling       [6]bool   `json:"castling"`
+	EnPassant      [4]int8   `json:"enpassant"`
+	HalfmoveClock  int8      `json:"halfmoveclock"`
+	FullmoveNumber int16     `json:"fullmovenumber"`
+	Alive          [3]bool   `json:"alivecolors"`
 }
 
 func (s *State) FromData(d *StateData) {
 	s.Board = BoardByte(d.Board[:])
 	s.MoatsState = MoatsState(d.Moats)
 	s.MovesNext = Color(d.MovesNext)
-	s.Castling = CastlingFromUint8(d.Castling)
+	s.Castling = CastlingFromArray(d.Castling)
 	s.EnPassant = EnPassant{{d.EnPassant[0], d.EnPassant[1]}, {d.EnPassant[2], d.EnPassant[3]}}
 	s.HalfmoveClock = HalfmoveClock(d.HalfmoveClock)
 	s.FullmoveNumber = FullmoveNumber(d.FullmoveNumber)
@@ -173,7 +189,7 @@ func (s *State) Data() *StateData {
 	d := StateData{
 		Board: s.Board.Byte(), MovesNext: int8(s.MovesNext),
 		Moats:         [3]bool(s.MoatsState),
-		Castling:      s.Castling.Uint8(),
+		Castling:      s.Castling.Array(),
 		EnPassant:     [4]int8{s.EnPassant[0][0], s.EnPassant[0][1], s.EnPassant[1][0], s.EnPassant[1][1]},
 		HalfmoveClock: int8(s.HalfmoveClock), FullmoveNumber: int16(s.FullmoveNumber),
 		Alive: [3]bool(s.PlayersAlive),
