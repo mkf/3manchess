@@ -424,12 +424,7 @@ func (m *Move) EvalAfter() (*State, error) {
 	var err error
 	if state, err = m.After(); err == nil {
 		state.EvalDeath()
-		for i := 0; i < 2; i++ {
-			if state.PlayersAlive.Give(state.MovesNext) {
-				break
-			}
-			state.MovesNext = state.MovesNext.Next()
-		}
+		state.FixMovesNext()
 	}
 	return state, err
 }
