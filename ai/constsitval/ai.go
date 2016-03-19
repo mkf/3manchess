@@ -21,14 +21,12 @@ const DEFOWN2THRTHD = 4.0
 const WhoAmI string = "3manchess-ai_constsitval"
 
 type AIPlayer struct {
-	Name      string
-	errchan   chan error
-	ErrorChan chan<- error
-	hurry     chan bool
-	HurryChan chan<- bool
-	Conf      AIConfig
-	gp        *player.Gameplay
-	waiting   bool
+	Name    string
+	errchan chan error
+	hurry   chan bool
+	Conf    AIConfig
+	gp      *player.Gameplay
+	waiting bool
 }
 
 func (a *AIPlayer) Config() ai.Config {
@@ -59,13 +57,9 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 	if a.Conf.OwnedToThreatened == 0.0 {
 		a.Conf.OwnedToThreatened = DEFOWN2THRTHD
 	}
-	errchan := make(chan error)
-	a.errchan = errchan
-	a.ErrorChan = errchan
-	hurry := make(chan bool)
-	a.hurry = hurry
-	a.HurryChan = hurry
 	a.gp = gp
+	a.errchan = make(chan error)
+	a.hurry = make(chan bool)
 
 	go func() {
 		for b := range a.errchan {
@@ -75,11 +69,11 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 }
 
 func (a *AIPlayer) HurryChannel() chan<- bool {
-	return a.HurryChan
+	return a.hurry
 }
 
 func (a *AIPlayer) ErrorChannel() chan<- error {
-	return a.ErrorChan
+	return a.errchan
 }
 
 //Worker is the routine behind the Think; exported just in case
@@ -100,7 +94,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []floa
 				move_to_apply := game.Move{mymove.FromTo[0], mymove.FromTo[1], state, mymove.PawnPromotion}
 				newstate, _ := move_to_apply.After()
 				newthought := append([]float64{mythoughts[index][0]}, a.Worker(newstate, whoarewe, depth)...) // new slice of size (depth+1)
-				if newthought[depth] > bestsitval { // we have found (so far) the best response to opponents' moves (state after 2 ops' moves)
+				if newthought[depth] > bestsitval {                                                           // we have found (so far) the best response to opponents' moves (state after 2 ops' moves)
 					bestsitval = newthought[depth]
 					mythoughts[index] = newthought
 				}
@@ -140,7 +134,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 }
 
 func (a *AIPlayer) HeyItsYourMove(s *game.State, hurryup <-chan bool) game.Move {
-	a.Conf.Depth = DEFFIXDEPTH // will be surely removed
+	a.Conf.Depth = DEFFIXDEPTH               // will be surely removed
 	a.Conf.OwnedToThreatened = DEFOWN2THRTHD // will be surely removed
 	return a.Think(s, hurryup)
 }
