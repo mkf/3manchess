@@ -9,6 +9,7 @@ import "github.com/ArchieT/3manchess/player"
 //import "sync"
 //import "sync/atomic"
 import "fmt"
+import "log"
 import "github.com/ArchieT/3manchess/ai"
 import "encoding/json"
 
@@ -76,6 +77,9 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 
 //Worker is the routine behind Think; exported just in case
 func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []float64 {
+	if depth > 0 {
+		log.Println("=== WORKER === || Depth: 1 || State: ", s, " — START")
+	}
 	minmax_slice := make([]float64, depth+1)
 	mythoughts := make(map[int][]float64)
 	index := 0 // index is for mythoughts map
@@ -87,9 +91,11 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 			for mymove := range game.VFTPGen(state) {
 				move_to_apply := mymove.Move(state)
 				newstate, _ := move_to_apply.After()
+				log.Printf("S")
 				newthought := append(
 					[]float64{mythoughts[index][0]},
 					a.Worker(newstate, whoarewe, depth-1)...) // new slice of size (depth+1)
+				log.Printf("E ")
 				if newthought[depth] > bestsitval {
 					// if we have found (so far) the best response to opponents' moves
 					// (state after 2 ops' moves)
@@ -100,11 +106,17 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		}
 		index++
 	}
+	if depth > 0 {
+		log.Println("After FOR")
+	}
 	bestsitval = 1000000
 	for i := 0; i < index; i++ {
 		if mythoughts[i][depth] < bestsitval { // we need to find the best opponents' moves to test our strategy
 			minmax_slice = mythoughts[i]
 		}
+	}
+	if depth > 0 {
+		log.Println("END")
 	}
 	return minmax_slice
 }
