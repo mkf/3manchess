@@ -191,7 +191,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}
 			}
 		}
-		ostatni := (*b)[(10-from[0]-przel)%6][(from[1]+(przel*filedirec))%24]
+		ostatni := (*b)[(((10-from[0]-przel)%6)+6)%6][(((from[1]+(przel*filedirec))%24)+24)%24]
 		if r := recover(); r != nil {
 			panic(from[0] + przel)
 		}
