@@ -134,8 +134,8 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 }
 
 func (a *AIPlayer) HeyItsYourMove(s *game.State, hurryup <-chan bool) game.Move {
-	a.Conf.Depth = DEFFIXDEPTH               // will be surely removed
-	a.Conf.OwnedToThreatened = DEFOWN2THRTHD // will be surely removed
+	a.Conf.Depth = DEFFIXDEPTH               // will be surely removed //TODO
+	a.Conf.OwnedToThreatened = DEFOWN2THRTHD // will be surely removed //TODO
 	return a.Think(s, hurryup)
 }
 
