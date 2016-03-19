@@ -14,7 +14,7 @@ import "encoding/json"
 
 const MAXDEPTHCONSIDERED int8 = 8 // should be renamed to MINDEPTHNOTCONSIDERED
 
-const DEFFIXDEPTH int8 = 2
+const DEFFIXDEPTH int8 = 1
 
 const DEFOWN2THRTHD = 4.0
 
@@ -89,42 +89,29 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []floa
 		minmax_slice[0] = a.SitValue(s)
 		return minmax_slice
 	}
-	var mythoughts map[int]*[MAXDEPTHCONSIDERED]float64
-	var index int
-	index = 0
-	newthought := make([]float64, MAXDEPTHCONSIDERED)
-	var bestthought [MAXDEPTHCONSIDERED]float64
-	var move_to_apply game.Move
+	mythoughts := make(map[int][]float64)
+	index := 0 // index is for mythoughts map
 	var bestsitval float64
 	for state := range game.ASAOMGen(s, whoarewe) {
-		mythoughts[index][0] = a.SitValue(state)
+		mythoughts[index] = append(mythoughts[index], a.SitValue(state)) // fills in first element of mythoughts[index]
 		if int(depth) > 0 {
 			bestsitval = -1000000
 			for mymove := range game.VFTPGen(state) {
-				move_to_apply = game.Move{mymove.FromTo[0], mymove.FromTo[1], state, mymove.PawnPromotion}
+				move_to_apply := game.Move{mymove.FromTo[0], mymove.FromTo[1], state, mymove.PawnPromotion}
 				newstate, _ := move_to_apply.After()
-				newthought := append([]float64{mythoughts[index][0]}, a.Worker(newstate, s.MovesNext, depth)...)
-				if newthought[a.Conf.Depth-1] > bestsitval {
-					bestsitval = minmax_slice[depth-1]
-					bestthought[0] = a.SitValue(newstate)
-					for i := 1; i <= int(depth); i++ {
-						mythoughts[index][i] = newthought[i]
-					}
+				newthought := append([]float64{mythoughts[index][0]}, a.Worker(newstate, whoarewe, depth)...) // new slice of size (depth+1)
+				if newthought[depth] > bestsitval { // we have found (so far) the best response to opponents' moves (state after 2 ops' moves)
+					bestsitval = newthought[depth]
+					mythoughts[index] = newthought
 				}
-			}
-			for i := 1; i <= int(depth); i++ {
-				mythoughts[index][i] = bestthought[i]
 			}
 		}
 		index++
 	}
 	bestsitval = 1000000
-	minmax_slice[0] = mythoughts[0][0] // we assume game hadn't finished so far
 	for i := 0; i < index; i++ {
-		if newthought[depth-1] < bestsitval { // we need to find the best opponents' moves to test our strategy
-			for j := i; j <= int(depth); j++ {
-				minmax_slice[j] = mythoughts[i][j]
-			}
+		if mythoughts[i][depth] < bestsitval { // we need to find the best opponents' moves to test our strategy
+			minmax_slice = mythoughts[i]
 		}
 	}
 	return minmax_slice
@@ -136,17 +123,14 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 	for i := len(hurryup); i > 0; i-- {
 		<-hurryup
 	}
-	var thoughts map[game.FromToProm]*[MAXDEPTHCONSIDERED]float64 // so "bloated" for future use of hurry channel
+	thoughts := make(map[game.FromToProm][]float64) // so "bloated" for future use of hurry channel (multithreading)
 	var bestmove game.FromToProm
 	var bestsitval float64
 	bestsitval = -1000000
 	for move := range game.VFTPGen(s) {
 		move_to_apply := game.Move{move.FromTo[0], move.FromTo[1], s, move.PawnPromotion}
 		newstate, _ := move_to_apply.After()
-		minmax_slice := a.Worker(newstate, s.MovesNext, a.Conf.Depth)
-		for i, sitval := range minmax_slice {
-			thoughts[move][i] = sitval
-		}
+		thoughts[move] = a.Worker(newstate, s.MovesNext, a.Conf.Depth)
 		if thoughts[move][a.Conf.Depth] > bestsitval {
 			bestmove = move
 			bestsitval = thoughts[move][a.Conf.Depth]
@@ -156,6 +140,8 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 }
 
 func (a *AIPlayer) HeyItsYourMove(s *game.State, hurryup <-chan bool) game.Move {
+	a.Conf.Depth = DEFFIXDEPTH // will be surely removed
+	a.Conf.OwnedToThreatened = DEFOWN2THRTHD // will be surely removed
 	return a.Think(s, hurryup)
 }
 
