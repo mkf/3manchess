@@ -95,11 +95,11 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 			for mymove := range game.VFTPGen(state) {
 				move_to_apply := mymove.Move(state)
 				newstate, _ := move_to_apply.After()
-				log.Printf("S")
+				fmt.Printf("S")
 				newthought := append(
 					[]float64{mythoughts[index][0]},
 					a.Worker(newstate, whoarewe, depth-1)...) // new slice of size (depth+1)
-				log.Printf("E ")
+				fmt.Printf("E ")
 				if newthought[depth] > bestsitval {
 					// if we have found (so far) the best response to opponents' moves
 					// (state after 2 ops' moves)
