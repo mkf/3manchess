@@ -14,7 +14,7 @@ import "encoding/json"
 
 const MAXDEPTHCONSIDERED int8 = 8 // should be renamed to MINDEPTHNOTCONSIDERED
 
-const DEFFIXDEPTH int8 = 1
+const DEFFIXDEPTH uint8 = 1
 
 const DEFOWN2THRTHD = 4.0
 
@@ -34,7 +34,7 @@ func (a *AIPlayer) Config() ai.Config {
 }
 
 type AIConfig struct {
-	Depth             int8
+	Depth             uint8
 	OwnedToThreatened float64
 }
 
@@ -77,12 +77,8 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 }
 
 //Worker is the routine behind Think; exported just in case
-func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []float64 {
-	minmax_slice := make([]float64, depth+1) // (depth < -1) causes a panic here
-	if depth < 0 {                           // negative depth may be considered error in the future
-		minmax_slice[0] = a.SitValue(s)
-		return minmax_slice
-	}
+func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []float64 {
+	minmax_slice := make([]float64, depth+1)
 	mythoughts := make(map[int][]float64)
 	index := 0 // index is for mythoughts map
 	var bestsitval float64
