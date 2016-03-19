@@ -2,7 +2,7 @@ package game
 
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
-// FixMovesNext : when anyone is alive, sets MovesNext to the color, which will move next
+// FixMovesNext : when someone is alive, sets MovesNext to the color, which will move next
 func (gamestate *State) FixMovesNext() {
 	for i := 0; i < 2; i++ {
 		if gamestate.PlayersAlive.Give(gamestate.MovesNext) {
