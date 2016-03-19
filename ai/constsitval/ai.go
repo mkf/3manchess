@@ -76,10 +76,10 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 	return a.errchan
 }
 
-//Worker is the routine behind the Think; exported just in case
+//Worker is the routine behind Think; exported just in case
 func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []float64 {
-	minmax_slice := make([]float64, depth+1)
-	if depth < 0 { // negative depth may be considered error in the future
+	minmax_slice := make([]float64, depth+1) // (depth < -1) causes a panic here
+	if depth < 0 {                           // negative depth may be considered error in the future
 		minmax_slice[0] = a.SitValue(s)
 		return minmax_slice
 	}
@@ -93,8 +93,12 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []floa
 			for mymove := range game.VFTPGen(state) {
 				move_to_apply := game.Move{mymove.FromTo[0], mymove.FromTo[1], state, mymove.PawnPromotion}
 				newstate, _ := move_to_apply.After()
-				newthought := append([]float64{mythoughts[index][0]}, a.Worker(newstate, whoarewe, depth)...) // new slice of size (depth+1)
-				if newthought[depth] > bestsitval {                                                           // we have found (so far) the best response to opponents' moves (state after 2 ops' moves)
+				newthought := append(
+					[]float64{mythoughts[index][0]},
+					a.Worker(newstate, whoarewe, depth)...) // new slice of size (depth+1)
+				if newthought[depth] > bestsitval {
+					// if we have found (so far) the best response to opponents' moves
+					// (state after 2 ops' moves)
 					bestsitval = newthought[depth]
 					mythoughts[index] = newthought
 				}
@@ -130,7 +134,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 			bestsitval = thoughts[move][a.Conf.Depth]
 		}
 	}
-	return game.Move{bestmove.FromTo[0], bestmove.FromTo[1], s, bestmove.PawnPromotion}
+	return bestmove.Move(s)
 }
 
 func (a *AIPlayer) HeyItsYourMove(s *game.State, hurryup <-chan bool) game.Move {
