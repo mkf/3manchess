@@ -46,10 +46,10 @@ script:
 - cat tmp1.out >> coverage.txt
 - go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmp2.out
 - cat tmp2.out >> coverage.txt
-- go test -v github.com/ArchieT/3manchess/ai/sitvalues -covermode=atomic -coverprofile=tmp3.out
-- cat tmp3.out >> coverage.txt
 - go test -v github.com/ArchieT/3manchess/ai/constsitval -covermode=atomic -coverprofile=tmp4.out
 - cat tmp4.out >> coverage.txt
+- go test -v github.com/ArchieT/3manchess/ai/sitvalues -covermode=atomic -coverprofile=tmp3.out
+- cat tmp3.out >> coverage.txt
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 notifications:
