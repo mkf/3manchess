@@ -9,6 +9,7 @@ import "github.com/ArchieT/3manchess/player"
 //import "sync"
 //import "sync/atomic"
 import "fmt"
+import "log"
 import "github.com/ArchieT/3manchess/ai"
 import "encoding/json"
 
@@ -77,7 +78,7 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 //Worker is the routine behind Think; exported just in case
 func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []float64 {
 	if depth > 0 {
-		fmt.Printf("=== WORKER ===\nDEPTH: 1\nSTATE: %v\nSTART\n", s)
+		log.Println("=== WORKER === || Depth: 1 || State: ", s, " — START")
 	}
 	minmax_slice := make([]float64, depth+1)
 	mythoughts := make(map[int][]float64)
@@ -106,7 +107,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		index++
 	}
 	if depth > 0 {
-		fmt.Printf("\nAfter FOR\n")
+		log.Println("After FOR")
 	}
 	bestsitval = 1000000
 	for i := 0; i < index; i++ {
@@ -115,7 +116,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		}
 	}
 	if depth > 0 {
-		fmt.Printf("END\n")
+		log.Println("END")
 	}
 	return minmax_slice
 }
