@@ -16,7 +16,8 @@ type G struct {
 	errchan chan error
 }
 
-func New(c *client.Client, our player.Player, color game.Color, gameid int64, auth multi.Authorization) (*G, error) {
+func New(c *client.Client, our player.Player, color game.Color, gameid int64, auth multi.Authorization,
+	end chan<- bool, errch chan<- error) (*G, error) {
 	gd, _, err := c.Service.Play(gameid)
 	if err != nil {
 		return nil, err
@@ -35,7 +36,7 @@ func New(c *client.Client, our player.Player, color game.Color, gameid int64, au
 		auth:   auth,
 	}
 	g.state.FromData(sd)
-	//go procedure
+	go g.Procedure(end, errch)
 	return &g, nil
 }
 
