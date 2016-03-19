@@ -274,6 +274,7 @@ func (m *Move) After() (*State, error) { //situation after
 	nextboard := *m.Before.Board
 	next.Board = &nextboard
 	next.MovesNext = next.MovesNext.Next()
+	next.FixMovesNext()
 
 	log.Println("BEFTHEIFS")
 
