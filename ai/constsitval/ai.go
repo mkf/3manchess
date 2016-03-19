@@ -12,8 +12,6 @@ import "fmt"
 import "github.com/ArchieT/3manchess/ai"
 import "encoding/json"
 
-const MAXDEPTHCONSIDERED int8 = 8 // should be renamed to MINDEPTHNOTCONSIDERED
-
 const DEFFIXDEPTH uint8 = 1
 
 const DEFOWN2THRTHD = 4.0
@@ -87,7 +85,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		if int(depth) > 0 {
 			bestsitval = -1000000
 			for mymove := range game.VFTPGen(state) {
-				move_to_apply := game.Move{mymove.FromTo[0], mymove.FromTo[1], state, mymove.PawnPromotion}
+				move_to_apply := mymove.Move(state)
 				newstate, _ := move_to_apply.After()
 				newthought := append(
 					[]float64{mythoughts[index][0]},
