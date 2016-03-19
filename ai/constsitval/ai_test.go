@@ -9,6 +9,11 @@ import "log"
 
 func TestSimpleGenNoPanic(t *testing.T) {
 	var a AIPlayer
+	a.Name = "Bot testowy"
+	a.Conf = AIConfig{
+		Depth:             DEFFIXDEPTH,
+		OwnedToThreatened: DEFOWN2THRTHD,
+	}
 	hurry := make(chan bool)
 	newgame := game.NewState()
 	go func() {
