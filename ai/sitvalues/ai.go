@@ -22,9 +22,7 @@ const WhoAmI string = "3manchess-ai_sitvalues"
 type AIPlayer struct {
 	Name       string
 	errchan    chan error
-	ErrorChan  chan<- error
 	hurry      chan bool
-	HurryChan  chan<- bool
 	Conf       AIConfig
 	curfixprec float64
 	gp         *player.Gameplay
@@ -63,13 +61,9 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 	if a.Conf.OwnedToThreatened == 0.0 {
 		a.Conf.OwnedToThreatened = DEFOWN2THRTHD
 	}
-	errchan := make(chan error)
-	a.errchan = errchan
-	a.ErrorChan = errchan
-	hurry := make(chan bool)
-	a.hurry = hurry
-	a.HurryChan = hurry
 	a.gp = gp
+	a.errchan = make(chan error)
+	a.hurry = make(chan bool)
 
 	go func() {
 		for b := range a.errchan {
@@ -79,14 +73,14 @@ func (a *AIPlayer) Initialize(gp *player.Gameplay) {
 }
 
 func (a *AIPlayer) HurryChannel() chan<- bool {
-	return a.HurryChan
+	return a.hurry
 }
 
 func (a *AIPlayer) ErrorChannel() chan<- error {
-	return a.ErrorChan
+	return a.errchan
 }
 
-//Worker is the routine behind the Think; exported just in case
+//Worker is the routine behind Think; exported just in case
 func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State, whoarewe game.Color) {
 	state.EvalDeath()
 	if !(state.PlayersAlive.Give(whoarewe)) { //if we are dead

@@ -71,10 +71,15 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 }
 
 func (b *Board) canfigstraightvertthrucenter(s, f, t int8) bool { //startfile (from[0]), from, to
-	e := (s - 12) % 24
+	e := (uint8(s) - 12) % 24
 	//searching for collisions from both sides of the center
-	for i, j := f, t; i < 6 && j < 6; i, j = i+1, j+1 {
-		if (*b)[i][s].NotEmpty || (*b)[j][e].NotEmpty {
+	for i := f; i < 6; i++ {
+		if (*b)[i][s].NotEmpty {
+			return false
+		}
+	}
+	for i := t; i < 6; i++ {
+		if (*b)[i][e].NotEmpty {
 			return false
 		}
 	}
@@ -186,7 +191,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 				}
 			}
 		}
-		ostatni := (*b)[(10-from[0]-przel)%6][(from[1]+(przel*filedirec))%24]
+		ostatni := (*b)[(((10-from[0]-przel)%6)+6)%6][(((from[1]+(przel*filedirec))%24)+24)%24]
 		if r := recover(); r != nil {
 			panic(from[0] + przel)
 		}
@@ -438,13 +443,16 @@ func (b *Board) king(from Pos, to Pos, m MoatsState, cs Castling) bool { //wheth
 	return b.kingStraight(from, to, m) || b.castling(from, to, cs)
 }
 func (b *Board) queen(from Pos, to Pos, m MoatsState) bool { //whether a queen could move like that (concurrency, yay!)
-	whether := make(chan bool)
-	go func() { whether <- b.straight(from, to, m) }()
-	go func() { whether <- b.diagonal(from, to, m) }()
-	if <-whether {
-		return true
-	}
-	return <-whether
+	return b.straight(from, to, m) || b.diagonal(from, to, m)
+	/*
+		whether := make(chan bool)
+		go func() { whether <- b.straight(from, to, m) }()
+		go func() { whether <- b.diagonal(from, to, m) }()
+		if <-whether {
+			return true
+		}
+		return <-whether
+	*/
 }
 func (b *Board) pawn(from Pos, to Pos, e EnPassant) bool { //whether a pawn could move like that
 	var p PawnCenter
@@ -454,6 +462,12 @@ func (b *Board) pawn(from Pos, to Pos, e EnPassant) bool { //whether a pawn coul
 
 //AnyPiece : tell whether the piece being in 'from' could move like that
 func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant) bool {
+	if err := from.Correct(); err != nil {
+		panic(err)
+	}
+	if err := to.Correct(); err != nil {
+		panic(err)
+	}
 	switch (*b)[from[0]][from[1]].What() {
 	case Pawn:
 		return b.pawn(from, to, e)
