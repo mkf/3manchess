@@ -379,6 +379,36 @@ func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type VFTPGenGive struct {
+	game.StateData `json:"state"`
+	FromToProms    []game.FromToProm `json:"fromtoproms"`
+}
+
+func (mu *Multi) APIVFTPGen(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	var gp VFTPGenGive
+	key, err := strconv.ParseInt(vars["stateId"], 10, 64)
+	if err != nil {
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+	}
+	err = mu.Server.LoadSD(key, &gp.StateData)
+	if err != nil {
+		giveerror(w, r, err, 421, "server_loadsd")
+		return
+	}
+	gp.FromToProms = make([]game.FromToProm, 0, 50)
+	var st game.State
+	st.FromData(&gp.StateData)
+	for ftp := range game.VFTPGen(&st) {
+		gp.FromToProms = append(gp.FromToProms, ftp)
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(gp); err != nil {
+		panic(err)
+	}
+}
+
 func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var gp server.MoveData
