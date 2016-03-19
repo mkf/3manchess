@@ -78,8 +78,8 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 
 //Worker is the routine behind the Think; exported just in case
 func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth int8) []float64 {
-	minmax_slice := make([]float64, depth+1)
-	if depth < 0 { // negative depth may be considered error in the future
+	minmax_slice := make([]float64, depth+1) // (depth < -1) causes a panic here
+	if depth < 0 {                           // negative depth may be considered error in the future
 		minmax_slice[0] = a.SitValue(s)
 		return minmax_slice
 	}
