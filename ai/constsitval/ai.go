@@ -12,6 +12,8 @@ import "fmt"
 import "github.com/ArchieT/3manchess/ai"
 import "encoding/json"
 
+import "log"
+
 const DEFFIXDEPTH uint8 = 1
 
 const DEFOWN2THRTHD = 4.0
@@ -76,10 +78,12 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 
 //Worker is the routine behind Think; exported just in case
 func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []float64 {
+	log.Println(depth)
 	minmax_slice := make([]float64, depth+1)
 	mythoughts := make(map[int][]float64)
 	index := 0 // index is for mythoughts map
 	var bestsitval float64
+	log.Println("start for in Worker")
 	for state := range game.ASAOMGen(s, whoarewe) {
 		mythoughts[index] = append(mythoughts[index], a.SitValue(state)) // fills in first element of mythoughts[index]
 		if int(depth) > 0 {
@@ -100,12 +104,14 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		}
 		index++
 	}
+	log.Println("end for in Worker")
 	bestsitval = 1000000
 	for i := 0; i < index; i++ {
 		if mythoughts[i][depth] < bestsitval { // we need to find the best opponents' moves to test our strategy
 			minmax_slice = mythoughts[i]
 		}
 	}
+	log.Println("now Worker will return")
 	return minmax_slice
 }
 
