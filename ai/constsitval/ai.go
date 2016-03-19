@@ -76,6 +76,9 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 
 //Worker is the routine behind Think; exported just in case
 func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []float64 {
+	if depth > 0 {
+		fmt.Printf("=== WORKER ===\nDEPTH: 1\nSTATE: %v\nSTART\n", s)
+	}
 	minmax_slice := make([]float64, depth+1)
 	mythoughts := make(map[int][]float64)
 	index := 0 // index is for mythoughts map
@@ -87,9 +90,11 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 			for mymove := range game.VFTPGen(state) {
 				move_to_apply := mymove.Move(state)
 				newstate, _ := move_to_apply.After()
+				fmt.Printf("S")
 				newthought := append(
 					[]float64{mythoughts[index][0]},
 					a.Worker(newstate, whoarewe, depth-1)...) // new slice of size (depth+1)
+				fmt.Printf("E ")
 				if newthought[depth] > bestsitval {
 					// if we have found (so far) the best response to opponents' moves
 					// (state after 2 ops' moves)
@@ -100,11 +105,17 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		}
 		index++
 	}
+	if depth > 0 {
+		fmt.Printf("\nAfter FOR\n")
+	}
 	bestsitval = 1000000
 	for i := 0; i < index; i++ {
 		if mythoughts[i][depth] < bestsitval { // we need to find the best opponents' moves to test our strategy
 			minmax_slice = mythoughts[i]
 		}
+	}
+	if depth > 0 {
+		fmt.Printf("END\n")
 	}
 	return minmax_slice
 }
