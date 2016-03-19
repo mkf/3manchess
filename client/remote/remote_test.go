@@ -2,12 +2,12 @@ package remote
 
 import "testing"
 import "github.com/ArchieT/3manchess/game"
-import "github.com/ArchieT/3manchess/player"
 import "github.com/ArchieT/3manchess/client"
 import "flag"
 import "os"
 import "github.com/coreos/pkg/flagutil"
-import "github.com/ArchieT/3manchess/ai/constsitval"
+
+//import "github.com/ArchieT/3manchess/ai/constsitval"
 import "github.com/ArchieT/3manchess/multi"
 import "time"
 
@@ -16,13 +16,14 @@ var c *client.Client
 var ns *game.StateData
 
 func init() {
-	ns = game.NewState().Data()
+	nssssss := game.NewState()
+	ns = nssssss.Data()
 	flags := flag.NewFlagSet("remotetest", flag.ExitOnError)
 	bu := flags.String("baseurl", "http://platinum.edu.pl:8082/", "3manchess/multi base URL")
 	flags.Parse(os.Args[1:])
 	flagutil.SetFlagsFromEnv(flags, "REMOTECHESSTEST")
-	log.Println("baseurl", bu)
-	c = client.NewClient(nil, bu)
+	//t.Log("baseurl", bu)
+	c = client.NewClient(nil, *bu)
 }
 
 func TestNew_ai3(t *testing.T) {
@@ -43,10 +44,12 @@ func TestNew_ai3(t *testing.T) {
 		}
 		p = ppp.Player
 	}
+	t.Log(u, p, a)
 	var mgpp multi.GameplayPost
 	mgpp.Date = time.Now()
 	mgpp.State = *ns
 	gpg, _, err := c.AddGame(mgpp)
+	t.Log(gpg)
 	if err != nil {
 		t.Fatal(err)
 	}
