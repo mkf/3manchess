@@ -24,6 +24,7 @@ before_install:
 - go get github.com/go-sql-driver/mysql
 - go get github.com/gorilla/mux
 - go get github.com/dghubble/sling
+- go get github.com/coreos/pkg/flagutil
 install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
 - sh -c "mysql -e 'create database if not exists archiet;'; mysql archiet < $GOPATH/src/github.com/ArchieT/3manchess/server/mojsql/setup.sql"
@@ -37,8 +38,10 @@ install:
 - go install -v -race github.com/ArchieT/3manchess/server
 - go install -v -race github.com/ArchieT/3manchess/server/mojsql
 - go install -v -race github.com/ArchieT/3manchess/multi
+- go install -v -race github.com/ArchieT/3manchess/cmd/trychessserver
 - go install -v -race github.com/ArchieT/3manchess/client
 script:
+- trychessserver -d archiet &
 - go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp1.out
 - cat tmp1.out >> coverage.txt
 - go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmp2.out
