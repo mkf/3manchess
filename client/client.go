@@ -111,6 +111,16 @@ func (s *Service) State(stateid int64) (*game.StateData, *http.Response, error) 
 	return give, resp, err
 }
 
+func (s *Service) VFTPGen(stateid int64) (*multi.VFTPGenGive, *http.Response, error) {
+	give := new(multi.VFTPGenGive)
+	ser := new(multi.OurError)
+	resp, err := s.sling.New().Get(fmt.Sprintf("api/state/%d/vftpgen", stateid)).Receive(give, ser)
+	if err == nil {
+		err = ser
+	}
+	return give, resp, err
+}
+
 func (s *Service) Move(moveid int64) (*server.MoveData, *http.Response, error) {
 	give := new(server.MoveData)
 	ser := new(multi.OurError)
