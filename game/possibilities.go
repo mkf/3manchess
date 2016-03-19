@@ -71,10 +71,15 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 }
 
 func (b *Board) canfigstraightvertthrucenter(s, f, t int8) bool { //startfile (from[0]), from, to
-	e := (s - 12) % 24
+	e := (uint8(s) - 12) % 24
 	//searching for collisions from both sides of the center
-	for i, j := f, t; i < 6 && j < 6; i, j = i+1, j+1 {
-		if (*b)[i][s].NotEmpty || (*b)[j][e].NotEmpty {
+	for i := f; i < 6; i++ {
+		if (*b)[i][s].NotEmpty {
+			return false
+		}
+	}
+	for i := t; i < 6; i++ {
+		if (*b)[i][e].NotEmpty {
 			return false
 		}
 	}
