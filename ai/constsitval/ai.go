@@ -89,7 +89,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 				newstate, _ := move_to_apply.After()
 				newthought := append(
 					[]float64{mythoughts[index][0]},
-					a.Worker(newstate, whoarewe, depth)...) // new slice of size (depth+1)
+					a.Worker(newstate, whoarewe, depth-1)...) // new slice of size (depth+1)
 				if newthought[depth] > bestsitval {
 					// if we have found (so far) the best response to opponents' moves
 					// (state after 2 ops' moves)
