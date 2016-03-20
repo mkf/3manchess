@@ -417,3 +417,14 @@ func (m *Move) After() (*State, error) { //situation after
 
 	return &next, nil
 }
+
+//EvalAfter : return the evaluated gamestate afterwards, also error
+func (m *Move) EvalAfter() (*State, error) {
+	var state *State
+	var err error
+	if state, err = m.After(); err == nil {
+		state.EvalDeath()
+		state.FixMovesNext()
+	}
+	return state, err
+}
