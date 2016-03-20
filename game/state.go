@@ -201,11 +201,14 @@ func (s *State) EvalDeath() {
 		s.PlayersAlive.Die(s.MovesNext)
 	}
 	n := s.MovesNext
-	for i := 0; i < 2; i++ { // other players must have theirs' kings
-		if !s.Board.IsKingPresent(n) {
+	for { //other players must have theirs' kings
+		if s.PlayersAlive.Give(n) && s.Board.WhereIsKing(n) == nil {
 			s.PlayersAlive.Die(n)
 		}
 		n = n.Next()
+		if n == s.MovesNext {
+			break
+		}
 	}
 }
 
