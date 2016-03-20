@@ -2,6 +2,8 @@ package game
 
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
+import "log"
+
 //Uint8 returns   [[ _ P C C C T T T ]]
 func (f *Fig) Uint8() uint8 {
 	return (bool2uint8(bool(f.PawnCenter)) << 6) + (uint8(f.Color) << 3) + uint8(f.FigType)
@@ -74,6 +76,9 @@ func (b *Board) Byte() [144]byte {
 		}
 		w := (24 * p[0]) + p[1]
 		d[w] = byte(b.GPos(p).Uint8())
+		if err := recover(); err != nil {
+			log.Fatal(err, w, p, oac)
+		}
 		oac.P()
 	}
 	return d
