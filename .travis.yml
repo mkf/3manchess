@@ -33,6 +33,7 @@ install:
 - go install -v -race github.com/ArchieT/3manchess/interface/devengfmt
 - go install -v -race github.com/ArchieT/3manchess/cmd/3manchess-devengfmt
 - go install -v -race github.com/ArchieT/3manchess/cmd/3manchess-devengchan
+- go install -v -race github.com/ArchieT/3manchess/ai/constsitval
 - go install -v -race github.com/ArchieT/3manchess/ai/sitvalues
 - go install -v -race github.com/ArchieT/3manchess/interface/gui
 - go install -v -race github.com/ArchieT/3manchess/server
