@@ -418,17 +418,20 @@ func (m *Move) After() (*State, error) { //situation after
 }
 
 //EvalAfter : return the evaluated gamestate afterwards, also error
-func (m *Move) EvalAfter() (*State, error) {
-	var state *State
-	var err error
+func (m *Move) EvalAfter() (state *State, err error) {
 	if state, err = m.After(); err == nil {
 		state.EvalDeath()
-		for i := 0; i < 2; i++ {
-			if state.PlayersAlive.Give(state.MovesNext) {
-				break
-			}
-			state.MovesNext = state.MovesNext.Next()
-		}
+		state.FixMovesNext()
 	}
-	return state, err
+	return
+}
+
+// FixMovesNext : when someone is alive, sets MovesNext to the color, which will move next
+func (gamestate *State) FixMovesNext() {
+	for i := 0; i < 2; i++ {
+		if gamestate.PlayersAlive.Give(gamestate.MovesNext) {
+			break
+		}
+		gamestate.MovesNext = gamestate.MovesNext.Next()
+	}
 }
