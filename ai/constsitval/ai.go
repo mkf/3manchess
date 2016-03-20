@@ -13,7 +13,7 @@ import "log"
 import "github.com/ArchieT/3manchess/ai"
 import "encoding/json"
 
-const DEFFIXDEPTH uint8 = 1
+const DEFFIXDEPTH uint8 = 0
 
 const DEFOWN2THRTHD = 4.0
 
