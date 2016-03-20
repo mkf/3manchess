@@ -131,10 +131,8 @@ func (pa PlayersAlive) Give(who Color) bool {
 }
 
 //Die : disactivate a player
-func (pa PlayersAlive) Die(who Color) PlayersAlive {
-	pan := pa
-	pan[who-1] = false
-	return pan
+func (pa *PlayersAlive) Die(who Color) {
+	pa[who-1] = false
 }
 
 //ListEm is simplified Subc2's Winner(*State) from e396e2b & 17685ad
@@ -198,11 +196,10 @@ func (s *State) Data() *StateData {
 }
 
 //EvalDeath evaluates the death of whom is about to move next and returns the same pointer it got
-func (s *State) EvalDeath() *State {
+func (s *State) EvalDeath() {
 	if !(s.CanIMoveWOCheck(s.MovesNext)) {
 		s.PlayersAlive.Die(s.MovesNext)
 	}
-	return s
 }
 
 func (s *State) String() string {

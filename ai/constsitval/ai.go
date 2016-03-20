@@ -14,7 +14,7 @@ import "encoding/json"
 
 import "log"
 
-const DEFFIXDEPTH uint8 = 1
+const DEFFIXDEPTH uint8 = 0
 
 const DEFOWN2THRTHD = 4.0
 
@@ -79,7 +79,7 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 //Worker is the routine behind Think; exported just in case
 func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []float64 {
 	log.Println(depth)
-	minmax_slice := make([]float64, depth+1)
+	minmax_slice := make([]float64, 0, depth+1)
 	mythoughts := make(map[int][]float64)
 	index := 0 // index is for mythoughts map
 	var bestsitval float64
@@ -88,18 +88,28 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		mythoughts[index] = append(mythoughts[index], a.SitValue(state)) // fills in first element of mythoughts[index]
 		if int(depth) > 0 {
 			bestsitval = -1000000
-			for mymove := range game.VFTPGen(state) {
-				move_to_apply := mymove.Move(state)
-				newstate, _ := move_to_apply.After()
-				newthought := append(
-					[]float64{mythoughts[index][0]},
-					a.Worker(newstate, whoarewe, depth-1)...) // new slice of size (depth+1)
-				if newthought[depth] > bestsitval {
-					// if we have found (so far) the best response to opponents' moves
-					// (state after 2 ops' moves)
-					bestsitval = newthought[depth]
-					mythoughts[index] = newthought
+			if state.MovesNext == whoarewe {
+				for mymove := range game.VFTPGen(state) {
+					move_to_apply := mymove.Move(state)
+					newstate, _ := move_to_apply.EvalAfter()
+					newthought := append(
+						[]float64{mythoughts[index][0]},
+						a.Worker(newstate, whoarewe, depth-1)...) // new slice of size (depth+1)
+					if newthought[depth] > bestsitval {
+						// if we have found (so far) the best response to opponents' moves
+						// (state after 2 ops' moves)
+						bestsitval = newthought[depth]
+						mythoughts[index] = newthought
+					}
 				}
+			} else { // we died or in stalemate to that point
+				mythoughts[index] = append(mythoughts[index], a.Worker(state, whoarewe, depth-1)...)
+				/* Below is a slightly faster, more obfuscated way
+				newthought := make([]float64, depth+1)
+				for i := 0; i <= int(depth); i++ {
+					newthought[i] = mythoughts[index][0]
+				}
+				mythoughts[index] = newthought */
 			}
 		}
 		index++
@@ -126,8 +136,8 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 	var bestsitval float64
 	bestsitval = -1000000
 	for move := range game.VFTPGen(s) {
-		move_to_apply := game.Move{move.FromTo[0], move.FromTo[1], s, move.PawnPromotion}
-		newstate, _ := move_to_apply.After()
+		move_to_apply := move.Move(s)
+		newstate, _ := move_to_apply.EvalAfter()
 		thoughts[move] = a.Worker(newstate, s.MovesNext, a.Conf.Depth)
 		if thoughts[move][a.Conf.Depth] > bestsitval {
 			bestmove = move

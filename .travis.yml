@@ -33,6 +33,7 @@ install:
 - go install -v -race github.com/ArchieT/3manchess/interface/devengfmt
 - go install -v -race github.com/ArchieT/3manchess/cmd/3manchess-devengfmt
 - go install -v -race github.com/ArchieT/3manchess/cmd/3manchess-devengchan
+- go install -v -race github.com/ArchieT/3manchess/ai/constsitval
 - go install -v -race github.com/ArchieT/3manchess/ai/sitvalues
 - go install -v -race github.com/ArchieT/3manchess/interface/gui
 - go install -v -race github.com/ArchieT/3manchess/server
@@ -40,16 +41,17 @@ install:
 - go install -v -race github.com/ArchieT/3manchess/multi
 - go install -v -race github.com/ArchieT/3manchess/cmd/trychessserver
 - go install -v -race github.com/ArchieT/3manchess/client
+- go install -v -race github.com/ArchieT/3manchess/client/remote
 script:
 - trychessserver -d archiet &
 - go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp1.out
 - cat tmp1.out >> coverage.txt
 - go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmp2.out
 - cat tmp2.out >> coverage.txt
-- go test -v github.com/ArchieT/3manchess/ai/constsitval -covermode=atomic -coverprofile=tmp4.out
-- cat tmp4.out >> coverage.txt
-- go test -v github.com/ArchieT/3manchess/ai/sitvalues -covermode=atomic -coverprofile=tmp3.out
+- go test -v github.com/ArchieT/3manchess/ai/constsitval -covermode=atomic -coverprofile=tmp3.out
 - cat tmp3.out >> coverage.txt
+  #- go test -v github.com/ArchieT/3manchess/ai/sitvalues -covermode=atomic -coverprofile=tmp4.out
+  #- cat tmp4.out >> coverage.txt
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 notifications:
