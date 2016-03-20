@@ -109,6 +109,24 @@ func (oe *OurError) Error() string {
 	return string(a)
 }
 
+type APIListErr struct {
+	Errors []OurError `json:"errors"`
+}
+
+func (ale APIListErr) Empty() bool {
+	return len(ale.Errors) == 0
+}
+
+func relevantError(httpError error, apiError APIListErr) error {
+	if httpError != nil {
+		return httpError
+	}
+	if apiError.Empty() {
+		return nil
+	}
+	return apiError
+}
+
 func giveerror(w http.ResponseWriter, r *http.Request, e error, h int, where string) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(h)
@@ -123,8 +141,54 @@ func giveerror(w http.ResponseWriter, r *http.Request, e error, h int, where str
 	}
 }
 
+func (ale *APIListErr) giveerror(w http.ResponseWriter, r *http.Request, e error, h *hcod, hi int, where string) {
+	h.m(hi)
+	ale.put(e, where)
+	ale.give(w, r, *h)
+}
+
+func (ale APIListErr) give(w http.ResponseWriter, r *http.Request, h hcod) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(h)
+	log.Println(h, ale)
+	if err := json.NewEncoder(w).Encode(ale); err != nil {
+		panic(err)
+	}
+}
+
+func makeoe(e error, where string) OurError {
+	return OurError{
+		Type:    reflect.TypeOf(e).String(),
+		Content: e.Error(),
+		Where:   where,
+	}
+}
+
+func (ale *APIListErr) Oeappend(oel ...OurError) {
+	ale.Errors = append(ale.Errors, oe...)
+}
+
+func (ale *APIListErr) add(oe OurError) {
+	log.Println(oe)
+	ale.Oeappend(oe)
+}
+
+func (ale *APIListErr) put(e error, where string) {
+	ale.add(makeoe(e, where))
+}
+
+type hcod int
+
+func (h *hcod) m(i int) {
+	if h == 0 {
+		*h = i
+	}
+}
+
 func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	var su SignUpPost
+	var ale APIListErr
+	var he hcod
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -133,14 +197,18 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &su); err != nil {
-		giveerror(w, r, err, 422, "unmarshal")
+		he.m(422)
+		ale.put(err, "unmarshal")
+		ale.give(w, r, he)
 		return
 	}
 	log.Println("signing up: ", su)
 	var gi SignUpGive
 	gi.User, gi.Player, gi.Auth, err = mu.Server.SignUp(su.Login, su.Passwd, su.Name)
 	if err != nil {
-		giveerror(w, r, err, 422, "server_signup")
+		he.m(422)
+		ale.put(err, "server_signup")
+		ale.give(w, r, he)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -152,6 +220,8 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 
 func (mu *Multi) APILogin(w http.ResponseWriter, r *http.Request) {
 	var li LoggingIn
+	var ale APIListErr
+	var he hcod
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -160,13 +230,17 @@ func (mu *Multi) APILogin(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &li); err != nil {
-		giveerror(w, r, err, 422, "unmarshal")
+		he.m(422)
+		ale.put(err, "unmarshal")
+		ale.give(w, r, he)
 		return
 	}
 	var aut Authorization
 	aut.ID, aut.AuthKey, err = mu.Server.LogIn(li.Login, li.Passwd)
 	if err != nil {
-		giveerror(w, r, err, http.StatusForbidden, "server_login")
+		he.m(http.StatusForbidden)
+		ale.put(err, "server_login")
+		ale.give(w, r, he)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -183,6 +257,8 @@ type BotKeyGetting struct {
 
 func (mu *Multi) APIBotKey(w http.ResponseWriter, r *http.Request) {
 	var bkg BotKeyGetting
+	var ale APIListErr
+	var h hcod
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -191,13 +267,17 @@ func (mu *Multi) APIBotKey(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &bkg); err != nil {
-		giveerror(w, r, err, 422, "unmarshal")
+		ale.put(err, "unmarshal")
+		h.m(422)
+		ale.give(w, r, h)
 		return
 	}
 	var aut Authorization
 	aut.ID, aut.AuthKey, err = mu.Server.BotKey(bkg.BotID, bkg.UserAuth.ID, bkg.UserAuth.AuthKey)
 	if err != nil {
-		giveerror(w, r, err, http.StatusForbidden, "server_botkey")
+		ale.put(err, "server_botkey")
+		h.m(http.StatusForbidden)
+		ale.give(w, r, h)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -227,6 +307,8 @@ type NewBotGive struct {
 
 func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 	var nbp NewBotPost
+	var ale APIListErr
+	var h hcod
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -235,14 +317,18 @@ func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &nbp); err != nil {
-		giveerror(w, r, err, 422, "unmarshal")
+		h.m(422)
+		ale.put(err, "unmarshal")
+		ale.give(w, r, h)
 		return
 	}
 	var nbg NewBotGive
 	nbg.Botid, nbg.PlayerID, nbg.AuthKey, err =
 		mu.Server.NewBot(nbp.WhoAmI, nbp.UserAuth.ID, nbp.UserAuth.AuthKey, nbp.OwnName, nbp.Settings)
 	if err != nil {
-		giveerror(w, r, err, 422, "server_newbot")
+		h.m(422)
+		ale.put(err, "server_newbot")
+		ale.give(w, r, h)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -266,6 +352,8 @@ type GameplayGive struct {
 
 func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 	var gpp GameplayPost
+	var ale APIListErr
+	var h hcod
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -274,7 +362,7 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &gpp); err != nil {
-		giveerror(w, r, err, 422, "unmarshal")
+		ale.giveerror(w, r, err, h, 422, "unmarshal")
 		return
 	}
 	var gpg GameplayGive
