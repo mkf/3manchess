@@ -200,12 +200,10 @@ func (s *State) EvalDeath() {
 	if !(s.CanIMoveWOCheck(s.MovesNext)) { // next player to move cannot be checkmated
 		s.PlayersAlive.Die(s.MovesNext)
 	}
-	n := s.MovesNext
-	for i := 0; i < 2; i++ { // other players must have theirs' kings
-		if !s.Board.IsKingPresent(n) {
-			s.PlayersAlive.Die(n)
+	for _, c := range []Color{White, Gray, Black} { // all players must have theirs' kings
+		if s.PlayersAlive.Give(c) && !s.Board.IsKingPresent(c) {
+			s.PlayersAlive.Die(c)
 		}
-		n = n.Next()
 	}
 }
 
