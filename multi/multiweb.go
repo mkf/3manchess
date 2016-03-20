@@ -117,6 +117,10 @@ func (ale APIListErr) Empty() bool {
 	return len(ale.Errors) == 0
 }
 
+func (ale APIListErr) Error() string {
+	return fmt.Sprintln(ale.Errors)
+}
+
 func relevantError(httpError error, apiError APIListErr) error {
 	if httpError != nil {
 		return httpError
@@ -149,7 +153,7 @@ func (ale *APIListErr) giveerror(w http.ResponseWriter, r *http.Request, e error
 
 func (ale APIListErr) give(w http.ResponseWriter, r *http.Request, h hcod) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(h)
+	w.WriteHeader(int(h))
 	log.Println(h, ale)
 	if err := json.NewEncoder(w).Encode(ale); err != nil {
 		panic(err)
@@ -165,7 +169,7 @@ func makeoe(e error, where string) OurError {
 }
 
 func (ale *APIListErr) Oeappend(oel ...OurError) {
-	ale.Errors = append(ale.Errors, oe...)
+	ale.Errors = append(ale.Errors, oel...)
 }
 
 func (ale *APIListErr) add(oe OurError) {
@@ -180,8 +184,8 @@ func (ale *APIListErr) put(e error, where string) {
 type hcod int
 
 func (h *hcod) m(i int) {
-	if h == 0 {
-		*h = i
+	if *h == 0 {
+		*h = hcod(i)
 	}
 }
 
@@ -362,13 +366,13 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &gpp); err != nil {
-		ale.giveerror(w, r, err, h, 422, "unmarshal")
+		ale.giveerror(w, r, err, &h, 422, "unmarshal")
 		return
 	}
 	var gpg GameplayGive
 	gpg.Key, err = server.AddGame(mu.Server, &gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, gpp.Date)
 	if err != nil {
-		giveerror(w, r, err, 422, "server_addgame")
+		ale.giveerror(w, r, err, &h, 422, "server_addgame")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -391,6 +395,8 @@ type MoveAndAfterKeys struct {
 func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var turnp TurnPost
+	var ale APIListErr
+	var h hcod
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -399,26 +405,26 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &turnp); err != nil {
-		giveerror(w, r, err, 422, "unmarshal")
+		ale.giveerror(w, r, err, &h, 422, "unmarshal")
 		return
 	}
 	if ok, err := mu.Server.PAuth(turnp.WhoPlayer.ID, turnp.WhoPlayer.AuthKey); !(ok && err == nil) {
 		if !ok {
-			giveerror(w, r, errors.New("Auth failed"), http.StatusForbidden, "server_pauth_notok")
+			ale.giveerror(w, r, errors.New("Auth failed"), &h, http.StatusForbidden, "server_pauth_notok")
 		} else if err != nil {
-			giveerror(w, r, err, 422, "server_pauth")
+			ale.giveerror(w, r, err, &h, 422, "server_pauth")
 		}
 		return
 	}
 	var maak MoveAndAfterKeys
 	ourint, err := strconv.ParseInt(vars["gameId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		ale.giveerror(w, r, err, &h, http.StatusBadRequest, "parseint")
 		return
 	}
 	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, ourint, turnp.FromToProm, turnp.WhoPlayer.ID)
 	if err != nil {
-		giveerror(w, r, err, 422, "server_movegame")
+		ale.giveerror(w, r, err, &h, 422, "server_movegame")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -431,14 +437,16 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 func (mu *Multi) APIPlay(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var gp server.GameplayData
+	var ale APIListErr
+	var h hcod
 	key, err := strconv.ParseInt(vars["gameId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		ale.giveerror(w, r, err, &h, http.StatusBadRequest, "parseint")
 		return
 	}
 	err = mu.Server.LoadGP(key, &gp)
 	if err != nil {
-		giveerror(w, r, err, 421, "server_loadgp")
+		ale.giveerror(w, r, err, &h, 421, "server_loadgp")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -451,14 +459,16 @@ func (mu *Multi) APIPlay(w http.ResponseWriter, r *http.Request) {
 func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var gp game.StateData
+	var ale APIListErr
+	var h hcod
 	key, err := strconv.ParseInt(vars["stateId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		ale.giveerror(w, r, err, &h, http.StatusBadRequest, "parseint")
 		return
 	}
 	err = mu.Server.LoadSD(key, &gp)
 	if err != nil {
-		giveerror(w, r, err, 421, "server_loadsd")
+		ale.giveerror(w, r, err, &h, 421, "server_loadsd")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -476,13 +486,15 @@ type VFTPGenGive struct {
 func (mu *Multi) APIVFTPGen(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var gp VFTPGenGive
+	var ale APIListErr
+	var h hcod
 	key, err := strconv.ParseInt(vars["stateId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		ale.giveerror(w, r, err, &h, http.StatusBadRequest, "parseint")
 	}
 	err = mu.Server.LoadSD(key, &gp.StateData)
 	if err != nil {
-		giveerror(w, r, err, 421, "server_loadsd")
+		ale.giveerror(w, r, err, &h, 421, "server_loadsd")
 		return
 	}
 	gp.FromToProms = make([]game.FromToProm, 0, 50)
@@ -501,14 +513,16 @@ func (mu *Multi) APIVFTPGen(w http.ResponseWriter, r *http.Request) {
 func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var gp server.MoveData
+	var ale APIListErr
+	var h hcod
 	key, err := strconv.ParseInt(vars["moveId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		ale.giveerror(w, r, err, &h, http.StatusBadRequest, "parseint")
 		return
 	}
 	err = mu.Server.LoadMD(key, &gp)
 	if err != nil {
-		giveerror(w, r, err, 421, "server_loadmd")
+		ale.giveerror(w, r, err, &h, 421, "server_loadmd")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -526,14 +540,16 @@ type InfoWhoIsIt struct {
 func (mu *Multi) APIWhoIsIt(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var iwit InfoWhoIsIt
+	var ale APIListErr
+	var h hcod
 	key, err := strconv.ParseInt(vars["playerId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		ale.giveerror(w, r, err, &h, http.StatusBadRequest, "parseint")
 		return
 	}
 	iwit.ID, iwit.IsItABot, err = mu.Server.WhoIsIt(key)
 	if err != nil {
-		giveerror(w, r, err, 421, "server_whoisit")
+		ale.giveerror(w, r, err, &h, 421, "server_whoisit")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -552,14 +568,16 @@ type InfoUser struct {
 func (mu *Multi) APIUserInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var iu InfoUser
+	var ale APIListErr
+	var h hcod
 	key, err := strconv.ParseInt(vars["userId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		ale.giveerror(w, r, err, &h, http.StatusBadRequest, "parseint")
 		return
 	}
 	iu.Login, iu.Name, iu.Player, err = mu.Server.UserInfo(key)
 	if err != nil {
-		giveerror(w, r, err, 421, "server_userinfo")
+		ale.giveerror(w, r, err, &h, 421, "server_userinfo")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -580,14 +598,16 @@ type InfoBot struct {
 func (mu *Multi) APIBotInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var sib InfoBot
+	var ale APIListErr
+	var h hcod
 	key, err := strconv.ParseInt(vars["botId"], 10, 64)
 	if err != nil {
-		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		ale.giveerror(w, r, err, &h, http.StatusBadRequest, "parseint")
 		return
 	}
 	sib.WhoAmI, sib.Owner, sib.OwnName, sib.Player, sib.Settings, err = mu.Server.BotInfo(key)
 	if err != nil {
-		giveerror(w, r, err, 421, "server_botinfo")
+		ale.giveerror(w, r, err, &h, 421, "server_botinfo")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
