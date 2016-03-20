@@ -427,12 +427,11 @@ func (m *Move) EvalAfter() (state *State, err error) {
 }
 
 // FixMovesNext : when someone is alive, sets MovesNext to the color, which will move next
-func (s *State) FixMovesNext() {
-	if !s.PlayersAlive.Give(s.MovesNext) {
-		n := s.MovesNext
-		for s.NextC(); !(s.PlayersAlive.Give(s.MovesNext) && n == s.MovesNext); s.NextC() {
+func (gamestate *State) FixMovesNext() {
+	for i := 0; i < 2; i++ {
+		if gamestate.PlayersAlive.Give(gamestate.MovesNext) {
+			break
 		}
+		gamestate.MovesNext = gamestate.MovesNext.Next()
 	}
 }
-
-func (s *State) NextC() { s.MovesNext = s.MovesNext.Next() }
