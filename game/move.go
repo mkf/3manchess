@@ -158,10 +158,7 @@ func (b *Board) WhereIsKing(who Color) *Pos {
 
 //IsKingPresent : is king of specified color on the board?
 func (b *Board) IsKingPresent(who Color) bool {
-	if b.WhereIsKing(who) != nil {
-		return true
-	}
-	return false
+	return b.WhereIsKing(who) != nil
 }
 
 //CheckChecking :  is `who` in check?
