@@ -212,7 +212,7 @@ func (m *MojSQL) AfterMD(beforegp int64) (out []server.MoveFollow, err error) {
 
 //AfterMDwPlayers takes the before GameplayID and W,G,B players and returns the after gameplays with the same players
 func (m *MojSQL) AfterMDwPlayers(beforegp int64, players [3]int64) (out []server.MoveFollow, err error) {
-	stmt, err := m.conn.Prepare("select id,fromto,aftergame,promotion,who from 3manmv join 3mangp g on g.id=aftergame where beforegame=? and n.white=? and n.gray=? and n.black=?")
+	stmt, err := m.conn.Prepare("select m.id,m.fromto,m.aftergame,m.promotion,m.who from 3manmv m join 3mangp g on g.id=m.aftergame where m.beforegame=? and g.white=? and g.gray=? and g.black=?")
 	if err != nil {
 		return
 	}
@@ -281,7 +281,7 @@ func (m *MojSQL) SignUp(login string, passwd string, name string) (userid int64,
 
 //LogIn : USER(LOGIN + PASSWD) → USER(ID + AUTH)
 func (m *MojSQL) LogIn(login string, passwd string) (userid int64, authkey []byte, err error) {
-	stmt, err := m.conn.Prepare("select id,3manplayer.auth from chessuser inner join 3manplayer where login=? and passwd=sha2(?,256) and player=3manplayer.id")
+	stmt, err := m.conn.Prepare("select u.id,p.auth from chessuser u inner join 3manplayer p where u.login=? and u.passwd=sha2(?,256) and u.player=p.id")
 	if err != nil {
 		return
 	}
@@ -292,7 +292,7 @@ func (m *MojSQL) LogIn(login string, passwd string) (userid int64, authkey []byt
 
 //Auth authenticates by UserID
 func (m *MojSQL) Auth(userid int64, authkey []byte) (bool, error) {
-	stmt, err := m.conn.Prepare("select exists (select id from chessuser join 3manplayer where id=? and 3manplayer.auth=? and player=3manplayer.id)")
+	stmt, err := m.conn.Prepare("select exists (select u.id from chessuser u join 3manplayer p where u.id=? and p.auth=? and u.player=p.id)")
 	if err != nil {
 		return false, err
 	}
@@ -303,7 +303,7 @@ func (m *MojSQL) Auth(userid int64, authkey []byte) (bool, error) {
 
 //BAuth authenticates by BotID
 func (m *MojSQL) BAuth(botid int64, authkey []byte) (bool, error) {
-	stmt, err := m.conn.Prepare("select exists (select id from chessbot join 3manplayer where id=? and 3manplayer.auth=? and player=3manplayer.id)")
+	stmt, err := m.conn.Prepare("select exists (select b.id from chessbot b join 3manplayer p where b.id=? and p.auth=? and b.player=p.id)")
 	if err != nil {
 		return false, err
 	}
@@ -348,7 +348,7 @@ func (m *MojSQL) NewBot(whoami []byte, userid int64, uauth []byte, ownname strin
 
 //BotOwnerLoginAndName : BOTID → OWNER(LOGIN+NAME)   //TO BE DEPRECATED
 func (m *MojSQL) BotOwnerLoginAndName(botid int64) (login string, name string, err error) {
-	stmt, err := m.conn.Prepare("select chessuser.login,chessuser.name from chessbot inner join chessuser where owner=chessuser.id and id=?")
+	stmt, err := m.conn.Prepare("select u.login,u.name from chessbot b inner join chessuser u where b.owner=u.id and b.id=?")
 	if err != nil {
 		return
 	}
