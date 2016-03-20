@@ -15,7 +15,7 @@ import "encoding/json"
 
 import "log"
 
-const DEFFIXDEPTH uint8 = 1
+const DEFFIXDEPTH uint8 = 0
 
 const DEFOWN2THRTHD = 4.0
 
