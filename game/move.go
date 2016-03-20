@@ -269,7 +269,6 @@ func (m *Move) After() (*State, error) { //situation after
 	nextboard := *m.Before.Board
 	next.Board = &nextboard
 	next.MovesNext = next.MovesNext.Next()
-	next.FixMovesNext()
 
 	if m.IsItKingSideCastling() {
 		empty := next.Board[0][m.From[1]+2]                     //rather senseless, a lazy definition of an empty square
