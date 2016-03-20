@@ -75,10 +75,13 @@ func (b *Board) Byte() [144]byte {
 			panic(err)
 		}
 		w := (24 * p[0]) + p[1]
+		defer func() {
+			if err := recover(); err != nil {
+				log.Fatal(err, w, p, oac)
+			}
+		}()
 		d[w] = byte(b.GPos(p).Uint8())
-		if err := recover(); err != nil {
-			log.Fatal(err, w, p, oac)
-		}
+
 		oac.P()
 	}
 	return d
