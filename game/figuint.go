@@ -64,11 +64,12 @@ func BoardByte(s []byte) *Board {
 }
 
 //Byte() returns all 6 concatenated ranks, where each rank is 24 squares, each represented by Square.Uint8
-func (b *Board) Byte() [24 * 6]byte {
-	var d [24 * 6]byte
+func (b *Board) Byte() [144]byte {
+	var d [144]byte
 	var oac ACP
 	for oac.OK() {
-		d[24*oac[0]+oac[1]] = b.GPos(Pos(oac)).Uint8()
+		w := (24 * oac[0]) + oac[1]
+		d[w] = b.GPos(Pos(oac)).Uint8()
 		oac.P()
 	}
 	return d
