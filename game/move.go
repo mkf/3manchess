@@ -430,7 +430,9 @@ func (m *Move) EvalAfter() (state *State, err error) {
 func (s *State) FixMovesNext() {
 	if !s.PlayersAlive.Give(s.MovesNext) {
 		n := s.MovesNext
-		for s.nextC(); !(s.PlayersAlive.Give(s.MovesNext) && n == s.MovesNext); s.nextC() {
+		s.nextC()
+		for !s.PlayersAlive.Give(s.MovesNext) || n != s.MovesNext {
+			s.nextC()
 		}
 	}
 }
