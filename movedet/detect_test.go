@@ -10,8 +10,8 @@ import "github.com/ArchieT/3manchess/movedet/board"
 
 var first = game.Move{From: game.Pos{1, 0}, To: game.Pos{3, 0}, Before: &game.NEWGAME, PawnPromotion: 0}
 var temp, _ = first.After()
-var g = []game.Move{first, game.Move{From: game.Pos{1, 8}, To: game.Pos{3, 8}, Before: temp, PawnPromotion: 0}}
-var b = []game.Move{game.Move{From: game.Pos{3, 0}, To: game.Pos{4, 0}, Before: temp, PawnPromotion: 0}}
+var g = []game.Move{first, {From: game.Pos{1, 8}, To: game.Pos{3, 8}, Before: temp, PawnPromotion: 0}}
+var b = []game.Move{{From: game.Pos{3, 0}, To: game.Pos{4, 0}, Before: temp, PawnPromotion: 0}}
 
 //simplyillegal = []testentity{
 //	{Pos{3,0},Pos{5,0},g[0].After()}
