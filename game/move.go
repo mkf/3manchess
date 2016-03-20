@@ -143,21 +143,34 @@ func (e IllegalMoveError) Error() string {
 	return e.Description
 }
 
+//WhereIsKing : where is king of specified color on the board?
+func (b *Board) WhereIsKing(who Color) *Pos {
+	var oac ACP
+	for oac.OK() {
+		opos := Pos(oac)
+		if sq := b.GPos(opos); sq.NotEmpty && sq.Fig.Color == who && sq.Fig.FigType == King {
+			return &opos
+		}
+		oac.P()
+	}
+	return nil
+}
+
+//IsKingPresent : is king of specified color on the board?
+func (b *Board) IsKingPresent(who Color) bool {
+	return b.WhereIsKing(who) != nil
+}
+
 //CheckChecking :  is `who` in check?
 func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in check
 	if !pa.Give(who) {
 		panic("CheckChecking a dead player!: " + who.String())
 	}
-	var oac ACP
-	var opos Pos
-	for oac.OK() {
-		opos = Pos(oac)
-		if tjf := b.GPos(opos); tjf.Color() == who && tjf.FigType == King {
-			return b.ThreatChecking(opos, pa, DEFENPASSANT)
-		}
-		oac.P()
+	wking := b.WhereIsKing(who)
+	if wking == nil {
+		panic("King not found!!!: " + who.String())
 	}
-	panic("King not found!!!: " + who.String())
+	return b.ThreatChecking(*wking, pa, DEFENPASSANT)
 }
 
 //ThreatChecking checks if the piece on where Pos is 'in check'
@@ -430,9 +443,9 @@ func (m *Move) EvalAfter() (state *State, err error) {
 func (s *State) FixMovesNext() {
 	if !s.PlayersAlive.Give(s.MovesNext) {
 		n := s.MovesNext
-		for s.NextC(); !(s.PlayersAlive.Give(s.MovesNext) && n == s.MovesNext); s.NextC() {
+		s.MovesNext = s.MovesNext.Next()
+		for !s.PlayersAlive.Give(s.MovesNext) && n != s.MovesNext { // while player is dead and we hadn't returned to player 'n'
+			s.MovesNext = s.MovesNext.Next()
 		}
 	}
 }
-
-func (s *State) NextC() { s.MovesNext = s.MovesNext.Next() }
