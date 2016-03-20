@@ -143,18 +143,17 @@ func (e IllegalMoveError) Error() string {
 	return e.Description
 }
 
-//IsKingPresent : is king of specified color on the board?
-func (b *Board) IsKingPresent(who Color) bool {
+//WhereIsKing : is king of specified color on the board?
+func (b *Board) WhereIsKing(who Color) *Pos {
 	var oac ACP
 	for oac.OK() {
 		opos := Pos(oac)
-		square := b[opos[0]][opos[1]]
-		if square.NotEmpty && square.Fig.Color == who && square.Fig.FigType == King {
-			return true
+		if sq := b.GPos(opos); sq.NotEmpty && sq.Fig.Color == who && sq.Fig.FigType == King {
+			return &opos
 		}
 		oac.P()
 	}
-	return false
+	return nil
 }
 
 //CheckChecking :  is `who` in check?
@@ -162,16 +161,11 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in c
 	if !pa.Give(who) {
 		panic("CheckChecking a dead player!: " + who.String())
 	}
-	var oac ACP
-	var opos Pos
-	for oac.OK() {
-		opos = Pos(oac)
-		if tjf := b.GPos(opos); tjf.Color() == who && tjf.FigType == King {
-			return b.ThreatChecking(opos, pa, DEFENPASSANT)
-		}
-		oac.P()
+	wking := b.WhereIsKing(who)
+	if wking == nil {
+		panic("King not found!!!: " + who.String())
 	}
-	panic("King not found!!!: " + who.String())
+	return b.ThreatChecking(*wking, pa, DEFENPASSANT)
 }
 
 //ThreatChecking checks if the piece on where Pos is 'in check'
