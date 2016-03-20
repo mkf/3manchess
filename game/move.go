@@ -269,6 +269,7 @@ func (m *Move) After() (*State, error) { //situation after
 	nextboard := *m.Before.Board
 	next.Board = &nextboard
 	next.MovesNext = next.MovesNext.Next()
+	next.FixMovesNext()
 
 	if m.IsItKingSideCastling() {
 		empty := next.Board[0][m.From[1]+2]                     //rather senseless, a lazy definition of an empty square
@@ -415,4 +416,20 @@ func (m *Move) After() (*State, error) { //situation after
 	}
 
 	return &next, nil
+}
+
+//EvalAfter : return the evaluated gamestate afterwards, also error
+func (m *Move) EvalAfter() (*State, error) {
+	var state *State
+	var err error
+	if state, err = m.After(); err == nil {
+		state.EvalDeath()
+		for i := 0; i < 2; i++ {
+			if state.PlayersAlive.Give(state.MovesNext) {
+				break
+			}
+			state.MovesNext = state.MovesNext.Next()
+		}
+	}
+	return state, err
 }

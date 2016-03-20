@@ -92,7 +92,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 			for mymove := range game.VFTPGen(state) {
 				move_impossible = false
 				move_to_apply := mymove.Move(state)
-				newstate, _ := move_to_apply.After()
+				newstate, _ := move_to_apply.EvalAfter()
 				fmt.Printf("S")
 				newthought := append(
 					[]float64{mythoughts[index][0]},
@@ -144,7 +144,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 	bestsitval = -1000000
 	for move := range game.VFTPGen(s) {
 		move_to_apply := move.Move(s)
-		newstate, _ := move_to_apply.After()
+		newstate, _ := move_to_apply.EvalAfter()
 		thoughts[move] = a.Worker(newstate, s.MovesNext, a.Conf.Depth)
 		if thoughts[move][a.Conf.Depth] > bestsitval {
 			bestmove = move
