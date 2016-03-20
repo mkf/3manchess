@@ -89,6 +89,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		if int(depth) > 0 {
 			bestsitval = -1000000
 			if state.MovesNext == whoarewe {
+				fmt.Printf("\nBefore VFTPGEN (index: %v)\n", index)
 				for mymove := range game.VFTPGen(state) {
 					move_to_apply := mymove.Move(state)
 					newstate, _ := move_to_apply.EvalAfter()
@@ -117,7 +118,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		index++
 	}
 	if depth > 0 {
-		log.Println("After FOR")
+		log.Println("FOR LOOP ENDED")
 	}
 	bestsitval = 1000000
 	for i := 0; i < index; i++ {
@@ -126,7 +127,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		}
 	}
 	if depth > 0 {
-		log.Println("END")
+		log.Println("------END------")
 	}
 	return minmax_slice
 }
