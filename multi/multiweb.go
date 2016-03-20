@@ -121,7 +121,7 @@ func (ale APIListErr) Error() string {
 	return fmt.Sprintln(ale.Errors)
 }
 
-func relevantError(httpError error, apiError APIListErr) error {
+func RelevantError(httpError error, apiError APIListErr) error {
 	if httpError != nil {
 		return httpError
 	}
@@ -129,6 +129,15 @@ func relevantError(httpError error, apiError APIListErr) error {
 		return nil
 	}
 	return apiError
+}
+
+func WErr(err error) error {
+	switch err := err.(type) {
+	case APIListErr:
+		return RelevantError(nil, err)
+	default:
+		return err
+	}
 }
 
 func giveerror(w http.ResponseWriter, r *http.Request, e error, h int, where string) {
