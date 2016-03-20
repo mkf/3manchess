@@ -77,7 +77,7 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 //Worker is the routine behind Think; exported just in case
 func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []float64 {
 	if depth > 0 {
-		fmt.Printf("=== WORKER ===\nDEPTH: 1\nSTATE: %v\nSTART\n", s)
+		fmt.Printf("=== WORKER ===\nDEPTH: 1\nSTATE: %v\n--- START ---\n", s)
 	}
 	minmax_slice := make([]float64, 0, depth+1)
 	mythoughts := make(map[int][]float64)
@@ -88,6 +88,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		if int(depth) > 0 {
 			bestsitval = -1000000
 			if state.MovesNext == whoarewe {
+				fmt.Printf("\nBefore VFTPGEN (index: %v)\n", index)
 				for mymove := range game.VFTPGen(state) {
 					move_to_apply := mymove.Move(state)
 					newstate, _ := move_to_apply.EvalAfter()
@@ -116,7 +117,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		index++
 	}
 	if depth > 0 {
-		fmt.Printf("\nAfter FOR\n")
+		fmt.Println("\nFOR LOOP ENDED")
 	}
 	bestsitval = 1000000
 	for i := 0; i < index; i++ {
@@ -125,7 +126,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 		}
 	}
 	if depth > 0 {
-		fmt.Printf("END\n")
+		fmt.Println("\n--- END ---\n")
 	}
 	return minmax_slice
 }
