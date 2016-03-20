@@ -17,8 +17,8 @@ func TestHeyItsYourMove_newgame(t *testing.T) {
 	hurry := make(chan bool)
 	newgame := game.NewState()
 	go func() {
-		 time.Sleep(time.Minute)
-		 hurry <- true
+		time.Sleep(time.Minute)
+		hurry <- true
 	}()
 	move := a.HeyItsYourMove(&newgame, hurry)
 	log.Println(move)
