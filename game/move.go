@@ -143,6 +143,20 @@ func (e IllegalMoveError) Error() string {
 	return e.Description
 }
 
+//IsKingPresent : is king of specified color on the board?
+func (b *Board) IsKingPresent(who Color) bool {
+	var oac ACP
+	for oac.OK() {
+		opos := Pos(oac)
+		square := b[opos[0]][opos[1]]
+		if square.NotEmpty && square.Fig.Color == who && square.Fig.FigType == King {
+			return true
+		}
+		oac.P()
+	}
+	return false
+}
+
 //CheckChecking :  is `who` in check?
 func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in check
 	if !pa.Give(who) {
