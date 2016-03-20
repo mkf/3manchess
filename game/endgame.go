@@ -7,6 +7,7 @@ func (s *State) CanIMoveWOCheck(who Color) bool {
 	var oac ACP
 	for oac.OK() {
 		if s.Board.GPos(Pos(oac)).Fig.Color != who {
+			oac.P()
 			continue
 		}
 		var oacp ACP
