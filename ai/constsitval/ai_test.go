@@ -6,20 +6,9 @@ import "testing"
 import "github.com/ArchieT/3manchess/game"
 import "time"
 
-func TestHeyItsYourMove_depth_eq_0(t *testing.T) {
-	conf = AIConfig{
-		Depth:             0,
-		OwnedToThreatened: DEFOWN2THRTHD,
-	}
-	NewgameAI(t, conf)
-}
-
+//func TestHeyItsYourMove_depth_eq_0(t *testing.T) {NewgameAI(t, AIConfig{Depth: 0, OwnedToThreatened: DEFOWN2THRTHD})}
 func TestHeyItsYourMove_newgame(t *testing.T) {
-	conf = AIConfig{
-		Depth:             DEFFIXDEPTH,
-		OwnedToThreatened: DEFOWN2THRTHD,
-	}
-	NewgameAI(t, conf)
+	NewgameAI(t, AIConfig{Depth: DEFFIXDEPTH, OwnedToThreatened: DEFOWN2THRTHD})
 }
 
 func NewgameAI(t *testing.T, acf AIConfig) {
