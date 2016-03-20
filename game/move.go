@@ -143,7 +143,7 @@ func (e IllegalMoveError) Error() string {
 	return e.Description
 }
 
-//WhereIsKing : is king of specified color on the board?
+//WhereIsKing : where is king of specified color on the board?
 func (b *Board) WhereIsKing(who Color) *Pos {
 	var oac ACP
 	for oac.OK() {
@@ -154,6 +154,14 @@ func (b *Board) WhereIsKing(who Color) *Pos {
 		oac.P()
 	}
 	return nil
+}
+
+//IsKingPresent : is king of specified color on the board?
+func (b *Board) IsKingPresent(who Color) bool {
+	if b.WhereIsKing(who) != nil {
+		return true
+	}
+	return false
 }
 
 //CheckChecking :  is `who` in check?
