@@ -161,16 +161,11 @@ func (b *Board) CheckChecking(who Color, pa PlayersAlive) Check { //true if in c
 	if !pa.Give(who) {
 		panic("CheckChecking a dead player!: " + who.String())
 	}
-	var oac ACP
-	var opos Pos
-	for oac.OK() {
-		opos = Pos(oac)
-		if tjf := b.GPos(opos); tjf.Color() == who && tjf.FigType == King {
-			return b.ThreatChecking(opos, pa, DEFENPASSANT)
-		}
-		oac.P()
+	wking := b.WhereIsKing(who)
+	if wking == nil {
+		panic("King not found!!!: " + who.String())
 	}
-	panic("King not found!!!: " + who.String())
+	return b.ThreatChecking(*wking, pa, DEFENPASSANT)
 }
 
 //ThreatChecking checks if the piece on where Pos is 'in check'
