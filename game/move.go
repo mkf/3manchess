@@ -431,7 +431,7 @@ func (s *State) FixMovesNext() {
 	if !s.PlayersAlive.Give(s.MovesNext) {
 		n := s.MovesNext
 		s.MovesNext = s.MovesNext.Next()
-		for !s.PlayersAlive.Give(s.MovesNext) || n != s.MovesNext {
+		for !(s.PlayersAlive.Give(s.MovesNext) && n == s.MovesNext) {
 			s.MovesNext = s.MovesNext.Next()
 		}
 	}
