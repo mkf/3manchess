@@ -83,29 +83,27 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 	mythoughts := make(map[int][]float64)
 	index := 0 // index is for mythoughts map
 	var bestsitval float64
-	var move_impossible bool
 	for state := range game.ASAOMGen(s, whoarewe) {
 		mythoughts[index] = append(mythoughts[index], a.SitValue(state)) // fills in first element of mythoughts[index]
 		if int(depth) > 0 {
 			bestsitval = -1000000
-			move_impossible = true
-			for mymove := range game.VFTPGen(state) {
-				move_impossible = false
-				move_to_apply := mymove.Move(state)
-				newstate, _ := move_to_apply.After()
-				fmt.Printf("S")
-				newthought := append(
-					[]float64{mythoughts[index][0]},
-					a.Worker(newstate, whoarewe, depth-1)...) // new slice of size (depth+1)
-				fmt.Printf("E ")
-				if newthought[depth] > bestsitval {
-					// if we have found (so far) the best response to opponents' moves
-					// (state after 2 ops' moves)
-					bestsitval = newthought[depth]
-					mythoughts[index] = newthought
+			if state.MovesNext == whoarewe {
+				for mymove := range game.VFTPGen(state) {
+					move_to_apply := mymove.Move(state)
+					newstate, _ := move_to_apply.EvalAfter()
+					fmt.Printf("S")
+					newthought := append(
+						[]float64{mythoughts[index][0]},
+						a.Worker(newstate, whoarewe, depth-1)...) // new slice of size (depth+1)
+					fmt.Printf("E ")
+					if newthought[depth] > bestsitval {
+						// if we have found (so far) the best response to opponents' moves
+						// (state after 2 ops' moves)
+						bestsitval = newthought[depth]
+						mythoughts[index] = newthought
+					}
 				}
-			}
-			if move_impossible { // we died or in stalemate to that point
+			} else { // we died or in stalemate to that point
 				mythoughts[index] = append(mythoughts[index], a.Worker(state, whoarewe, depth-1)...)
 				/* Below is a slightly faster, more obfuscated way
 				newthought := make([]float64, depth+1)
@@ -144,7 +142,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 	bestsitval = -1000000
 	for move := range game.VFTPGen(s) {
 		move_to_apply := move.Move(s)
-		newstate, _ := move_to_apply.After()
+		newstate, _ := move_to_apply.EvalAfter()
 		thoughts[move] = a.Worker(newstate, s.MovesNext, a.Conf.Depth)
 		if thoughts[move][a.Conf.Depth] > bestsitval {
 			bestmove = move
