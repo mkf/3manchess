@@ -69,7 +69,7 @@ func (b *Board) Byte() [144]byte {
 	var oac ACP
 	for oac.OK() {
 		var w uint8 = (24 * uint8(oac[0])) + uint8(oac[1])
-		d[w] = b.GPos(p).Uint8()
+		d[w] = b.GPos(Pos(oac)).Uint8()
 		oac.P()
 	}
 	return d
