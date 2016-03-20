@@ -195,10 +195,17 @@ func (s *State) Data() *StateData {
 	return &d
 }
 
-//EvalDeath evaluates the death of whom is about to move next and returns the same pointer it got
+//EvalDeath : evaluate the death of all players
 func (s *State) EvalDeath() {
-	if !(s.CanIMoveWOCheck(s.MovesNext)) {
+	if !(s.CanIMoveWOCheck(s.MovesNext)) { // next player to move cannot be checkmated
 		s.PlayersAlive.Die(s.MovesNext)
+	}
+	n := s.MovesNext
+	for i := 0; i < 2; i++ { // other players must have theirs' kings
+		if !s.Board.IsKingPresent(n) {
+			s.PlayersAlive.Die(n)
+		}
+		n = n.Next()
 	}
 }
 
