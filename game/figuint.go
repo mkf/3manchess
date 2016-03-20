@@ -73,7 +73,7 @@ func (b *Board) Byte() [144]byte {
 			panic(err)
 		}
 		w := (24 * p[0]) + p[1]
-		d[w] = b.GPos(p).Uint8()
+		d[w] = byte(b.GPos(p).Uint8())
 		oac.P()
 	}
 	return d
