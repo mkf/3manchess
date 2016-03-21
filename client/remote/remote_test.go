@@ -54,11 +54,11 @@ func TestNew_ai3(t *testing.T) {
 	for bno, bco := range botsconf {
 		var bbi, bbp int64
 		var bba []byte
-		if bb, _, err := c.NewBot(multi.NewBotPost{"constsitval-demotesting", multi.Authorization{u, a}, fmt.Sprint("bot", bno), bco.Byte()}); err == nil {
+		if bb, _, err := c.NewBot(multi.NewBotPost{[]byte("constsitval-demotesting"), multi.Authorization{u, a}, fmt.Sprint("bot", bno), bco.Byte()}); err == nil {
 			bbi, bbp, bba = bb.Botid, bb.PlayerID, bb.AuthKey
 		} else {
 			t.Log(err)
-			bbi = bno + 1
+			bbi = int64(bno + 1) //yeah
 			bbb, _, err := c.BotKey(multi.BotKeyGetting{bbi, multi.Authorization{u, a}})
 			if err != nil {
 				t.Fatal(err)
@@ -86,7 +86,7 @@ func TestNew_ai3(t *testing.T) {
 	for bno := range game.COLORS {
 		var aii constsitval.AIPlayer
 		aii.Conf = botsconf[bno]
-		yg, err := New(c, aii, game.COLORS[bno], multi.Authorization{botsau[bno].PlayerID, botsau[bno].AuthKey}, *gpg, echn, endchan)
+		yg, err := New(c, &aii, game.COLORS[bno], gpg.Key, multi.Authorization{botsau[bno].PlayerID, botsau[bno].AuthKey}, endchn, echn)
 		if err != nil {
 			t.Log(err)
 		}
