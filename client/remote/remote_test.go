@@ -34,12 +34,12 @@ func TestNew_ai3(t *testing.T) {
 	} else {
 		t.Log(err)
 		ll, _, err := c.LogIn(multi.LoggingIn{"remotetest", "remotetest"})
-		if multi.WErr(err) != nil {
+		if err != nil {
 			t.Fatal(err)
 		}
 		u, a = ll.ID, ll.AuthKey
 		ppp, _, err := c.UserInfo(u)
-		if multi.WErr(err) != nil {
+		if err != nil {
 			t.Fatal(err)
 		}
 		p = ppp.Player
@@ -50,7 +50,7 @@ func TestNew_ai3(t *testing.T) {
 	mgpp.State = *ns
 	gpg, _, err := c.AddGame(mgpp)
 	t.Log(gpg)
-	if multi.WErr(err) != nil {
+	if err != nil {
 		t.Fatal(err)
 	}
 	//	b1,_,err:=
