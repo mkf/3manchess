@@ -101,7 +101,7 @@ func (gp *Gameplay) Turn() (breaking bool) {
 	after.EvalDeath()
 	gp.State = after
 	for _, ci := range game.COLORS {
-		gp.Players[ci].HeySituationChanges(move, after)
+		gp.Players[ci].HeySituationChanges(&move, after)
 	}
 	return gp.GiveResult()
 }
