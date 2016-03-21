@@ -121,20 +121,24 @@ func (ale APIListErr) Error() string {
 	return fmt.Sprintln(ale.Errors)
 }
 
-func RelevantError(httpError error, apiError APIListErr) error {
-	if httpError != nil {
-		return httpError
-	}
+func (ale APIListErr) ToErr() error {
 	if apiError.Empty() {
 		return nil
 	}
 	return apiError
 }
 
+func RelevantError(httpError error, apiError APIListErr) error {
+	if httpError != nil {
+		return httpError
+	}
+	return apiError.ToErr()
+}
+
 func WErr(err error) error {
 	switch err := err.(type) {
 	case APIListErr:
-		return RelevantError(nil, err)
+		return err.ToErr()
 	default:
 		return err
 	}
