@@ -122,10 +122,10 @@ func (ale APIListErr) Error() string {
 }
 
 func (ale APIListErr) ToErr() error {
-	if apiError.Empty() {
+	if ale.Empty() {
 		return nil
 	}
-	return apiError
+	return ale
 }
 
 func RelevantError(httpError error, apiError APIListErr) error {
