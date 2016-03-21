@@ -46,7 +46,7 @@ func TestNew_ai3(t *testing.T) {
 	mgpp.Date = time.Now()
 	mgpp.State = *ns
 	gpg, _, err := c.AddGame(mgpp)
-	t.Log(gpg)
+	t.Log(*gpg)
 	if err != nil {
 		t.Fatal(err)
 	}
