@@ -128,22 +128,6 @@ func (ale APIListErr) ToErr() error {
 	return ale
 }
 
-func RelevantError(httpError error, apiError APIListErr) error {
-	if httpError != nil {
-		return httpError
-	}
-	return apiError.ToErr()
-}
-
-func WErr(err error) error {
-	switch err := err.(type) {
-	case APIListErr:
-		return err.ToErr()
-	default:
-		return err
-	}
-}
-
 func giveerror(w http.ResponseWriter, r *http.Request, e error, h int, where string) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(h)
