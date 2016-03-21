@@ -10,7 +10,7 @@ type Player interface {
 	Initialize(*Gameplay)
 	ErrorChannel() chan<- error
 	HurryChannel() chan<- bool
-	HeyItsYourMove(*game.State, <-chan bool) *game.Move //that channel is for signalling to hurry up
+	HeyItsYourMove(*game.State, <-chan bool) game.Move //that channel is for signalling to hurry up
 	HeySituationChanges(*game.Move, *game.State)
 	HeyYouLost(*game.State)
 	HeyYouWon(*game.State)
