@@ -5,7 +5,6 @@ import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/client"
 import "flag"
 import "os"
-import "github.com/coreos/pkg/flagutil"
 
 //import "github.com/ArchieT/3manchess/ai/constsitval"
 import "github.com/ArchieT/3manchess/multi"
@@ -18,10 +17,8 @@ var ns *game.StateData
 func init() {
 	nssssss := game.NewState()
 	ns = nssssss.Data()
-	flags := flag.NewFlagSet("remotetest", flag.ExitOnError)
-	bu := flags.String("baseurl", "http://platinum.edu.pl:8082/", "3manchess/multi base URL")
-	flags.Parse(os.Args[1:])
-	flagutil.SetFlagsFromEnv(flags, "REMOTECHESSTEST")
+	bu := flag.String("baseurl", os.Getenv("CHESSBASEURL"), "3manchess/multi base URL")
+	flag.Parse()
 	//t.Log("baseurl", bu)
 	c = client.NewClient(nil, *bu)
 }
