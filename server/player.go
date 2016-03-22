@@ -10,11 +10,11 @@ type ServerPlayer struct {
 	ID      int64
 	errchan chan error
 	wwme    bool
-	move    chan *game.Move
+	move    chan game.Move
 	sitret  chan *game.State
 }
 
-func (sp *ServerPlayer) GiveMove(m *game.Move) <-chan *game.State {
+func (sp *ServerPlayer) GiveMove(m game.Move) <-chan *game.State {
 	sp.move <- m
 	return sp.sitret
 }
@@ -36,10 +36,10 @@ func (sp *ServerPlayer) String() string            { return fmt.Sprint(sp.ID) }
 func (sp *ServerPlayer) HeyYouWon(*game.State)     {}
 func (sp *ServerPlayer) HeyYouDrew(*game.State)    {}
 func (sp *ServerPlayer) HeyYouLost(*game.State)    {}
-func (sp *ServerPlayer) HeySituationChanges(_ *game.Move, s *game.State) {
+func (sp *ServerPlayer) HeySituationChanges(_ game.Move, s *game.State) {
 	sp.sitret <- s
 }
-func (sp *ServerPlayer) HeyItsYourMove(_ *game.State, _ <-chan bool) *game.Move { return <-sp.move }
+func (sp *ServerPlayer) HeyItsYourMove(_ *game.State, _ <-chan bool) game.Move { return <-sp.move }
 
 func MoveIt(m *game.Move, ids [3]int64) *game.State {
 	w := ServerPlayer{ID: ids[0]}
@@ -55,5 +55,5 @@ func MoveIt(m *game.Move, ids [3]int64) *game.State {
 	go func() {
 		p.Turn()
 	}()
-	return <-r[m.Before.MovesNext].GiveMove(m) //TODO: avoid deadlock if somethings not OK with (m *game.Move)
+	return <-r[m.Before.MovesNext].GiveMove(*m) //TODO: avoid deadlock if somethings not OK with (m *game.Move)
 }

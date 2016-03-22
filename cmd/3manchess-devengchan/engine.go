@@ -92,19 +92,19 @@ func main() {
 				fmt.Scanf("%d %d %d %d", &ff, &ft, &tf, &tt)
 				saskfto := game.FromTo{game.Pos{ff, ft}, game.Pos{tf, tt}}
 				saskmov := saskfto.Move(saskin)
-				white.HereRMoves <- &saskmov
+				white.HereRMoves <- saskmov
 			case saskin := <-grey.AskinForMove:
 				fmt.Println(grey, "is being asked for a move (ff ft tf tt): ")
 				fmt.Scanf("%d %d %d %d", &ff, &ft, &tf, &tt)
 				saskfto := game.FromTo{game.Pos{ff, ft}, game.Pos{tf, tt}}
 				saskmov := saskfto.Move(saskin)
-				grey.HereRMoves <- &saskmov
+				grey.HereRMoves <- saskmov
 			case saskin := <-black.AskinForMove:
 				fmt.Println(black, "is being asked for a move (ff ft tf tt): ")
 				fmt.Scanf("%d %d %d %d", &ff, &ft, &tf, &tt)
 				saskfto := game.FromTo{game.Pos{ff, ft}, game.Pos{tf, tt}}
 				saskmov := saskfto.Move(saskin)
-				black.HereRMoves <- &saskmov
+				black.HereRMoves <- saskmov
 			case <-time.After(time.Second * 20):
 				var saskinrune rune = 0
 				fmt.Print("hurry[y]?")

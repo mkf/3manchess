@@ -157,10 +157,10 @@ func (a *AIPlayer) HeyItsYourMove(s *game.State, hurryup <-chan bool) game.Move 
 	return a.Think(s, hurryup)
 }
 
-func (a *AIPlayer) HeySituationChanges(_ *game.Move, _ *game.State) {}
-func (a *AIPlayer) HeyYouLost(_ *game.State)                        {}
-func (a *AIPlayer) HeyYouWon(_ *game.State)                         {}
-func (a *AIPlayer) HeyYouDrew(_ *game.State)                        {}
+func (a *AIPlayer) HeySituationChanges(_ game.Move, _ *game.State) {}
+func (a *AIPlayer) HeyYouLost(_ *game.State)                       {}
+func (a *AIPlayer) HeyYouWon(_ *game.State)                        {}
+func (a *AIPlayer) HeyYouDrew(_ *game.State)                       {}
 
 func (a *AIPlayer) String() string {
 	return fmt.Sprintf("%v%v", "SVBotDepth", a.Conf.Depth) //TODO: print whoami and conf

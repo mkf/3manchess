@@ -41,8 +41,8 @@ type Developer struct {
 	waiting      bool
 	askformove   chan<- *game.State
 	AskinForMove <-chan *game.State
-	heremoves    <-chan *game.Move
-	HereRMoves   chan<- *game.Move
+	heremoves    <-chan game.Move
+	HereRMoves   chan<- game.Move
 	Result       <-chan ResultCode
 	sendresult   chan<- ResultCode
 	SituationCh  <-chan player.SituationChange
@@ -53,7 +53,7 @@ func (p *Developer) AskingForMove() <-chan *game.State {
 	return p.AskinForMove
 }
 
-func (p *Developer) HereAreMoves() chan<- *game.Move {
+func (p *Developer) HereAreMoves() chan<- game.Move {
 	return p.HereRMoves
 }
 
@@ -88,7 +88,7 @@ func (p *Developer) Initialize(gp *player.Gameplay) {
 	afm := make(chan *game.State)
 	p.askformove = afm
 	p.AskinForMove = afm
-	hrm := make(chan *game.Move)
+	hrm := make(chan game.Move)
 	p.heremoves = hrm
 	p.HereRMoves = hrm
 	sch := make(chan player.SituationChange)
@@ -111,7 +111,7 @@ func (p *Developer) ErrorChannel() chan<- error { return p.ErrorChan }
 
 func (p *Developer) HurryChannel() chan<- bool { return p.HurryChan }
 
-func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move {
+func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) game.Move {
 	go func() {
 		for {
 			p.hurry <- <-hurryi
@@ -126,7 +126,7 @@ func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move
 	return move
 }
 
-func (p *Developer) HeySituationChanges(m *game.Move, aft *game.State) {
+func (p *Developer) HeySituationChanges(m game.Move, aft *game.State) {
 	p.sitchan <- player.SituationChange{m, aft}
 }
 
