@@ -73,7 +73,7 @@ func (g *G) Turn() (breaking bool, err error) {
 		Before:        bef,
 		PawnPromotion: game.FigType(md.PawnPromotion),
 	}
-	g.our.HeySituationChanges(&mov, g.state)
+	g.our.HeySituationChanges(mov, g.state)
 	return
 }
 

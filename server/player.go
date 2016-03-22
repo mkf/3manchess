@@ -36,7 +36,7 @@ func (sp *ServerPlayer) String() string            { return fmt.Sprint(sp.ID) }
 func (sp *ServerPlayer) HeyYouWon(*game.State)     {}
 func (sp *ServerPlayer) HeyYouDrew(*game.State)    {}
 func (sp *ServerPlayer) HeyYouLost(*game.State)    {}
-func (sp *ServerPlayer) HeySituationChanges(_ *game.Move, s *game.State) {
+func (sp *ServerPlayer) HeySituationChanges(_ game.Move, s *game.State) {
 	sp.sitret <- s
 }
 func (sp *ServerPlayer) HeyItsYourMove(_ *game.State, _ <-chan bool) game.Move { return <-sp.move }
