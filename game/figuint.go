@@ -48,6 +48,8 @@ func BoardUint(s *([6][24]uint8)) *Board {
 	return &b
 }
 
+func byteoac(oac ACP) uint8 { return (24 * uint8(oac[0])) + uint8(oac[1]) }
+
 func BoardByte(s []byte) *Board {
 	var b Board
 	var t uint8
@@ -56,7 +58,7 @@ func BoardByte(s []byte) *Board {
 		panic(len(s))
 	}
 	for oac.OK() {
-		t = s[24*oac[0]+oac[1]]
+		t = s[byteoac(oac)]
 		b[oac[0]][oac[1]] = SqUint8(t)
 		oac.P()
 	}
@@ -68,8 +70,7 @@ func (b *Board) Byte() [144]byte {
 	var d [144]byte
 	var oac ACP
 	for oac.OK() {
-		var w uint8 = (24 * uint8(oac[0])) + uint8(oac[1])
-		d[w] = b.GPos(Pos(oac)).Uint8()
+		d[byteoac(oac)] = b.GPos(Pos(oac)).Uint8()
 		oac.P()
 	}
 	return d
