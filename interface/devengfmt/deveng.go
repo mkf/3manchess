@@ -71,7 +71,7 @@ func (p *Developer) HurryChannel() chan<- bool {
 	return p.HurryChan
 }
 
-func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move {
+func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) game.Move {
 	hurry := simple.MergeBool(hurryi, p.hurry)
 	go func() {
 		for {
@@ -91,10 +91,10 @@ func (p *Developer) HeyItsYourMove(s *game.State, hurryi <-chan bool) *game.Move
 	fromto := game.FromTo{game.Pos{fr, ff}, game.Pos{tr, tf}}
 	move := fromto.Move(s)
 	p.HeyWeWaitingForYou(false)
-	return &move
+	return move
 }
 
-func (p *Developer) HeySituationChanges(m *game.Move, aft *game.State) {
+func (p *Developer) HeySituationChanges(m game.Move, aft *game.State) {
 	fmt.Printf("%s, situation changed: \n", p)
 	fmt.Println(m)
 	fmt.Println(aft)
