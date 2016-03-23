@@ -119,7 +119,7 @@ func (ale APIListErr) Empty() bool {
 
 func (ale APIListErr) Error() string {
 	if ale.Empty() {
-		return nil
+		return ""
 	}
 	return ale.Errors[0].Error()
 }
