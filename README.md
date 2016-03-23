@@ -1,4 +1,4 @@
-#3manchess [![Build Status](https://travis-ci.org/ArchieT/3manchess.svg?branch=master)](https://travis-ci.org/ArchieT/3manchess) [![GoDoc](https://godoc.org/github.com/ArchieT/3manchess?status.svg)](https://godoc.org/github.com/ArchieT/3manchess)[![Stories in Ready](https://badge.waffle.io/ArchieT/3manchess.png?label=ready&title=Ready)](https://waffle.io/ArchieT/3manchess)[![codecov.io](https://codecov.io/github/ArchieT/3manchess/coverage.svg?branch=master)](https://codecov.io/github/ArchieT/3manchess?branch=master)
+#3manchess [![Build Status](https://travis-ci.org/ArchieT/3manchess.svg?branch=master)](https://travis-ci.org/ArchieT/3manchess) [![GoDoc](https://godoc.org/github.com/ArchieT/3manchess?status.svg)](https://godoc.org/github.com/ArchieT/3manchess) [![codecov.io](https://codecov.io/github/ArchieT/3manchess/coverage.svg?branch=master)](https://codecov.io/github/ArchieT/3manchess?branch=master) [![Stories in Ready](https://badge.waffle.io/ArchieT/3manchess.png?label=ready&title=Ready)](https://waffle.io/ArchieT/3manchess)
 
 ![codecov.io](https://codecov.io/github/ArchieT/3manchess/branch.svg?branch=master)
 
