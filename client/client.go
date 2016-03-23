@@ -38,6 +38,7 @@ func rerr(httpError error, ale multi.APIListErr) error {
 	return ale.ToErr()
 }
 
+//SignUp : /api/signup
 func (s *Service) SignUp(sp multi.SignUpPost) (*multi.SignUpGive, *http.Response, error) {
 	give := new(multi.SignUpGive)
 	ser := new(multi.APIListErr)
@@ -45,6 +46,7 @@ func (s *Service) SignUp(sp multi.SignUpPost) (*multi.SignUpGive, *http.Response
 	return give, resp, rerr(err, *ser)
 }
 
+//LogIn : /api/login
 func (s *Service) LogIn(lp multi.LoggingIn) (*multi.Authorization, *http.Response, error) {
 	give := new(multi.Authorization)
 	ser := new(multi.APIListErr)
@@ -52,6 +54,7 @@ func (s *Service) LogIn(lp multi.LoggingIn) (*multi.Authorization, *http.Respons
 	return give, resp, rerr(err, *ser)
 }
 
+//BotKey : /api/botkey
 func (s *Service) BotKey(bkg multi.BotKeyGetting) (*multi.Authorization, *http.Response, error) {
 	give := new(multi.Authorization)
 	ser := new(multi.APIListErr)
@@ -59,6 +62,7 @@ func (s *Service) BotKey(bkg multi.BotKeyGetting) (*multi.Authorization, *http.R
 	return give, resp, rerr(err, *ser)
 }
 
+//NewBot : /api/newbot
 func (s *Service) NewBot(nbp multi.NewBotPost) (*multi.NewBotGive, *http.Response, error) {
 	give := new(multi.NewBotGive)
 	ser := new(multi.APIListErr)
@@ -66,6 +70,7 @@ func (s *Service) NewBot(nbp multi.NewBotPost) (*multi.NewBotGive, *http.Respons
 	return give, resp, rerr(err, *ser)
 }
 
+//AddGame : /api/addgame
 func (s *Service) AddGame(gpp multi.GameplayPost) (*multi.GameplayGive, *http.Response, error) {
 	give := new(multi.GameplayGive)
 	ser := new(multi.APIListErr)
@@ -73,6 +78,7 @@ func (s *Service) AddGame(gpp multi.GameplayPost) (*multi.GameplayGive, *http.Re
 	return give, resp, rerr(err, *ser)
 }
 
+//Turn : /api/play/{gameId}
 func (s *Service) Turn(gameid int64, turnp multi.TurnPost) (*multi.MoveAndAfterKeys, *http.Response, error) {
 	give := new(multi.MoveAndAfterKeys)
 	ser := new(multi.APIListErr)
@@ -80,6 +86,7 @@ func (s *Service) Turn(gameid int64, turnp multi.TurnPost) (*multi.MoveAndAfterK
 	return give, resp, rerr(err, *ser)
 }
 
+//Play : /api/play/{gameId}
 func (s *Service) Play(gameid int64) (*server.GameplayData, *http.Response, error) {
 	give := new(server.GameplayData)
 	ser := new(multi.APIListErr)
@@ -87,6 +94,7 @@ func (s *Service) Play(gameid int64) (*server.GameplayData, *http.Response, erro
 	return give, resp, rerr(err, *ser)
 }
 
+//State : /api/state/{stateId}
 func (s *Service) State(stateid int64) (*game.StateData, *http.Response, error) {
 	give := new(game.StateData)
 	ser := new(multi.APIListErr)
@@ -94,6 +102,7 @@ func (s *Service) State(stateid int64) (*game.StateData, *http.Response, error) 
 	return give, resp, rerr(err, *ser)
 }
 
+//VFTPGen : /api/state/{stateId}/vftpgen
 func (s *Service) VFTPGen(stateid int64) (*multi.VFTPGenGive, *http.Response, error) {
 	give := new(multi.VFTPGenGive)
 	ser := new(multi.APIListErr)
@@ -101,6 +110,7 @@ func (s *Service) VFTPGen(stateid int64) (*multi.VFTPGenGive, *http.Response, er
 	return give, resp, rerr(err, *ser)
 }
 
+//Move : /api/move/{moveId}
 func (s *Service) Move(moveid int64) (*server.MoveData, *http.Response, error) {
 	give := new(server.MoveData)
 	ser := new(multi.APIListErr)
@@ -108,6 +118,7 @@ func (s *Service) Move(moveid int64) (*server.MoveData, *http.Response, error) {
 	return give, resp, rerr(err, *ser)
 }
 
+//WhoIsIt : /api/player/{playerId}
 func (s *Service) WhoIsIt(playerid int64) (*multi.InfoWhoIsIt, *http.Response, error) {
 	give := new(multi.InfoWhoIsIt)
 	ser := new(multi.APIListErr)
@@ -115,6 +126,7 @@ func (s *Service) WhoIsIt(playerid int64) (*multi.InfoWhoIsIt, *http.Response, e
 	return give, resp, rerr(err, *ser)
 }
 
+//UserInfo : /api/user/{userId}
 func (s *Service) UserInfo(userid int64) (*multi.InfoUser, *http.Response, error) {
 	give := new(multi.InfoUser)
 	ser := new(multi.APIListErr)
@@ -122,6 +134,7 @@ func (s *Service) UserInfo(userid int64) (*multi.InfoUser, *http.Response, error
 	return give, resp, rerr(err, *ser)
 }
 
+//BotInfo : /api/bot/{botId}
 func (s *Service) BotInfo(botid int64) (*multi.InfoBot, *http.Response, error) {
 	give := new(multi.InfoBot)
 	ser := new(multi.APIListErr)
