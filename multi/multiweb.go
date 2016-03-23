@@ -118,7 +118,10 @@ func (ale APIListErr) Empty() bool {
 }
 
 func (ale APIListErr) Error() string {
-	return fmt.Sprintln(ale.Errors)
+	if ale.Empty() {
+		return nil
+	}
+	return ale.Errors[0].Error()
 }
 
 func (ale APIListErr) ToErr() error {
