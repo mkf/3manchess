@@ -2,6 +2,8 @@ package mojsql
 
 import "database/sql"
 
+import "fmt"
+
 func fourbyte(s [4]int8) [4]byte {
 	return [4]byte{byte(s[0]), byte(s[1]), byte(s[2]), byte(s[3])}
 }
@@ -92,6 +94,9 @@ func tobool(b []byte) []bool {
 	a := make([]bool, 0, len(b))
 	for i := 0; i < len(b); i++ {
 		a = append(a, makebool(b[i]))
+		if err := recover(); err != nil {
+			panic(fmt.Sprint(err, b))
+		}
 	}
 	return a
 }
