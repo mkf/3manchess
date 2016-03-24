@@ -124,7 +124,7 @@ func (m *MojSQL) LoadGP(key int64, gpd *server.GameplayData) error {
 	nullint64(&gpd.Gray, g)
 	nullint64(&gpd.Black, b)
 	var er error
-	gpd.Date, er = time.Parse("2016-01-02 15:04:05", dat)
+	gpd.Date, er = time.Parse("2006-01-02 15:04:05", dat)
 	if err == nil {
 		return er
 	}
