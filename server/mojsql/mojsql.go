@@ -73,7 +73,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 }
 
 func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
-	givestmt, err := m.conn.Prepare("select board,moats,movesnext,castling,enpassant,halfmoveclock,fullmovenumber,alive from 3manst where id=?")
+	givestmt, err := m.conn.Prepare("select board,bin(moats),movesnext,bin(castling),enpassant,halfmoveclock,fullmovenumber,bin(alive) from 3manst where id=?")
 	if err != nil {
 		return err
 	}
