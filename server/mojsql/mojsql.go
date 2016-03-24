@@ -4,7 +4,6 @@ import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/server"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
-import "time"
 
 import "log"
 
