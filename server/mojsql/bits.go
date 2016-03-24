@@ -91,12 +91,14 @@ func makebool(b byte) bool {
 }
 
 func tobool(b []byte) []bool {
-	a := make([]bool, 0, len(b))
-	for i := 0; i < len(b); i++ {
-		a = append(a, makebool(b[i]))
+	defer func() {
 		if err := recover(); err != nil {
 			panic(fmt.Sprint(err, b))
 		}
+	}()
+	a := make([]bool, 0, len(b))
+	for i := 0; i < len(b); i++ {
+		a = append(a, makebool(b[i]))
 	}
 	return a
 }
