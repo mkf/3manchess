@@ -4,6 +4,7 @@ import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/server"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
+import "time"
 
 import "log"
 
@@ -14,7 +15,7 @@ type MojSQL struct {
 func (m *MojSQL) Interface() server.Server { return m }
 
 func (m *MojSQL) Initialize(username string, password string, database string) error {
-	conn, err := sql.Open("mysql", username+":"+password+"@unix(/var/run/mysql/mysql.sock)/"+database+"?parseTime=true")
+	conn, err := sql.Open("mysql", username+":"+password+"@unix(/var/run/mysql/mysql.sock)/"+database)
 	//go func() { defer conn.Close() }()
 	m.conn = conn
 	if err != nil {
@@ -117,10 +118,16 @@ func (m *MojSQL) LoadGP(key int64, gpd *server.GameplayData) error {
 		return err
 	}
 	var w, g, b sql.NullInt64
-	err = stmt.QueryRow(key).Scan(&gpd.State, &w, &g, &b, &gpd.Date)
+	var dat string
+	err = stmt.QueryRow(key).Scan(&gpd.State, &w, &g, &b, &dat)
 	nullint64(&gpd.White, w)
 	nullint64(&gpd.Gray, g)
 	nullint64(&gpd.Black, b)
+	var er error
+	gpd.Date, er = time.Parse("2016-01-02 15:04:05", dat)
+	if err == nil {
+		return er
+	}
 	return err
 }
 
