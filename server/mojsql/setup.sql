@@ -1,5 +1,8 @@
 drop table if exists 3manmv;
 drop table if exists 3mangp;
+drop table if exists chessbot;
+drop table if exists chessuser;
+drop table if exists 3manplayer;
 
 drop table if exists 3manst;
 create table 3manst (
@@ -20,14 +23,12 @@ create table 3manst (
 	)
 ) ENGINE = InnoDB;
 
-drop table if exists 3manplayer;
 create table 3manplayer (
 	id bigint auto_increment primary key,
 	auth varbinary(100) not null
 	-- name varchar(100) not null,
 ) engine = InnoDB default charset=utf8;
 
-drop table if exists chessuser;
 create table chessuser (
 	id bigint auto_increment primary key,
 	login varchar(20) unique key,
@@ -39,7 +40,6 @@ create table chessuser (
 		on update restrict
 ) engine = InnoDB default charset=utf8;
 
-drop table if exists chessbot;
 create table chessbot (
 	id bigint auto_increment primary key,
 	whoami varbinary(20) not null, -- ai type identifier
