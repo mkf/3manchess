@@ -15,7 +15,7 @@ type MojSQL struct {
 func (m *MojSQL) Interface() server.Server { return m }
 
 func (m *MojSQL) Initialize(username string, password string, database string) error {
-	conn, err := sql.Open("mysql", username+":"+password+"@unix(/var/run/mysql/mysql.sock)/"+database)
+	conn, err := sql.Open("mysql", username+":"+password+"@unix(/var/run/mysql/mysql.sock)/"+database+"?parseTime=true")
 	//go func() { defer conn.Close() }()
 	m.conn = conn
 	if err != nil {
@@ -118,12 +118,10 @@ func (m *MojSQL) LoadGP(key int64, gpd *server.GameplayData) error {
 		return err
 	}
 	var w, g, b sql.NullInt64
-	var dat int64
-	err = stmt.QueryRow(key).Scan(&gpd.State, &w, &g, &b, &dat)
+	err = stmt.QueryRow(key).Scan(&gpd.State, &w, &g, &b, &gpd.Date)
 	nullint64(&gpd.White, w)
 	nullint64(&gpd.Gray, g)
 	nullint64(&gpd.Black, b)
-	gpd.Date = time.Unix(dat, 0)
 	return err
 }
 
