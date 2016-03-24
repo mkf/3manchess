@@ -1,3 +1,6 @@
+drop table if exists 3manmv;
+drop table if exists 3mangp;
+
 drop table if exists 3manst;
 create table 3manst (
 	id bigint auto_increment primary key, 
@@ -53,7 +56,6 @@ create table chessbot (
 		on update restrict
 ) engine = InnoDB default charset=utf8;
 
-drop table if exists 3mangp;
 create table 3mangp (
 	id bigint auto_increment primary key, 
 	state bigint,
@@ -75,7 +77,6 @@ create table 3mangp (
 		on update restrict
 ) ENGINE = InnoDB;
 
-drop table if exists 3manmv;
 create table 3manmv (
 	id bigint auto_increment primary key,
 	fromto binary(4) not null,
