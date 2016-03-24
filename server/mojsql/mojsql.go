@@ -4,6 +4,7 @@ import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/server"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
+import "time"
 
 import "log"
 
@@ -117,10 +118,12 @@ func (m *MojSQL) LoadGP(key int64, gpd *server.GameplayData) error {
 		return err
 	}
 	var w, g, b sql.NullInt64
-	err = stmt.QueryRow(key).Scan(&gpd.State, &w, &g, &b, &gpd.Date)
+	var dat int64
+	err = stmt.QueryRow(key).Scan(&gpd.State, &w, &g, &b, &dat)
 	nullint64(&gpd.White, w)
 	nullint64(&gpd.Gray, g)
 	nullint64(&gpd.Black, b)
+	gpd.Date = time.Unix(dat, 0)
 	return err
 }
 
