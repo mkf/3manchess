@@ -14,7 +14,7 @@ addons:
 matrix:
   include:
     - go: 1.6
-      env: TESTUJEMY_MARIADB=10.1
+      env: TESTUJEMY_MARIADB=10.1 CHESSBASEURL="http://localhost:8082/"
       addons:
        mariadb: '10.1'
 
