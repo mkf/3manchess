@@ -19,6 +19,7 @@ matrix:
        mariadb: '10.1'
 
 before_install:
+- mysqladmin variables | grep socket
 - echo "" > coverage.txt
 - go get github.com/onsi/gomega
 - go get github.com/onsi/ginkgo
