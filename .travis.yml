@@ -53,9 +53,9 @@ script:
 - go test -v github.com/ArchieT/3manchess/ai/constsitval -covermode=atomic -coverprofile=tmpconsv.out
 - cat tmpconsv.out >> coverage.txt
 - go test -v github.com/ArchieT/3manchess/client/remote -covermode=atomic -coverprofile=tmprem1.out -timeout=1m || true
-- cat tmprem1.out >> coverage.txt
+- cat tmprem1.out >> coverage.txt || true
 - go test -v github.com/ArchieT/3manchess/client/remote -covermode=atomic -coverprofile=tmprem2.out -timeout=1m || true
-- cat tmprem2.out >> coverage.txt
+- cat tmprem2.out >> coverage.txt || true
   #- go test -v github.com/ArchieT/3manchess/ai/sitvalues -covermode=atomic -coverprofile=tmpsval.out
   #- cat tmpsval.out >> coverage.txt
 after_success:
