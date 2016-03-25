@@ -48,7 +48,7 @@ install:
 - sudo mkdir /var/run/mysql
 - sudo ln -s /var/run/mysqld/mysqld.sock /var/run/mysql/mysql.sock
 script:
-- trychessserver -d archiet &
+- trychessserver -d archiet -u root &
 - go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmpgame.out
 - cat tmpgame.out >> coverage.txt
 - go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmpmovedet.out
