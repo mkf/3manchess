@@ -6,6 +6,8 @@ go:
 - 1.3
 - 1.2
 
+env: CHESSBASEURL="http://localhost:8082/"
+
 addons:
         mariadb: '5.5'
 
@@ -44,14 +46,18 @@ install:
 - go install -v -race github.com/ArchieT/3manchess/client/remote
 script:
 - trychessserver -d archiet &
-- go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmp1.out
-- cat tmp1.out >> coverage.txt
-- go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmp2.out
-- cat tmp2.out >> coverage.txt
-- go test -v github.com/ArchieT/3manchess/ai/constsitval -covermode=atomic -coverprofile=tmp3.out
-- cat tmp3.out >> coverage.txt
-  #- go test -v github.com/ArchieT/3manchess/ai/sitvalues -covermode=atomic -coverprofile=tmp4.out
-  #- cat tmp4.out >> coverage.txt
+- go test -v github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmpgame.out
+- cat tmpgame.out >> coverage.txt
+- go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmpmovedet.out
+- cat tmpmovedet.out >> coverage.txt
+- go test -v github.com/ArchieT/3manchess/ai/constsitval -covermode=atomic -coverprofile=tmpconsv.out
+- cat tmpconsv.out >> coverage.txt
+- go test -v github.com/ArchieT/3manchess/client/remote -covermode=atomic -coverprofile=tmprem1.out -timeout=1m || true
+- cat tmprem1.out >> coverage.txt
+- go test -v github.com/ArchieT/3manchess/client/remote -covermode=atomic -coverprofile=tmprem2.out -timeout=1m || true
+- cat tmprem2.out >> coverage.txt
+  #- go test -v github.com/ArchieT/3manchess/ai/sitvalues -covermode=atomic -coverprofile=tmpsval.out
+  #- cat tmpsval.out >> coverage.txt
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 notifications:
