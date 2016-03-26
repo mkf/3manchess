@@ -217,13 +217,34 @@ func (m *MojSQL) AfterMD(beforegp int64) (out []server.MoveFollow, err error) {
 	return
 }
 
+var minusoneint64 int64 = -1
+
 //AfterMDwPlayers takes the before GameplayID and W,G,B players and returns the after gameplays with the same players
-func (m *MojSQL) AfterMDwPlayers(beforegp int64, players [3]int64) (out []server.MoveFollow, err error) {
-	stmt, err := m.conn.Prepare("select m.id,m.fromto,m.aftergame,m.promotion,m.who from 3manmv m join 3mangp g on g.id=m.aftergame where m.beforegame=? and g.white=? and g.gray=? and g.black=?")
+func (m *MojSQL) AfterMDwPlayers(beforegp int64, players [3]*int64) (out []server.MoveFollow, err error) {
+	stmt, err := m.conn.Prepare(
+		`select m.id,m.fromto,m.aftergame,m.promotion,m.who from 3manmv m 
+		join 3mangp g on g.id=m.aftergame 
+		where m.beforegame=? and 
+			(g.white=? and "prawda"=?) and 
+			(g.gray=? and "prawda"=?) and
+			(g.black=? and "prawda"=?)
+	`)
 	if err != nil {
 		return
 	}
-	rows, err := stmt.Query(beforegp, players[0], players[1], players[2])
+	tstr := [3]string{"prawda", "prawda", "prawda"}
+	for numer := range players {
+		if players[numer] == nil {
+			tstr[numer] = "nienie"
+			players[numer] = &minusoneint64
+		}
+	}
+	rows, err := stmt.Query(
+		beforegp,
+		*players[0], tstr[0],
+		*players[1], tstr[1],
+		*players[2], tstr[2],
+	)
 	if err != nil {
 		return
 	}
