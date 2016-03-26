@@ -59,10 +59,10 @@ func (md MoveData) FromToProm() game.FromToProm {
 	}
 }
 
-func AfterMD(sr Server, beforegp int64, filterplayers [3]*int64) (out []server.MoveFollow, err error) {
+func AfterMD(sr Server, beforegp int64, filterplayers [3]*int64) (out []MoveFollow, err error) {
 	for i := range filterplayers {
 		if filterplayers[i] != nil {
-			return sr.AfterMDwPlayers(beforegp, players)
+			return sr.AfterMDwPlayers(beforegp, filterplayers)
 		}
 	}
 	return sr.AfterMD(beforegp)
