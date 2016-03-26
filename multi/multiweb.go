@@ -486,6 +486,36 @@ func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (mu *Multi) APIAfter(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	sthem := [3]string{r.FormValue("white"), r.FormValue("gray"), r.FormValue("black")}
+	var them [3]*int64
+	for no := range sthem {
+		if len(sthem[no]) > 0 {
+			v, err := strconv.ParseInt(sthem[no], 10, 64)
+			if err != nil {
+				continue
+			}
+			them[no] = &v
+		}
+	}
+	key, err := strconv.ParseInt(vars["gameId"], 10, 64)
+	if err != nil {
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		return
+	}
+	what, err := server.AfterMD(mu.Server, key, them)
+	if err != nil {
+		giveerror(w, r, err, 421, "server_aftermd")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err = json.NewEncoder(w).Encode(what); err != nil {
+		panic(err)
+	}
+}
+
 type InfoWhoIsIt struct {
 	ID       int64 `json:"id"`
 	IsItABot bool  `json:"isitabot"`
