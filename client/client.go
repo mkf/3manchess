@@ -89,20 +89,19 @@ func (s *Service) Turn(gameid int64, turnp multi.TurnPost) (*multi.MoveAndAfterK
 var colquernms = [3]string{"white", "gray", "black"}
 
 func queraft(p [3]*int64) string {
-	var s [3]string
-	var o string
 	for is := 0; is < 3; is++ {
 		if p[is] != nil {
-			o += "?"
+			o := "?"
 			for i := is; i < 3; i++ {
 				o += fmt.Sprintf("%s=%d")
 				if i != 2 {
 					o += "&"
 				}
 			}
-			break
+			return o
 		}
 	}
+	return ""
 }
 
 //After : /api/play/{gameId}/after?white=123&gray=456
