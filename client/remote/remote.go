@@ -40,7 +40,13 @@ func New(c *client.Client, our player.Player, color game.Color, gameid int64, au
 		poll:      make(chan bool),
 		aftermove: make(chan int64),
 		ourftpaft: make(chan game.FromToProm),
+		errchan:   make(chan error),
 	}
+	go func(ec chan<- error) {
+		for i := range g.errchan {
+			ec <- i
+		}
+	}(errch)
 	g.state.FromData(sd)
 	go g.Procedure(end, errch)
 	return &g, nil
