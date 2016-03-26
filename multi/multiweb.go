@@ -58,6 +58,7 @@ func (mu *Multi) NewRouter() *mux.Router {
 		{"APIAddGame", "POST", "/api/addgame", mu.APIAddGame},
 		{"APIPlay", "GET", "/api/play/{gameId}", mu.APIPlay},
 		{"APITurn", "POST", "/api/play/{gameId}", mu.APITurn},
+		{"APIAfter", "GET", "/api/play/{gameId}/after", mu.APIAfter},
 		{"APIState", "GET", "/api/state/{stateId}", mu.APIState},
 		{"APIVFTPGen", "GET", "/api/state/{stateId}/vftpgen", mu.APIVFTPGen},
 		{"APIMove", "GET", "/api/move/{moveId}", mu.APIMove},
