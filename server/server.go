@@ -14,7 +14,7 @@ type Server interface {
 	LoadMD(key int64, md *MoveData) error
 	ListGP(uint) ([]GameplayFollow, error)
 	AfterMD(beforegp int64) ([]MoveFollow, error)
-	AfterMDwPlayers(beforegp int64, players [3]int64) ([]MoveFollow, error)
+	AfterMDwPlayers(beforegp int64, players [3]*int64) ([]MoveFollow, error)
 	GetAuth(playerid int64) (authkey []byte, err error)
 	NewPlayer() (playerid int64, authkey []byte, err error)
 	SignUp(login string, passwd string, name string) (userid int64, playerid int64, authkey []byte, err error)
@@ -57,6 +57,15 @@ func (md MoveData) FromToProm() game.FromToProm {
 		FromTo:        md.fromTo(),
 		PawnPromotion: game.FigType(md.PawnPromotion),
 	}
+}
+
+func AfterMD(sr Server, beforegp int64, filterplayers [3]*int64) (out []MoveFollow, err error) {
+	for i := range filterplayers {
+		if filterplayers[i] != nil {
+			return sr.AfterMDwPlayers(beforegp, filterplayers)
+		}
+	}
+	return sr.AfterMD(beforegp)
 }
 
 func (md MoveData) Move(sr Server) game.Move {

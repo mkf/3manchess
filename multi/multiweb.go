@@ -58,6 +58,7 @@ func (mu *Multi) NewRouter() *mux.Router {
 		{"APIAddGame", "POST", "/api/addgame", mu.APIAddGame},
 		{"APIPlay", "GET", "/api/play/{gameId}", mu.APIPlay},
 		{"APITurn", "POST", "/api/play/{gameId}", mu.APITurn},
+		{"APIAfter", "GET", "/api/play/{gameId}/after", mu.APIAfter},
 		{"APIState", "GET", "/api/state/{stateId}", mu.APIState},
 		{"APIVFTPGen", "GET", "/api/state/{stateId}/vftpgen", mu.APIVFTPGen},
 		{"APIMove", "GET", "/api/move/{moveId}", mu.APIMove},
@@ -482,6 +483,36 @@ func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(gp); err != nil {
+		panic(err)
+	}
+}
+
+func (mu *Multi) APIAfter(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	sthem := [3]string{r.FormValue("white"), r.FormValue("gray"), r.FormValue("black")}
+	var them [3]*int64
+	for no := range sthem {
+		if len(sthem[no]) > 0 {
+			v, err := strconv.ParseInt(sthem[no], 10, 64)
+			if err != nil {
+				continue
+			}
+			them[no] = &v
+		}
+	}
+	key, err := strconv.ParseInt(vars["gameId"], 10, 64)
+	if err != nil {
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		return
+	}
+	what, err := server.AfterMD(mu.Server, key, them)
+	if err != nil {
+		giveerror(w, r, err, 421, "server_aftermd")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err = json.NewEncoder(w).Encode(what); err != nil {
 		panic(err)
 	}
 }

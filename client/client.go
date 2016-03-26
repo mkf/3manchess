@@ -86,6 +86,32 @@ func (s *Service) Turn(gameid int64, turnp multi.TurnPost) (*multi.MoveAndAfterK
 	return give, resp, rerr(err, *ser)
 }
 
+var colquernms = [3]string{"white", "gray", "black"}
+
+func queraft(p [3]*int64) string {
+	for is := 0; is < 3; is++ {
+		if p[is] != nil {
+			o := "?"
+			for i := is; i < 3; i++ {
+				o += fmt.Sprintf("%s=%d")
+				if i != 2 {
+					o += "&"
+				}
+			}
+			return o
+		}
+	}
+	return ""
+}
+
+//After : /api/play/{gameId}/after?white=123&gray=456
+func (s *Service) After(gameid int64, filterplayers [3]*int64) (*[]server.MoveFollow, *http.Response, error) {
+	give := new([]server.MoveFollow)
+	ser := new(multi.APIListErr)
+	resp, err := s.sling.New().Get(fmt.Sprintf("api/play/%d/after", gameid)+queraft(filterplayers)).Receive(give, ser)
+	return give, resp, rerr(err, *ser)
+}
+
 //Play : /api/play/{gameId}
 func (s *Service) Play(gameid int64) (*server.GameplayData, *http.Response, error) {
 	give := new(server.GameplayData)
