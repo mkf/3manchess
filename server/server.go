@@ -59,6 +59,15 @@ func (md MoveData) FromToProm() game.FromToProm {
 	}
 }
 
+func AfterMD(sr Server, beforegp int64, filterplayers [3]*int64) (out []server.MoveFollow, err error) {
+	for i := range filterplayers {
+		if filterplayers[i] != nil {
+			return sr.AfterMDwPlayers(beforegp, players)
+		}
+	}
+	return sr.AfterMD(beforegp)
+}
+
 func (md MoveData) Move(sr Server) game.Move {
 	s := new(game.State)
 	err := LoadState(sr, md.BeforeGame, s)
