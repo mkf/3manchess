@@ -72,3 +72,4 @@ notifications:
   email:
           recipients:
                   - archiet@platinum.edu.pl
+          on_pull_requests: true
