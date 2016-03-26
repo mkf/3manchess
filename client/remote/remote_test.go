@@ -86,7 +86,28 @@ func TestNew_ai3(t *testing.T) {
 	for bno := range game.COLORS {
 		var aii constsitval.AIPlayer
 		aii.Conf = botsconf[bno]
-		yg, err := New(c, &aii, game.COLORS[bno], gpg.Key, multi.Authorization{botsau[bno].PlayerID, botsau[bno].AuthKey}, endchn, echn)
+		yg, err := New(
+			c,
+			&aii,
+			game.COLORS[bno],
+			gpg.Key,
+			multi.Authorization{
+				botsau[bno].PlayerID,
+				botsau[bno].AuthKey,
+			},
+			func(g *G) (int64, error) {
+				a, _, err := g.C().After(
+					g.gameid,
+					[3]*int64{nil, nil, nil},
+				)
+				if len(*a) > 0 {
+					return (*a)[0].Key, err
+				}
+				return -1, err
+			},
+			endchn,
+			echn,
+		)
 		if err != nil {
 			t.Log(err)
 		}

@@ -4,22 +4,26 @@ import "github.com/ArchieT/3manchess/client"
 import "github.com/ArchieT/3manchess/player"
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/multi"
+import "github.com/ArchieT/3manchess/server"
 import "log"
+import "fmt"
 
 type G struct {
-	c         *client.Client
-	gameid    int64
-	state     *game.State
-	our       player.Player
-	poll      chan bool
-	aftermove chan int64
-	ourftpaft chan game.FromToProm
-	color     game.Color
-	auth      multi.Authorization
-	errchan   chan error
+	c       *client.Client
+	gameid  int64
+	state   *game.State
+	our     player.Player
+	color   game.Color
+	auth    multi.Authorization
+	errchan chan error
+	af      AfterFunc
 }
 
-func New(c *client.Client, our player.Player, color game.Color, gameid int64, auth multi.Authorization,
+func (g *G) C() *client.Client {
+	return g.c
+}
+
+func New(c *client.Client, our player.Player, color game.Color, gameid int64, auth multi.Authorization, af AfterFunc,
 	end chan<- bool, errch chan<- error) (*G, error) {
 	gd, _, err := c.Service.Play(gameid)
 	if err != nil {
@@ -31,16 +35,14 @@ func New(c *client.Client, our player.Player, color game.Color, gameid int64, au
 	}
 	our.Initialize(nil) //TODO: make player.Player play blind, w/o info about other players (or at least allow nil)
 	g := G{
-		c:         c,
-		gameid:    gameid,
-		state:     new(game.State),
-		our:       our,
-		color:     color,
-		auth:      auth,
-		poll:      make(chan bool),
-		aftermove: make(chan int64),
-		ourftpaft: make(chan game.FromToProm),
-		errchan:   make(chan error),
+		c:       c,
+		gameid:  gameid,
+		state:   new(game.State),
+		our:     our,
+		color:   color,
+		auth:    auth,
+		errchan: make(chan error),
+		af:      af,
 	}
 	go func(ec chan<- error) {
 		for i := range g.errchan {
@@ -52,16 +54,7 @@ func New(c *client.Client, our player.Player, color game.Color, gameid int64, au
 	return &g, nil
 }
 
-func (g *G) Poll() {
-	g.poll <- true
-}
-
-func (g *G) ForceAfter(moveid int64) {
-	g.poll <- false
-	g.aftermove <- moveid
-}
-
-func (g *G) askplayer() error {
+func (g *G) askplayer() (oftp game.FromToProm, err error) {
 	g.our.HeyWeWaitingForYou(true)
 	hurry := make(chan bool)
 	move := g.our.HeyItsYourMove(g.state, hurry)
@@ -76,44 +69,50 @@ func (g *G) askplayer() error {
 		},
 	)
 	if err != nil {
-		return err
+		return
 	}
 	g.gameid = maak.AfterGameKey
 	g.getstate()
 	md, _, err := g.c.Service.Move(maak.MoveKey)
 	if err != nil {
-		return err
+		return
 	}
-	g.ourftpaft <- md.FromToProm()
-	return err
+	oftp = md.FromToProm()
+	return
 }
 
-func (g *G) polling() {
-	for i := range g.poll {
-		if !i {
-			break
-		}
-		var gotit bool
-		if gotit {
-			g.aftermove <- 1234
-		}
-	}
-	g.poll = make(chan bool)
+type ErrorNotAfter struct {
+	server.MoveData
+	MoveKey int64
+	Before  int64
 }
 
-func (g *G) movechk() {
-	for i := range g.aftermove {
-		md, _, err := g.c.Service.Move(i)
+func (e *ErrorNotAfter) Error() string {
+	if e != nil {
+		return fmt.Sprint("ErrorNotAfter", *e)
+	}
+	return ""
+}
+
+func (g *G) movechk() (oftp game.FromToProm, err error) {
+	var i int64
+	i, err = g.af(g)
+	if err == nil {
+		var md *server.MoveData
+		md, _, err = g.c.Service.Move(i)
 		if err != nil {
-			g.errchan <- err
-			continue
+			return
 		}
 		if md.BeforeGame == g.gameid {
 			g.gameid = md.AfterGame
 			g.getstate()
-			g.ourftpaft <- md.FromToProm()
+			oftp = md.FromToProm()
+		} else {
+			e := ErrorNotAfter{*md, i, g.gameid}
+			err = &e
 		}
 	}
+	return
 }
 
 func (g *G) getstate() error {
@@ -131,16 +130,20 @@ func (g *G) getstate() error {
 	return err
 }
 
+type AfterFunc func(g *G) (moveid int64, err error)
+
 func (g *G) Turn() (breaking bool, err error) {
 	bef := g.state
+	var oftp game.FromToProm
+	var do func() (game.FromToProm, error)
 	if g.state.MovesNext == g.color {
-		if err = g.askplayer(); err != nil {
-			return
-		}
+		do = g.askplayer
 	} else {
-		go g.polling()
+		do = g.movechk
 	}
-	oftp := <-g.ourftpaft
+	if oftp, err = do(); err != nil {
+		return
+	}
 	breaking = g.state.PlayersAlive.Give(g.color)
 	g.our.HeySituationChanges(oftp.Move(bef), g.state)
 	return
