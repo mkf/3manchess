@@ -7,13 +7,16 @@ import "github.com/ArchieT/3manchess/multi"
 import "log"
 
 type G struct {
-	c       *client.Client
-	gameid  int64
-	state   *game.State
-	our     player.Player
-	color   game.Color
-	auth    multi.Authorization
-	errchan chan error
+	c         *client.Client
+	gameid    int64
+	state     *game.State
+	our       player.Player
+	poll      chan bool
+	aftermove chan int64
+	ourftpaft chan game.FromToProm
+	color     game.Color
+	auth      multi.Authorization
+	errchan   chan error
 }
 
 func New(c *client.Client, our player.Player, color game.Color, gameid int64, auth multi.Authorization,
@@ -28,52 +31,112 @@ func New(c *client.Client, our player.Player, color game.Color, gameid int64, au
 	}
 	our.Initialize(nil) //TODO: make player.Player play blind, w/o info about other players (or at least allow nil)
 	g := G{
-		c:      c,
-		gameid: gameid,
-		state:  new(game.State),
-		our:    our,
-		color:  color,
-		auth:   auth,
+		c:         c,
+		gameid:    gameid,
+		state:     new(game.State),
+		our:       our,
+		color:     color,
+		auth:      auth,
+		poll:      make(chan bool),
+		aftermove: make(chan int64),
+		ourftpaft: make(chan game.FromToProm),
 	}
 	g.state.FromData(sd)
 	go g.Procedure(end, errch)
 	return &g, nil
 }
 
-func (g *G) Turn() (breaking bool, err error) {
+func (g *G) Poll() {
+	g.poll <- true
+}
+
+func (g *G) ForceAfter(moveid int64) {
+	g.poll <- false
+	g.aftermove <- moveid
+}
+
+func (g *G) askplayer() error {
 	g.our.HeyWeWaitingForYou(true)
 	hurry := make(chan bool)
-	bef := g.state
-	move := g.our.HeyItsYourMove(bef, hurry)
-	ftp := game.FromToProm{FromTo: game.FromTo{move.From, move.To}, PawnPromotion: move.PawnPromotion}
-	tp := multi.TurnPost{ftp, g.auth}
-	maak, _, err := g.c.Service.Turn(g.gameid, tp)
+	move := g.our.HeyItsYourMove(g.state, hurry)
+	maak, _, err := g.c.Service.Turn(
+		g.gameid,
+		multi.TurnPost{
+			FromToProm: game.FromToProm{
+				FromTo:        game.FromTo{move.From, move.To},
+				PawnPromotion: move.PawnPromotion,
+			},
+			WhoPlayer: g.auth,
+		},
+	)
 	if err != nil {
-		return
+		return err
 	}
 	g.gameid = maak.AfterGameKey
+	g.getstate()
+	md, _, err := g.c.Service.Move(maak.MoveKey)
+	if err != nil {
+		return err
+	}
+	g.ourftpaft <- md.FromToProm()
+	return err
+}
+
+func (g *G) polling() {
+	for i := range g.poll {
+		if !i {
+			break
+		}
+		var gotit bool
+		if gotit {
+			g.aftermove <- 1234
+		}
+	}
+	g.poll = make(chan bool)
+}
+
+func (g *G) movechk() {
+	for i := range g.aftermove {
+		md, _, err := g.c.Service.Move(i)
+		if err != nil {
+			g.errchan <- err
+			continue
+		}
+		if md.BeforeGame == g.gameid {
+			g.gameid = md.AfterGame
+			g.getstate()
+			g.ourftpaft <- md.FromToProm()
+		}
+	}
+}
+
+func (g *G) getstate() error {
 	gd, _, err := g.c.Service.Play(g.gameid)
 	if err != nil {
-		return
+		return err
 	}
 	sd, _, err := g.c.Service.State(gd.State)
 	if err != nil {
-		return
+		return err
 	}
-	g.state = new(game.State)
-	g.state.FromData(sd)
+	s := new(game.State)
+	s.FromData(sd)
+	g.state = s
+	return err
+}
+
+func (g *G) Turn() (breaking bool, err error) {
+	bef := g.state
+	if g.state.MovesNext == g.color {
+		if err = g.askplayer(); err != nil {
+			return
+		}
+	} else {
+		go g.polling()
+	}
+	oftp := <-g.ourftpaft
 	breaking = g.state.PlayersAlive.Give(g.color)
-	md, _, err := g.c.Service.Move(maak.MoveKey)
-	if err != nil {
-		return
-	}
-	mov := game.Move{
-		From:          game.Pos{md.FromTo[0], md.FromTo[1]},
-		To:            game.Pos{md.FromTo[2], md.FromTo[3]},
-		Before:        bef,
-		PawnPromotion: game.FigType(md.PawnPromotion),
-	}
-	g.our.HeySituationChanges(mov, g.state)
+	g.our.HeySituationChanges(oftp.Move(bef), g.state)
 	return
 }
 

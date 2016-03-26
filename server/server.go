@@ -45,18 +45,27 @@ type MoveData struct {
 	Who           int64   `json:"playerid"`
 }
 
+func (md MoveData) fromTo() game.FromTo {
+	return game.FromTo{
+		game.Pos{md.FromTo[0], md.FromTo[1]},
+		game.Pos{md.FromTo[2], md.FromTo[3]},
+	}
+}
+
+func (md MoveData) FromToProm() game.FromToProm {
+	return game.FromToProm{
+		FromTo:        md.fromTo(),
+		PawnPromotion: game.FigType(md.PawnPromotion),
+	}
+}
+
 func (md MoveData) Move(sr Server) game.Move {
 	s := new(game.State)
 	err := LoadState(sr, md.BeforeGame, s)
 	if err != nil {
 		panic(err)
 	}
-	return game.Move{
-		From:          game.Pos{md.FromTo[0], md.FromTo[1]},
-		To:            game.Pos{md.FromTo[2], md.FromTo[3]},
-		Before:        s,
-		PawnPromotion: game.FigType(md.PawnPromotion),
-	}
+	return md.FromToProm().Move(s)
 }
 
 func AddGame(sr Server, st *game.StateData, players [3]*int64, when time.Time) (key int64, err error) {
