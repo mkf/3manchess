@@ -9,21 +9,25 @@ import "fmt"
 
 //type WhatServer
 
+//Client is the base url with a pointer to a Sling pointer
 type Client struct {
 	BaseURL string
 	*Service
 }
 
+//Service is a Sling pointer
 type Service struct {
 	sling *sling.Sling
 }
 
+//NewService creates a Sling instance
 func NewService(httpClient *http.Client, baseURL string) *Service {
 	return &Service{
 		sling: sling.New().Client(httpClient).Base(baseURL),
 	}
 }
 
+//NewClient creates a Sling instance, with baseurl in Client struct
 func NewClient(httpClient *http.Client, baseURL string) *Client {
 	return &Client{
 		Service: NewService(httpClient, baseURL),
@@ -91,11 +95,10 @@ var colquernms = [3]string{"white", "gray", "black"}
 func queraft(p [3]*int64) string {
 	for is := 0; is < 3; is++ {
 		if p[is] != nil {
-			o := "?"
-			for i := is; i < 3; i++ {
-				o += fmt.Sprintf("%s=%d")
-				if i != 2 {
-					o += "&"
+			o := fmt.Sprintf("?%s=%d", colquernms[is], *p[is])
+			for i := is + 1; i < 3; i++ {
+				if p[i] != nil {
+					o += fmt.Sprintf("&%s=%d", colquernms[i], *p[i])
 				}
 			}
 			return o
