@@ -46,12 +46,30 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	eenp := fourbyte(sd.EnPassant)
 	enpassant := string(eenp[:])
 	alive := string(tobit(sd.Alive[:]))
-	whetherstmt, err := m.conn.Prepare("select id from 3manst where board=? and moats=? and movesnext=? and castling=? and enpassant=? and halfmoveclock=? and fullmovenumber=? and alive=?")
+	whetherstmt, err := m.conn.Prepare(
+		`select id from 3manst 
+		where 
+			board=? and 
+			moats=? and 
+			movesnext=? and 
+			castling=? and 
+			enpassant=? and 
+			halfmoveclock=? and 
+			fullmovenumber=? and 
+			alive=?`)
 	log.Println(whetherstmt, err)
 	if err != nil {
 		return -1, err
 	}
-	whether, err := whetherstmt.Query(board, moats, sd.MovesNext, castling, enpassant, sd.HalfmoveClock, sd.FullmoveNumber, alive)
+	whether, err := whetherstmt.Query(
+		board,
+		moats,
+		sd.MovesNext,
+		castling,
+		enpassant,
+		sd.HalfmoveClock,
+		sd.FullmoveNumber,
+		alive)
 	log.Println(whether, err)
 	if err != nil {
 		return -1, err
@@ -62,12 +80,30 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 		log.Println(nasz, err)
 		return nasz, err
 	}
-	resstmt, err := m.conn.Prepare("insert into 3manst (board,moats,movesnext,castling,enpassant,halfmoveclock,fullmovenumber,alive) values (?,?,?,?,?,?,?,?)")
+	resstmt, err := m.conn.Prepare(
+		`insert into 3manst (
+			board,
+			moats,
+			movesnext,
+			castling,
+			enpassant,
+			halfmoveclock,
+			fullmovenumber,
+			alive
+		) values (?,?,?,?,?,?,?,?)`)
 	log.Println(resstmt, err)
 	if err != nil {
 		return -1, err
 	}
-	res, err := resstmt.Exec(board, moats, sd.MovesNext, castling, enpassant, sd.HalfmoveClock, sd.FullmoveNumber, alive)
+	res, err := resstmt.Exec(
+		board,
+		moats,
+		sd.MovesNext,
+		castling,
+		enpassant,
+		sd.HalfmoveClock,
+		sd.FullmoveNumber,
+		alive)
 	log.Println(res, err)
 	if err != nil {
 		return -1, err
