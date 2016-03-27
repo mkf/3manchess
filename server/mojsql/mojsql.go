@@ -322,34 +322,41 @@ func (m *MojSQL) LogIn(login string, passwd string) (userid int64, authkey []byt
 
 //Auth authenticates by UserID
 func (m *MojSQL) Auth(userid int64, authkey []byte) (bool, error) {
-	stmt, err := m.conn.Prepare("select exists (select u.id from chessuser u join 3manplayer p where u.id=? and p.auth=? and u.player=p.id)")
-	if err != nil {
-		return false, err
-	}
-	var a bool
-	err = stmt.QueryRow(userid, authkey).Scan(&a)
-	return a, err
+	return m.procauth(
+		`select exists (
+			select u.id from chessuser u 
+			join 
+			3manplayer p 
+			where u.id=? and p.auth=? and u.player=p.id
+		)`,
+		userid, authkey)
 }
 
 //BAuth authenticates by BotID
 func (m *MojSQL) BAuth(botid int64, authkey []byte) (bool, error) {
-	stmt, err := m.conn.Prepare("select exists (select b.id from chessbot b join 3manplayer p where b.id=? and p.auth=? and b.player=p.id)")
-	if err != nil {
-		return false, err
-	}
-	var a bool
-	err = stmt.QueryRow(botid, authkey).Scan(&a)
-	return a, err
+	return m.procauth(
+		`select exists (
+			select b.id from chessbot b 
+			join 
+			3manplayer p 
+			where b.id=? and p.auth=? and b.player=p.id
+		)`,
+		botid, authkey)
 }
 
 //PAuth authenticates by PlayerID
 func (m *MojSQL) PAuth(playerid int64, authkey []byte) (bool, error) {
-	stmt, err := m.conn.Prepare("select exists (select id from 3manplayer where id=? and auth=?)")
+	return m.procauth("select exists (select id from 3manplayer where id=? and auth=?)",
+		playerid, authkey)
+}
+
+func (m *MojSQL) procauth(query string, id int64, authkey []byte) (bool, error) {
+	stmt, err := m.conn.Prepare(query)
 	if err != nil {
 		return false, err
 	}
 	var a bool
-	err = stmt.QueryRow(playerid, authkey).Scan(&a)
+	err = stmt.QueryRow(id, authkey).Scan(&a)
 	return a, err
 }
 
