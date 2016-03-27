@@ -11,11 +11,13 @@ type Move struct {
 	PawnPromotion FigType
 }
 
+//FromToProm is a struct containing FromTo and Prom
 type FromToProm struct {
 	FromTo        `json:"fromto"`
 	PawnPromotion FigType `json:"pawnpromotion"`
 }
 
+//Move makes a Move from FromToProm and State pointer
 func (ftp FromToProm) Move(bef *State) Move {
 	m := ftp.FromTo.Move(bef)
 	m.PawnPromotion = ftp.PawnPromotion

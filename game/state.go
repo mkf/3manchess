@@ -15,6 +15,7 @@ var DEFMOATSSTATE = MoatsState{false, false, false} //are they bridged?
 //Castling : White,Gray,Black King-side,Queen-side
 type Castling [3][2]bool
 
+//Uint8 returns an uint8 repr of a Castling struct
 func (cs Castling) Uint8() uint8 {
 	var u uint8
 	if cs[0][0] {
@@ -38,6 +39,7 @@ func (cs Castling) Uint8() uint8 {
 	return u
 }
 
+//Array returns a [6]bool repr of a Castling struct
 func (cs Castling) Array() [6]bool {
 	var b [6]bool
 	for i := 0; i < 5; i++ {
@@ -46,6 +48,7 @@ func (cs Castling) Array() [6]bool {
 	return b
 }
 
+//CastlingFromUint8 reproduces Castling from uint8 repr
 func CastlingFromUint8(u uint8) Castling {
 	var cs Castling
 	cs[0][0] = u%2 == 1
@@ -57,6 +60,7 @@ func CastlingFromUint8(u uint8) Castling {
 	return cs
 }
 
+//CastlingFromArray reproduces Castling from [6]bool repr
 func CastlingFromArray(b [6]bool) Castling {
 	var cs Castling
 	for i := 0; i < 5; i++ {
@@ -161,6 +165,7 @@ type State struct {
 	PlayersAlive
 }
 
+//StateData is a repr of State for db storage
 type StateData struct {
 	Board          [144]byte `json:"boardrepr"`
 	Moats          [3]bool   `json:"moatsstate"`
@@ -172,6 +177,7 @@ type StateData struct {
 	Alive          [3]bool   `json:"alivecolors"`
 }
 
+//FromData pulls data from StateData into State
 func (s *State) FromData(d *StateData) {
 	s.Board = BoardByte(d.Board[:])
 	s.MoatsState = MoatsState(d.Moats)
@@ -183,6 +189,7 @@ func (s *State) FromData(d *StateData) {
 	s.PlayersAlive = PlayersAlive(d.Alive)
 }
 
+//Data returns a StateData repr of a State
 func (s *State) Data() *StateData {
 	d := StateData{
 		Board: s.Board.Byte(), MovesNext: int8(s.MovesNext),
