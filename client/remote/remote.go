@@ -8,6 +8,7 @@ import "github.com/ArchieT/3manchess/server"
 import "log"
 import "fmt"
 
+//G is a remote gameplay, with one local player accessing it
 type G struct {
 	c       *client.Client
 	gameid  int64
@@ -23,6 +24,7 @@ func (g *G) C() *client.Client {
 	return g.c
 }
 
+//New returns a new remote gameplay (G)
 func New(c *client.Client, our player.Player, color game.Color, gameid int64, auth multi.Authorization, af AfterFunc,
 	end chan<- bool, errch chan<- error) (*G, error) {
 	gd, _, err := c.Service.Play(gameid)
