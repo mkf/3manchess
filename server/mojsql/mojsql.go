@@ -119,18 +119,29 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 
 //LoadSD gets StateData from db
 func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
-	givestmt, err := m.conn.Prepare("select board,bin(moats),movesnext,bin(castling),enpassant,halfmoveclock,fullmovenumber,bin(alive) from 3manst where id=?")
+	givestmt, err := m.conn.Prepare(
+		`select 
+			board,
+			moats+0,
+			movesnext,
+			castling+0,
+			enpassant,
+			halfmoveclock,
+			fullmovenumber,
+			alive+0 
+		from 3manst where id=?`)
 	if err != nil {
 		return err
 	}
 	give := givestmt.QueryRow(key)
-	var board, moats, castling, enpassant, alive []byte
+	var moat, castling, alive uint64
+	var board, enpassant []byte
 	err = give.Scan(&board, &moats, &sd.MovesNext, &castling, &enpassant, &sd.HalfmoveClock, &sd.FullmoveNumber, &alive)
 	if err != nil {
 		return err
 	}
 	var bmoats, bcastling, balive []bool
-	bmoats, bcastling, balive = tobool(moats), tobool(castling), tobool(alive)
+	bmoats, bcastling, balive = intbit(moats, 3), intbit(castling, 6), intbit(alive, 3)
 	sd.Moats, sd.Castling, sd.EnPassant, sd.Alive = bas3(bmoats), bas6(bcastling), fourint8(yas4(enpassant)), bas3(balive)
 	return err
 }
