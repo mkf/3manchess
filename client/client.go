@@ -91,11 +91,10 @@ var colquernms = [3]string{"white", "gray", "black"}
 func queraft(p [3]*int64) string {
 	for is := 0; is < 3; is++ {
 		if p[is] != nil {
-			o := "?"
-			for i := is; i < 3; i++ {
-				o += fmt.Sprintf("%s=%d")
-				if i != 2 {
-					o += "&"
+			o := fmt.Sprintf("?%s=%d", colquernms[is], *p[is])
+			for i := is + 1; i < 3; i++ {
+				if p[i] != nil {
+					o += fmt.Sprintf("&%s=%d", colquernms[i], *p[i])
 				}
 			}
 			return o
