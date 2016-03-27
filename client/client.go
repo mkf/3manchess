@@ -9,21 +9,25 @@ import "fmt"
 
 //type WhatServer
 
+//Client is the base url with a pointer to a Sling pointer
 type Client struct {
 	BaseURL string
 	*Service
 }
 
+//Service is a Sling pointer
 type Service struct {
 	sling *sling.Sling
 }
 
+//NewService creates a Sling instance
 func NewService(httpClient *http.Client, baseURL string) *Service {
 	return &Service{
 		sling: sling.New().Client(httpClient).Base(baseURL),
 	}
 }
 
+//NewClient creates a Sling instance, with baseurl in Client struct
 func NewClient(httpClient *http.Client, baseURL string) *Client {
 	return &Client{
 		Service: NewService(httpClient, baseURL),
