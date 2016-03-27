@@ -32,11 +32,6 @@ type Route struct {
 	http.HandlerFunc
 }
 
-type jsonErr struct {
-	Code int    `json:"code"`
-	Text string `json:"text"`
-}
-
 func Logger(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -186,10 +181,10 @@ func (mu *Multi) APISignUp(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	if err := r.Body.Close(); err != nil {
+	if err = r.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &su); err != nil {
+	if err = json.Unmarshal(body, &su); err != nil {
 		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
@@ -213,10 +208,10 @@ func (mu *Multi) APILogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	if err := r.Body.Close(); err != nil {
+	if err = r.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &li); err != nil {
+	if err = json.Unmarshal(body, &li); err != nil {
 		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
@@ -244,10 +239,10 @@ func (mu *Multi) APIBotKey(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	if err := r.Body.Close(); err != nil {
+	if err = r.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &bkg); err != nil {
+	if err = json.Unmarshal(body, &bkg); err != nil {
 		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
@@ -288,10 +283,10 @@ func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	if err := r.Body.Close(); err != nil {
+	if err = r.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &nbp); err != nil {
+	if err = json.Unmarshal(body, &nbp); err != nil {
 		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
@@ -327,10 +322,10 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	if err := r.Body.Close(); err != nil {
+	if err = r.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &gpp); err != nil {
+	if err = json.Unmarshal(body, &gpp); err != nil {
 		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
@@ -364,14 +359,15 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	if err := r.Body.Close(); err != nil {
+	if err = r.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &turnp); err != nil {
+	if err = json.Unmarshal(body, &turnp); err != nil {
 		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
-	if ok, err := mu.Server.PAuth(turnp.WhoPlayer.ID, turnp.WhoPlayer.AuthKey); !(ok && err == nil) {
+	ok, err := mu.Server.PAuth(turnp.WhoPlayer.ID, turnp.WhoPlayer.AuthKey)
+	if !(ok && err == nil) {
 		if !ok {
 			giveerror(w, r, errors.New("Auth failed"), http.StatusForbidden, "server_pauth_notok")
 		} else if err != nil {

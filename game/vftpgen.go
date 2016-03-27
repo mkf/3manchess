@@ -4,7 +4,7 @@ package game
 
 //VFTPGen : generates all valid FromToProm, given the game state
 func VFTPGen(gamestate *State) <-chan FromToProm {
-	all_valid := make(chan FromToProm)
+	allValid := make(chan FromToProm)
 	go func() {
 		var oac ACFT
 		for oac.OK() {
@@ -13,17 +13,17 @@ func VFTPGen(gamestate *State) <-chan FromToProm {
 			if _, err := move.After(); err == nil {
 				fig := (*gamestate).Board.GPos(ft.From()).Fig
 				if fig.FigType == Pawn && fig.PawnCenter && ft.From()[0] == 1 {
-					all_valid <- FromToProm{ft, Queen}
-					all_valid <- FromToProm{ft, Rook}
-					all_valid <- FromToProm{ft, Bishop}
-					all_valid <- FromToProm{ft, Knight}
+					allValid <- FromToProm{ft, Queen}
+					allValid <- FromToProm{ft, Rook}
+					allValid <- FromToProm{ft, Bishop}
+					allValid <- FromToProm{ft, Knight}
 				} else {
-					all_valid <- FromToProm{ft, ZeroFigType}
+					allValid <- FromToProm{ft, ZeroFigType}
 				}
 			}
 			oac.P()
 		}
-		close(all_valid)
+		close(allValid)
 	}()
-	return all_valid
+	return allValid
 }
