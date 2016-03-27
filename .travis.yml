@@ -27,7 +27,7 @@ before_install:
 install:
 - ln -s $PWD $GOPATH/src/github.com/ArchieT/3manchess
 - sh -c "mysql -e 'create database if not exists archiet;'; mysql archiet < $GOPATH/src/github.com/ArchieT/3manchess/server/mojsql/setup.sql"
-- go install -race github.com/ArchieT/3manchess/movedet
+- go install -v -race github.com/ArchieT/3manchess/movedet
 - go install -v -race github.com/ArchieT/3manchess/player
 - go install -v -race github.com/ArchieT/3manchess/interface/devengfmt
 - go install -v -race github.com/ArchieT/3manchess/cmd/3manchess-devengfmt
@@ -47,7 +47,7 @@ script:
 - trychessserver -d archiet -u root &
 - go test github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmpgame.out
 - cat tmpgame.out >> coverage.txt
-- go test -v github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmpmovedet.out
+- go test github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmpmovedet.out
 - cat tmpmovedet.out >> coverage.txt
 - go test -v github.com/ArchieT/3manchess/ai/constsitval -covermode=atomic -coverprofile=tmpconsv.out
 - cat tmpconsv.out >> coverage.txt
