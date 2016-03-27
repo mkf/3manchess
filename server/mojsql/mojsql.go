@@ -41,11 +41,14 @@ func (m *MojSQL) TransactionEnd() error {
 //SaveSD inserts StateData into db
 func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	board := string(sd.Board[:])
-	moats := string(tobit(sd.Moats[:]))
-	castling := string(tobit(sd.Castling[:]))
+	//moats := string(tobit(sd.Moats[:]))
+	moats := bitint(sd.Moats[:])
+	//castling := string(tobit(sd.Castling[:]))
+	castling := bitint(sd.Castling[:])
 	eenp := fourbyte(sd.EnPassant)
 	enpassant := string(eenp[:])
-	alive := string(tobit(sd.Alive[:]))
+	//alive := string(tobit(sd.Alive[:]))
+	alive := bitint(sd.Alive[:])
 	whetherstmt, err := m.conn.Prepare(
 		`select id from 3manst 
 		where 

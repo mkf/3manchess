@@ -79,6 +79,51 @@ func tobit(b []bool) []byte {
 	return a
 }
 
+func bitint(b []bool) uint64 {
+	var o uint64
+	for i := range b {
+		o += one(b[i]) << uint(len(b)-i+1)
+	}
+	return o
+}
+
+func one(b bool) uint64 {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+func intbit(o uint64, l int8) []bool {
+	b := make([]bool, 0, l)
+	s, p := abspositiv(l)
+	var i uint8
+	if p {
+		for i = s - 1; i >= 0; i-- {
+			b = append(b, (o>>i)&uint64(1) != 0)
+		}
+	} else {
+		for i = 0; i < s; i++ {
+			b = append(b, (o>>i)&uint64(1) != 0)
+		}
+	}
+	return b
+}
+
+func trnry(war bool, tak uint8, nie uint8) uint8 {
+	if war {
+		return tak
+	}
+	return nie
+}
+
+func abspositiv(i int8) (uint8, bool) {
+	if i < 0 {
+		return uint8(-i), false
+	}
+	return uint8(i), true
+}
+
 func makebool(b byte) bool {
 	switch b {
 	case '1':
