@@ -95,16 +95,16 @@ func one(b bool) uint64 {
 }
 
 func intbit(o uint64, l int8) []bool {
-	b := make([]bool, 0, l)
 	s, p := abspositiv(l)
+	b := make([]bool, 0, s)
 	var i uint8
 	if p {
 		for i = s - 1; i >= 0; i-- {
-			b = append(b, (o>>i)&uint64(1) != 0)
+			b = append(b, ((o>>i)&uint64(1)) != 0)
 		}
 	} else {
 		for i = 0; i < s; i++ {
-			b = append(b, (o>>i)&uint64(1) != 0)
+			b = append(b, ((o>>i)&uint64(1)) != 0)
 		}
 	}
 	return b
