@@ -46,15 +46,15 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	eenp := fourbyte(sd.EnPassant)
 	alive := bitint(sd.Alive[:]) // string(tobit(sd.Alive[:]))
 	whetherstmt, err := m.conn.Prepare(
-		`select id from 3manst 
-		where 
-			hex(board)=? and 
-			moats+0=? and 
-			movesnext=? and 
-			castling+0=? and 
-			hex(enpassant)=? and 
-			halfmoveclock=? and 
-			fullmovenumber=? and 
+		`select id from 3manst
+		where
+			hex(board)=? and
+			moats+0=? and
+			movesnext=? and
+			castling+0=? and
+			hex(enpassant)=? and
+			halfmoveclock=? and
+			fullmovenumber=? and
 			alive+0=?`)
 	log.Println(whetherstmt, err)
 	if err != nil {
@@ -116,7 +116,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 //LoadSD gets StateData from db
 func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 	givestmt, err := m.conn.Prepare(
-		`select 
+		`select
 			board,
 			moats+0,
 			movesnext,
@@ -124,7 +124,7 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 			enpassant,
 			halfmoveclock,
 			fullmovenumber,
-			alive+0 
+			alive+0
 		from 3manst where id=?`)
 	if err != nil {
 		return err
