@@ -91,7 +91,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 		return nasz, err
 	}
 	resstmt, err := m.conn.Prepare(
-		`insert into 3manst (
+		`insert unique into 3manst (
 			board,
 			moats,
 			movesnext,
