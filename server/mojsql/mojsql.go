@@ -56,7 +56,16 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 			halfmoveclock=? and
 			fullmovenumber=? and
 			alive+0=?`)
-	log.Println(whetherstmt, err)
+	log.Println(whetherstmt, err, "vals:",
+		hex.EncodeToString(sd.Board[:]),
+		moats,
+		sd.MovesNext,
+		castling,
+		hex.EncodeToString(eenp[:]),
+		sd.HalfmoveClock,
+		sd.FullmoveNumber,
+		alive)
+
 	if err != nil {
 		return -1, err
 	}
@@ -90,7 +99,16 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 			fullmovenumber,
 			alive
 		) values (?,?,?,?,?,?,?,?)`)
-	log.Println(resstmt, err)
+	log.Println(resstmt, err, "vals:",
+		sd.Board[:],
+		moats,
+		sd.MovesNext,
+		castling,
+		eenp[:],
+		sd.HalfmoveClock,
+		sd.FullmoveNumber,
+		alive)
+
 	if err != nil {
 		return -1, err
 	}
