@@ -15,7 +15,7 @@ create table 3manst (
 	halfmoveclock tinyint not null, 
 	fullmovenumber smallint not null, 
 	alive bit(3) not null,
-	unique key everything(
+	unique everything(
 		board, moats, movesnext, castling,
 		enpassant,
 		halfmoveclock, fullmovenumber,
@@ -47,7 +47,7 @@ create table chessbot (
 	ownname varchar(50),
 	player bigint not null unique key,
 	settings varbinary(500),
-	unique key everything ( whoami, owner, settings ),
+	unique everything ( whoami, owner, settings ),
 	constraint
 		foreign key (owner) references chessuser (id)
 		on update restrict,
