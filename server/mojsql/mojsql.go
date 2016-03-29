@@ -41,33 +41,31 @@ func (m *MojSQL) TransactionEnd() error {
 
 //SaveSD inserts StateData into db
 func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
-	board := hex.EncodeToString(sd.Board[:])
 	moats := bitint(sd.Moats[:])       // string(tobit(sd.Moats[:]))
 	castling := bitint(sd.Castling[:]) // string(tobit(sd.Castling[:]))
 	eenp := fourbyte(sd.EnPassant)
-	enpassant := hex.EncodeToString(eenp[:])
 	alive := bitint(sd.Alive[:]) // string(tobit(sd.Alive[:]))
 	whetherstmt, err := m.conn.Prepare(
-		`select id from 3manst 
-		where 
-			hex(board)=? and 
-			moats+0=? and 
-			movesnext=? and 
-			castling+0=? and 
-			hex(enpassant)=? and 
-			halfmoveclock=? and 
-			fullmovenumber=? and 
+		`select id from 3manst
+		where
+			hex(board)=? and
+			moats+0=? and
+			movesnext=? and
+			castling+0=? and
+			hex(enpassant)=? and
+			halfmoveclock=? and
+			fullmovenumber=? and
 			alive+0=?`)
 	log.Println(whetherstmt, err)
 	if err != nil {
 		return -1, err
 	}
 	whether, err := whetherstmt.Query(
-		board,
+		hex.EncodeToString(sd.Board[:]),
 		moats,
 		sd.MovesNext,
 		castling,
-		enpassant,
+		hex.EncodeToString(eenp[:]),
 		sd.HalfmoveClock,
 		sd.FullmoveNumber,
 		alive)
@@ -101,7 +99,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 		moats,
 		sd.MovesNext,
 		castling,
-		enpassant,
+		eenp[:],
 		sd.HalfmoveClock,
 		sd.FullmoveNumber,
 		alive)
@@ -118,7 +116,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 //LoadSD gets StateData from db
 func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 	givestmt, err := m.conn.Prepare(
-		`select 
+		`select
 			board,
 			moats+0,
 			movesnext,
@@ -126,7 +124,7 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 			enpassant,
 			halfmoveclock,
 			fullmovenumber,
-			alive+0 
+			alive+0
 		from 3manst where id=?`)
 	if err != nil {
 		return err
