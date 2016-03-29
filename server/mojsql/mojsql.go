@@ -3,6 +3,8 @@ package mojsql
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/server"
 import "time"
+import "encoding/hex"
+import "fmt"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql" //importing sql driver is idiomatically done using a blank import
 
@@ -40,30 +42,30 @@ func (m *MojSQL) TransactionEnd() error {
 
 //SaveSD inserts StateData into db
 func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
-	board := string(sd.Board[:])
+	board := hex.EncodeToString(sd.Board[:])
 	moats := bitint(sd.Moats[:])       // string(tobit(sd.Moats[:]))
 	castling := bitint(sd.Castling[:]) // string(tobit(sd.Castling[:]))
 	eenp := fourbyte(sd.EnPassant)
-	enpassant := string(eenp[:])
+	enpassant := hex.EncodeToString(eenp[:])
 	alive := bitint(sd.Alive[:]) // string(tobit(sd.Alive[:]))
 	whetherstmt, err := m.conn.Prepare(
 		`select id from 3manst 
 		where 
-			board=? and 
-			moats=? and 
+			hex(board)=? and 
+			moats+0=? and 
 			movesnext=? and 
-			castling=? and 
-			enpassant=? and 
+			castling+0=? and 
+			hex(enpassant)=? and 
 			halfmoveclock=? and 
 			fullmovenumber=? and 
-			alive=?`)
+			alive+0=?`)
 	log.Println(whetherstmt, err)
 	if err != nil {
 		return -1, err
 	}
 	whether, err := whetherstmt.Query(
 		board,
-		moats,
+		[]byte{byte(moats)},
 		sd.MovesNext,
 		castling,
 		enpassant,
@@ -90,20 +92,20 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 			halfmoveclock,
 			fullmovenumber,
 			alive
-		) values (?,?,?,?,?,?,?,?)`)
+		) values (?,b?,?,b?,?,?,?,b?)`)
 	log.Println(resstmt, err)
 	if err != nil {
 		return -1, err
 	}
 	res, err := resstmt.Exec(
-		board,
-		moats,
+		sd.Board[:],
+		fmt.Sprintf("%b", moats),
 		sd.MovesNext,
-		castling,
+		fmt.Sprintf("%b", castling),
 		enpassant,
 		sd.HalfmoveClock,
 		sd.FullmoveNumber,
-		alive)
+		fmt.Sprintf("%b", alive))
 	log.Println(res, err)
 	if err != nil {
 		return -1, err
