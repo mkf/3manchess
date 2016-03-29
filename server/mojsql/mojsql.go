@@ -4,7 +4,6 @@ import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/server"
 import "time"
 import "encoding/hex"
-import "fmt"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql" //importing sql driver is idiomatically done using a blank import
 
