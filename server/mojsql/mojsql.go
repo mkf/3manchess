@@ -65,7 +65,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	}
 	whether, err := whetherstmt.Query(
 		board,
-		[]byte{byte(moats)},
+		moats,
 		sd.MovesNext,
 		castling,
 		enpassant,
@@ -92,20 +92,20 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 			halfmoveclock,
 			fullmovenumber,
 			alive
-		) values (?,b?,?,b?,?,?,?,b?)`)
+		) values (?,?,?,?,?,?,?,?)`)
 	log.Println(resstmt, err)
 	if err != nil {
 		return -1, err
 	}
 	res, err := resstmt.Exec(
 		sd.Board[:],
-		fmt.Sprintf("%b", moats),
+		moats,
 		sd.MovesNext,
-		fmt.Sprintf("%b", castling),
+		castling,
 		enpassant,
 		sd.HalfmoveClock,
 		sd.FullmoveNumber,
-		fmt.Sprintf("%b", alive))
+		alive)
 	log.Println(res, err)
 	if err != nil {
 		return -1, err

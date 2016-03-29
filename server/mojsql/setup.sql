@@ -8,13 +8,13 @@ drop table if exists 3manst;
 create table 3manst (
 	id bigint auto_increment primary key, 
 	board binary(144) not null, 
-	moats bit(3) not null,
+	moats tinyint not null, -- _ _ _ _ _ W G B
 	movesnext tinyint not null, 
-	castling bit(6) not null, 
+	castling tinyint not null, -- _ _ K Q x u k q , where x,q are gray king&queen
 	enpassant binary(4) not null,
 	halfmoveclock tinyint not null, 
 	fullmovenumber smallint not null, 
-	alive bit(3) not null,
+	alive tinyint not null,  -- _ _ _ _ _ W G B
 	constraint everything unique (
 		board, moats, movesnext, castling,
 		enpassant,
