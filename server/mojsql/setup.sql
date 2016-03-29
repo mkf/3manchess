@@ -15,7 +15,7 @@ create table 3manst (
 	halfmoveclock tinyint not null, 
 	fullmovenumber smallint not null, 
 	alive bit(3) not null,
-	unique (
+	unique everything(
 		board, moats, movesnext, castling,
 		enpassant,
 		halfmoveclock, fullmovenumber,
@@ -47,7 +47,7 @@ create table chessbot (
 	ownname varchar(50),
 	player bigint not null unique key,
 	settings varbinary(500),
-	unique ( whoami, owner, settings ),
+	unique everything ( whoami, owner, settings ),
 	constraint
 		foreign key (owner) references chessuser (id)
 		on update restrict,
@@ -93,7 +93,7 @@ create table 3manmv (
 	constraint
 		foreign key (aftergame) references 3mangp (id)
 		on update restrict,
-	unique (fromto, beforegame, promotion, who)
+	unique onemove(fromto, beforegame, promotion, who)
 ) engine = InnoDB;
 
 
