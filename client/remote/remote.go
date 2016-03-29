@@ -74,11 +74,11 @@ func (g *G) askplayer() (oftp game.FromToProm, err error) {
 		return
 	}
 	g.gameid = maak.AfterGameKey
-	g.getstate()
 	md, _, err := g.c.Service.Move(maak.MoveKey)
 	if err != nil {
 		return
 	}
+	err = g.getstate()
 	oftp = md.FromToProm()
 	return
 }
@@ -107,8 +107,8 @@ func (g *G) movechk() (oftp game.FromToProm, err error) {
 		}
 		if md.BeforeGame == g.gameid {
 			g.gameid = md.AfterGame
-			g.getstate()
 			oftp = md.FromToProm()
+			err = g.getstate()
 		} else {
 			e := ErrorNotAfter{*md, i, g.gameid}
 			err = &e
