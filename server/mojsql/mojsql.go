@@ -56,12 +56,14 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 			halfmoveclock=? and
 			fullmovenumber=? and
 			alive+0=?`)
+	ultbo := hex.EncodeToString(sd.Board[:])
+	ultenp := hex.EncodeToString(eenp[:])
 	log.Println(whetherstmt, err, "vals:",
-		hex.EncodeToString(sd.Board[:]),
+		ultbo,
 		moats,
 		sd.MovesNext,
 		castling,
-		hex.EncodeToString(eenp[:]),
+		ultenp,
 		sd.HalfmoveClock,
 		sd.FullmoveNumber,
 		alive)
@@ -70,11 +72,11 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 		return -1, err
 	}
 	whether, err := whetherstmt.Query(
-		hex.EncodeToString(sd.Board[:]),
+		ultbo,
 		moats,
 		sd.MovesNext,
 		castling,
-		hex.EncodeToString(eenp[:]),
+		ultenp,
 		sd.HalfmoveClock,
 		sd.FullmoveNumber,
 		alive)
@@ -98,26 +100,26 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 			halfmoveclock,
 			fullmovenumber,
 			alive
-		) values (?,?,?,?,?,?,?,?)`)
-	log.Println(resstmt, err, "vals:",
-		sd.Board[:],
-		moats,
-		sd.MovesNext,
-		castling,
-		eenp[:],
-		sd.HalfmoveClock,
-		sd.FullmoveNumber,
-		alive)
-
+		) values (
+			unhex(?),  -- bo  hex
+			?,         -- mt
+			?,         -- mn
+			?,         -- ct
+			unhex(?),  -- ep  hex
+			?,         -- hm
+			?,         -- fm
+			?          -- al
+		)`)
+	log.Println(resstmt, err)
 	if err != nil {
 		return -1, err
 	}
 	res, err := resstmt.Exec(
-		sd.Board[:],
+		ultbo,
 		moats,
 		sd.MovesNext,
 		castling,
-		eenp[:],
+		ultenp,
 		sd.HalfmoveClock,
 		sd.FullmoveNumber,
 		alive)
