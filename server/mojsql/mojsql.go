@@ -41,6 +41,7 @@ func (m *MojSQL) TransactionEnd() error {
 
 //SaveSD inserts StateData into db
 func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
+	key = -1
 	moats := bitint(sd.Moats[:])       // string(tobit(sd.Moats[:]))
 	castling := bitint(sd.Castling[:]) // string(tobit(sd.Castling[:]))
 	eenp := fourbyte(sd.EnPassant)
@@ -69,7 +70,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 		alive)
 
 	if err != nil {
-		return -1, err
+		return
 	}
 	whether, err := whetherstmt.Query(
 		ultbo,
@@ -82,13 +83,15 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 		alive)
 	log.Println(whether, err)
 	if err != nil {
-		return -1, err
+		return
 	}
 	if whether.Next() {
-		nasz := int64(-1)
-		err = whether.Scan(&nasz)
-		log.Println(nasz, err)
-		return nasz, err
+		err = whether.Scan(&key)
+		log.Println(key, err)
+		return
+	}
+	if err = whether.Err(); err != nil {
+		return
 	}
 	resstmt, err := m.conn.Prepare(
 		`insert into 3manst (
@@ -112,7 +115,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 		)`)
 	log.Println(resstmt, err)
 	if err != nil {
-		return -1, err
+		return
 	}
 	res, err := resstmt.Exec(
 		ultbo,
@@ -125,12 +128,11 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 		alive)
 	log.Println(res, err)
 	if err != nil {
-		return -1, err
+		return
 	}
-	var lid int64
-	lid, err = res.LastInsertId()
-	log.Println(lid, err)
-	return lid, err
+	key, err = res.LastInsertId()
+	log.Println(key, err)
+	return
 }
 
 //LoadSD gets StateData from db
