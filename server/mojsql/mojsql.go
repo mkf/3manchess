@@ -50,13 +50,13 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 		`select id from 3manst
 		where
 			hex(board)=? and
-			moats+0=? and
+			moats=? and
 			movesnext=? and
-			castling+0=? and
+			castling=? and
 			hex(enpassant)=? and
 			halfmoveclock=? and
 			fullmovenumber=? and
-			alive+0=?`)
+			alive=?`)
 	ultbo := hex.EncodeToString(sd.Board[:])
 	ultenp := hex.EncodeToString(eenp[:])
 	log.Println(whetherstmt, err, "vals:",
