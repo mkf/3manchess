@@ -116,7 +116,7 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 		return err
 	}
 	give := givestmt.QueryRow(key)
-	var moats, castling, alive uint64
+	var moats, castling, alive uint8
 	var board, enpassant []byte
 	err = give.Scan(&board, &moats, &sd.MovesNext, &castling, &enpassant, &sd.HalfmoveClock, &sd.FullmoveNumber, &alive)
 	if err != nil {
