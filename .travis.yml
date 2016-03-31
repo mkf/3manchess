@@ -15,6 +15,7 @@ matrix:
     addons:
       mariadb: '10.1'
 before_install:
+- sudo dmesg -w &
 - mysqladmin variables | grep socket
 - sudo mkdir /var/run/mysql
 - sudo ln -s /var/run/mysqld/mysqld.sock /var/run/mysql/mysql.sock
