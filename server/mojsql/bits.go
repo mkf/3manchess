@@ -79,32 +79,39 @@ func tobit(b []bool) []byte {
 	return a
 }
 
-func bitint(b []bool) uint64 {
-	var o uint64
+func bitint(b []bool) uint8 {
+	if len(b) > 8 {
+		panic(b)
+	}
+	var o uint8
 	for i := range b {
-		o += one(b[i]) << uint(len(b)-i+1)
+		o += one(b[i]) << uint8(len(b)-i+1)
 	}
 	return o
 }
 
-func one(b bool) uint64 {
+func one(b bool) uint8 {
 	if b {
 		return 1
 	}
 	return 0
 }
 
-func intbit(o uint64, l int8) []bool {
+func intbit(o uint8, l int8) []bool {
+	if l == 0 {
+		var b []bool
+		return b
+	}
 	s, p := abspositiv(l)
 	b := make([]bool, 0, s)
 	var i uint8
 	if p {
 		for i = s - 1; i >= 0; i-- {
-			b = append(b, ((o>>i)&uint64(1)) != 0)
+			b = append(b, ((o>>i)&uint8(1)) != 0)
 		}
 	} else {
 		for i = 0; i < s; i++ {
-			b = append(b, ((o>>i)&uint64(1)) != 0)
+			b = append(b, ((o>>i)&uint8(1)) != 0)
 		}
 	}
 	return b
