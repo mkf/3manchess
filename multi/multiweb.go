@@ -366,6 +366,7 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 		giveerror(w, r, err, 422, "unmarshal")
 		return
 	}
+	log.Println("TURNunmarshal", turnp)
 	ok, err := mu.Server.PAuth(turnp.WhoPlayer.ID, turnp.WhoPlayer.AuthKey)
 	if !(ok && err == nil) {
 		if !ok {
@@ -375,13 +376,14 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	var maak MoveAndAfterKeys
 	ourint, err := strconv.ParseInt(vars["gameId"], 10, 64)
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 		return
 	}
+	var maak MoveAndAfterKeys
 	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, ourint, turnp.FromToProm, turnp.WhoPlayer.ID)
+	log.Println(maak, err)
 	if err != nil {
 		giveerror(w, r, err, 422, "server_movegame")
 		return
