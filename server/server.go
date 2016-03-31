@@ -3,6 +3,7 @@ package server
 //import "github.com/ArchieT/3manchess/player"
 import "github.com/ArchieT/3manchess/game"
 import "time"
+import "log"
 
 type Server interface {
 	Initialize(username string, password string, database string) error
@@ -88,14 +89,17 @@ func AddGame(sr Server, st *game.StateData, players [3]*int64, when time.Time) (
 }
 
 func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int64, aftkey int64, err error) {
+	log.Println("MoveGame", sr, before, ftp, who)
 	var befga GameplayData
 	err = sr.LoadGP(before, &befga)
+	log.Println(befga, err)
 	if err != nil {
 		return
 	}
 	befga.Date = time.Now()
 	var sta game.State
 	err = LoadState(sr, befga.State, &sta)
+	log.Println(sta, err)
 	if err != nil {
 		return
 	}
@@ -108,7 +112,9 @@ func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int
 		befga.Black = &who
 	}
 	mov := ftp.Move(&sta)
+	log.Println("now MoveIt", mov)
 	afts := MoveIt(&mov, [3]int64{nullminusone(befga.White), nullminusone(befga.Gray), nullminusone(befga.Black)})
+	log.Println("MoveIT returned", afts)
 	aftskey, err := sr.SaveSD(afts.Data())
 	if err != nil {
 		return
