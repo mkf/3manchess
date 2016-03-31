@@ -51,6 +51,8 @@ script:
 - cat tmpmovedet.out >> coverage.txt
 - go test -v github.com/ArchieT/3manchess/ai/constsitval -covermode=atomic -coverprofile=tmpconsv.out
 - cat tmpconsv.out >> coverage.txt
+- go test -v github.com/ArchieT/3manchess/server/mojsql -covermode=atomic -coverprofile=tmpmojsql.out
+- cat tmpmojsql.out >> coverage.txt
 - go test -v github.com/ArchieT/3manchess/client/remote -covermode=atomic -coverprofile=tmprem1.out
   -timeout=1m || true
 - cat tmprem1.out >> coverage.txt || true

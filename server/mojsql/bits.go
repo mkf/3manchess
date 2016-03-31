@@ -103,15 +103,19 @@ func intbit(o uint8, l int8) []bool {
 		return b
 	}
 	s, p := abspositiv(l)
-	b := make([]bool, 0, s)
+	b := make([]bool, s)
 	var i uint8
 	if p {
-		for i = s - 1; i >= 0; i-- {
-			b = append(b, ((o>>i)&uint8(1)) != 0)
+		for i = 0; i < s; i++ {
+			if ((o >> (s - 1 - i)) & uint8(1)) != 0 {
+				b[i] = true
+			}
 		}
 	} else {
 		for i = 0; i < s; i++ {
-			b = append(b, ((o>>i)&uint8(1)) != 0)
+			if ((o >> i) & uint8(1)) != 0 {
+				b[i] = true
+			}
 		}
 	}
 	return b
