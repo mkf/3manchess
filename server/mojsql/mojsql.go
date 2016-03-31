@@ -46,20 +46,9 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	castling := bitint(sd.Castling[:]) // string(tobit(sd.Castling[:]))
 	eenp := fourbyte(sd.EnPassant)
 	alive := bitint(sd.Alive[:]) // string(tobit(sd.Alive[:]))
-	whetherstmt, err := m.conn.Prepare(
-		`select id from 3manst
-		where
-			hex(board)=? and
-			moats=? and
-			movesnext=? and
-			castling=? and
-			hex(enpassant)=? and
-			halfmoveclock=? and
-			fullmovenumber=? and
-			alive=?`)
 	ultbo := hex.EncodeToString(sd.Board[:])
 	ultenp := hex.EncodeToString(eenp[:])
-	log.Println(whetherstmt, err, "vals:",
+	log.Println("vals:",
 		ultbo,
 		moats,
 		sd.MovesNext,
@@ -68,31 +57,6 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 		sd.HalfmoveClock,
 		sd.FullmoveNumber,
 		alive)
-
-	if err != nil {
-		return
-	}
-	whether, err := whetherstmt.Query(
-		ultbo,
-		moats,
-		sd.MovesNext,
-		castling,
-		ultenp,
-		sd.HalfmoveClock,
-		sd.FullmoveNumber,
-		alive)
-	log.Println(whether, err)
-	if err != nil {
-		return
-	}
-	if whether.Next() {
-		err = whether.Scan(&key)
-		log.Println(key, err)
-		return
-	}
-	if err = whether.Err(); err != nil {
-		return
-	}
 	resstmt, err := m.conn.Prepare(
 		`insert into 3manst (
 			board,
@@ -112,7 +76,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 			?,         -- hm
 			?,         -- fm
 			?          -- al
-		)`)
+		) on duplicate update id=last_insert_id(id)`)
 	log.Println(resstmt, err)
 	if err != nil {
 		return
