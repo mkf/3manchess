@@ -76,7 +76,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 			?,         -- hm
 			?,         -- fm
 			?          -- al
-		) on duplicate update id=last_insert_id(id)`)
+		) on duplicate key update id=last_insert_id(id)`)
 	log.Println(resstmt, err)
 	if err != nil {
 		return
