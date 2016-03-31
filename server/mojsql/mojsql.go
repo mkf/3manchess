@@ -119,6 +119,7 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 	var moats, castling, alive uint8
 	var board, enpassant []byte
 	err = give.Scan(&board, &moats, &sd.MovesNext, &castling, &enpassant, &sd.HalfmoveClock, &sd.FullmoveNumber, &alive)
+	log.Println("mca:", moats, castling, alive)
 	if err != nil {
 		return err
 	}
