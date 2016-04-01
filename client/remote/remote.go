@@ -5,7 +5,6 @@ import "github.com/ArchieT/3manchess/player"
 import "github.com/ArchieT/3manchess/game"
 import "github.com/ArchieT/3manchess/multi"
 import "github.com/ArchieT/3manchess/server"
-import "log"
 import "fmt"
 
 //G is a remote gameplay, with one local player accessing it
@@ -148,14 +147,11 @@ func (g *G) Turn() (breaking bool, err error) {
 	}
 	breaking = !g.state.PlayersAlive.Give(g.color)
 	g.our.HeySituationChanges(oftp.Move(bef), g.state)
-	log.Println("sitchang", oftp, bef, g.state)
 	return
 }
 
 func (g *G) Procedure(end chan<- bool, errch chan<- error) {
-	log.Println("Remote::Procedure", g.state)
 	if g.state.PlayersAlive.Give(g.color) {
-		log.Println("Remote::Given")
 		for {
 			br, err := g.Turn()
 			if br {
@@ -165,9 +161,7 @@ func (g *G) Procedure(end chan<- bool, errch chan<- error) {
 				errch <- err
 				continue
 			}
-			log.Println("Remote::Turning...")
 		}
 	}
-	log.Println("Remote::NotTurningAnymore")
 	end <- false
 }
