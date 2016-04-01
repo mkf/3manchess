@@ -89,18 +89,25 @@ func (gp *Gameplay) Lifes() (end bool) {
 }
 
 func (gp *Gameplay) Turn() (breaking bool) {
+	log.Println("TURNFUNC START")
 	gp.Players[gp.State.MovesNext].HeyWeWaitingForYou(true)
 	hurry := make(chan bool)
+	log.Println("TURNFUNC ASKING", gp.Players, gp.State.MovesNext)
 	move := gp.Players[gp.State.MovesNext].HeyItsYourMove(gp.State, hurry)
+	log.Println("TURNFUNC AFTERING", move)
 	after, err := move.After()
+	log.Println("TURNFUNC AFTERED", after, err)
 	if err != nil {
 		gp.Players[gp.State.MovesNext].ErrorChannel() <- err
 		log.Println(err)
 		return gp.Turn()
 	}
+	log.Println("TURNFUNC is gonna EVALDEATH")
 	after.EvalDeath()
+	log.Println("TURNFUNC EVALDEATHED")
 	gp.State = after
 	for _, ci := range game.COLORS {
+		log.Println("NOTIFYING", ci, "ABOUT", move, after)
 		gp.Players[ci].HeySituationChanges(move, after)
 	}
 	return gp.GiveResult()
