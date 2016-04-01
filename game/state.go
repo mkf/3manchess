@@ -165,6 +165,12 @@ type State struct {
 	PlayersAlive
 }
 
+func (s *State) Equal(d *State) {
+	return *s.Board == *d.Board && s.MoatsState == d.MoatsState && s.MovesNext == d.MovesNext &&
+		s.Castling == d.Castling && s.EnPassant == d.EnPassant && s.HalfmoveClock == d.HalfmoveClock &&
+		s.FullmoveNumber == d.FullmoveNumber && s.PlayersAlive == d.PlayersAlive
+}
+
 //StateData is a repr of State for db storage
 type StateData struct {
 	Board          [144]byte `json:"boardrepr"`
