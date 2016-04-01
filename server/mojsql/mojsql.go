@@ -268,6 +268,31 @@ func procafter(beforegp int64, rows *sql.Rows, er error) (out []server.MoveFollo
 	return
 }
 
+func (m *MojSQL) BeforeMD(aftergp int64) (out []server.MoveFollow, err error) {
+	stmt, err := m.conn.Prepare("select id,fromto,beforegame,promotion,who from 3manmv where aftergame=?")
+	if err != nil {
+		return
+	}
+	rows, err := stmt.Query(aftergp)
+	if err != nil {
+		return
+	}
+	out = make([]server.MoveFollow, 0, 1)
+	for rows.Next() {
+		var neww server.MoveFollow
+		var ft []byte
+		neww.MoveData.AfterGame = aftergp
+		err = rows.Scan(&neww.Key, &ft, &neww.MoveData.BeforeGame, &neww.MoveData.PawnPromotion, &neww.MoveData.Who)
+		neww.MoveData.FromTo = fourint8(yas4(ft))
+		out = append(out, neww)
+		if err != nil {
+			return
+		}
+	}
+	err = rows.Close()
+	return
+}
+
 var minusoneint64 int64 = -1
 
 //AfterMDwPlayers takes the before GameplayID and W,G,B players and returns the after gameplays with the same players

@@ -54,6 +54,7 @@ func (mu *Multi) NewRouter() *mux.Router {
 		{"APIPlay", "GET", "/api/play/{gameId}", mu.APIPlay},
 		{"APITurn", "POST", "/api/play/{gameId}", mu.APITurn},
 		{"APIAfter", "GET", "/api/play/{gameId}/after", mu.APIAfter},
+		{"APIBefore", "GET", "/api/play/{gameId}/before", mu.APIBefore},
 		{"APIState", "GET", "/api/state/{stateId}", mu.APIState},
 		{"APIVFTPGen", "GET", "/api/state/{stateId}/vftpgen", mu.APIVFTPGen},
 		{"APIMove", "GET", "/api/move/{moveId}", mu.APIMove},
@@ -506,6 +507,25 @@ func (mu *Multi) APIAfter(w http.ResponseWriter, r *http.Request) {
 	what, err := server.AfterMD(mu.Server, key, them)
 	if err != nil {
 		giveerror(w, r, err, 421, "server_aftermd")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err = json.NewEncoder(w).Encode(what); err != nil {
+		panic(err)
+	}
+}
+
+func (mu *Multi) APIBefore(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key, err := strconv.ParseInt(vars["gameId"], 10, 64)
+	if err != nil {
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		return
+	}
+	what, err := mu.Server.BeforeMD(key)
+	if err != nil {
+		giveerror(w, r, err, 421, "server_beforemd")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
