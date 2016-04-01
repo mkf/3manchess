@@ -3,6 +3,7 @@ package player
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
 import "github.com/ArchieT/3manchess/game"
+import "sync"
 import "log" //debug
 
 //Player is either AI or a human via some UI
@@ -106,10 +107,14 @@ func (gp *Gameplay) Turn() (breaking bool) {
 	after.EvalDeath()
 	log.Println("TURNFUNC EVALDEATHED")
 	gp.State = after
+	var wg sync.WaitGroup
 	for _, ci := range game.COLORS {
+		wg.Add(1)
 		log.Println("NOTIFYING", ci, "ABOUT", move, after)
 		gp.Players[ci].HeySituationChanges(move, after)
+		wg.Done()
 	}
+	wg.Wait()
 	return gp.GiveResult()
 }
 
