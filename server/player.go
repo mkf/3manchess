@@ -19,8 +19,12 @@ func (sp *ServerPlayer) GiveMove(m game.Move) <-chan *game.State {
 	return sp.sitret
 }
 
-func (sp *ServerPlayer) Initialize(*player.Gameplay) { sp.sitret = make(chan *game.State) }
-func (sp *ServerPlayer) ErrorChannel() chan<- error  { return sp.errchan }
+func (sp *ServerPlayer) Initialize(*player.Gameplay) {
+	sp.sitret = make(chan *game.State)
+	sp.move = make(chan game.Move)
+	sp.errchan = make(chan error)
+}
+func (sp *ServerPlayer) ErrorChannel() chan<- error { return sp.errchan }
 func (sp *ServerPlayer) HurryChannel() chan<- bool {
 	c := make(chan bool)
 	go func() {
