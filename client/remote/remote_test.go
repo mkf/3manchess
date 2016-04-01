@@ -98,7 +98,7 @@ func TestNew_ai3(t *testing.T) {
 			func(g *G) (int64, error) {
 				t.Log("AFTFUNCC")
 				for {
-					t.Log("st for aftfunc")
+					t.Log("st for aftfunc", *g.state)
 					a, _, err := g.C().After(
 						g.gameid,
 						[3]*int64{nil, nil, nil},
