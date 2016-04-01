@@ -115,6 +115,14 @@ func (s *Service) After(gameid int64, filterplayers [3]*int64) (*[]server.MoveFo
 	return give, resp, rerr(err, *ser)
 }
 
+//Before : /api/play/{gameId}/before
+func (s *Service) Before(gameid int64) (*[]server.MoveFollow, *http.Response, error) {
+	give := new([]server.MoveFollow)
+	ser := new(multi.APIListErr)
+	resp, err := s.sling.New().Get(fmt.Sprintf("api/play/%d/before", gameid)).Receive(give, ser)
+	return give, resp, rerr(err, *ser)
+}
+
 //Play : /api/play/{gameId}
 func (s *Service) Play(gameid int64) (*server.GameplayData, *http.Response, error) {
 	give := new(server.GameplayData)
