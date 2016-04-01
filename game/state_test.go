@@ -8,6 +8,6 @@ func TestFromData_newgame(t *testing.T) {
 	var xs State
 	xs.FromData(nd)
 	if !xs.Equal(&ns) {
-		t.Fatal(ns, nd, xs)
+		t.Fatal(ns, ns.Board, nd, xs, xs.Board)
 	}
 }
