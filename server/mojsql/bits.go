@@ -79,13 +79,22 @@ func tobit(b []bool) []byte {
 	return a
 }
 
-func bitint(b []bool) uint8 {
+func bitint(b []bool) (o uint8) {
 	if len(b) > 8 {
 		panic(b)
 	}
-	var o uint8
 	for i := range b {
-		o += one(b[i]) << uint8(len(b)-i+1)
+		o |= one(b[i]) << uint8(len(b)-i-1)
+	}
+	return o
+}
+
+func revbitint(b []bool) (o uint8) {
+	if len(b) > 8 {
+		panic(b)
+	}
+	for i := range b {
+		o |= one(b[i]) << uint8(i)
 	}
 	return o
 }
