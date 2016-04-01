@@ -113,7 +113,10 @@ func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int
 	}
 	mov := ftp.Move(&sta)
 	log.Println("now MoveIt", mov)
-	afts := MoveIt(&mov, [3]int64{nullminusone(befga.White), nullminusone(befga.Gray), nullminusone(befga.Black)})
+	afts, err := mov.EvalAfter()
+	if err != nil {
+		return
+	}
 	log.Println("MoveIT returned", afts)
 	aftskey, err := sr.SaveSD(afts.Data())
 	if err != nil {
