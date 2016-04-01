@@ -216,6 +216,7 @@ func Byte144(s []byte) [144]byte {
 	for i := 0; i < 144; i++ {
 		d[i] = s[i]
 	}
+	return d
 }
 
 //EvalDeath : evaluate the death of all players
