@@ -96,14 +96,19 @@ func TestNew_ai3(t *testing.T) {
 				botsau[bno].AuthKey,
 			},
 			func(g *G) (int64, error) {
-				t.Log("Started aftfunc")
-				a, _, err := g.C().After(
-					g.gameid,
-					[3]*int64{nil, nil, nil},
-				)
-				t.Log("aftfunc kitchen:", a, err)
-				if len(*a) > 0 {
-					return (*a)[0].Key, err
+				for {
+					t.Log("Started aftfunc")
+					a, _, err := g.C().After(
+						g.gameid,
+						[3]*int64{nil, nil, nil},
+					)
+					t.Log("aftfunc kitchen:", a, err)
+					if len(*a) > 0 {
+						return (*a)[0].Key, err
+					}
+					if err != nil {
+						return -1, err
+					}
 				}
 				return -1, err
 			},
