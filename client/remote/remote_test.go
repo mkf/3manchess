@@ -96,8 +96,9 @@ func TestNew_ai3(t *testing.T) {
 				botsau[bno].AuthKey,
 			},
 			func(g *G) (int64, error) {
+				t.Log("AFTFUNCC")
 				for {
-					t.Log("Started aftfunc")
+					t.Log("st for aftfunc")
 					a, _, err := g.C().After(
 						g.gameid,
 						[3]*int64{nil, nil, nil},
@@ -109,6 +110,7 @@ func TestNew_ai3(t *testing.T) {
 					if err != nil {
 						return -1, err
 					}
+					time.Sleep(3 * time.Second)
 				}
 				return -1, err
 			},
