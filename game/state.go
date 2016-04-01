@@ -42,7 +42,7 @@ func (cs Castling) Uint8() uint8 {
 //Array returns a [6]bool repr of a Castling struct
 func (cs Castling) Array() [6]bool {
 	var b [6]bool
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 6; i++ {
 		b[i] = cs[i>>1][i%2]
 	}
 	return b
