@@ -146,7 +146,7 @@ func (g *G) Turn() (breaking bool, err error) {
 	if oftp, err = do(); err != nil {
 		return
 	}
-	breaking = g.state.PlayersAlive.Give(g.color)
+	breaking = !g.state.PlayersAlive.Give(g.color)
 	g.our.HeySituationChanges(oftp.Move(bef), g.state)
 	return
 }
@@ -156,8 +156,8 @@ func (g *G) Procedure(end chan<- bool, errch chan<- error) {
 	if g.state.PlayersAlive.Give(g.color) {
 		log.Println("Remote::Given")
 		for {
-			ok, err := g.Turn()
-			if !ok {
+			br, err := g.Turn()
+			if br {
 				break
 			}
 			if err != nil {
