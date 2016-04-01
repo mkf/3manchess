@@ -63,7 +63,7 @@ func CastlingFromUint8(u uint8) Castling {
 //CastlingFromArray reproduces Castling from [6]bool repr
 func CastlingFromArray(b [6]bool) Castling {
 	var cs Castling
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 6; i++ {
 		cs[i>>1][i%2] = b[i]
 	}
 	return cs
