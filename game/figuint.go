@@ -1,5 +1,7 @@
 package game
 
+import "log"
+
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
 //Uint8 returns   [[ _ P C C C T T T ]]
@@ -56,6 +58,7 @@ func byteoac(oac ACP) uint8 { return (24 * uint8(oac[0])) + uint8(oac[1]) }
 
 //BoardByte reproduces a Board from byte slice repr
 func BoardByte(s []byte) *Board {
+	log.Println(s)
 	var b Board
 	var t uint8
 	var oac ACP
@@ -67,17 +70,20 @@ func BoardByte(s []byte) *Board {
 		b[oac[0]][oac[1]] = SqUint8(t)
 		oac.P()
 	}
+	log.Println(b)
 	return &b
 }
 
 //Byte returns all 6 concatenated ranks, where each rank is 24 squares, each represented by Square.Uint8
 func (b *Board) Byte() [144]byte {
+	log.Println(b)
 	var d [144]byte
 	var oac ACP
 	for oac.OK() {
 		d[byteoac(oac)] = b.GPos(Pos(oac)).Uint8()
 		oac.P()
 	}
+	log.Println(d)
 	return d
 }
 
