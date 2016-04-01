@@ -208,6 +208,16 @@ func (s *State) Data() *StateData {
 	return &d
 }
 
+func Byte144(s []byte) [144]byte {
+	if len(s) != 144 {
+		panic(s)
+	}
+	var d [144]byte
+	for i := 0; i < 144; i++ {
+		d[i] = s[i]
+	}
+}
+
 //EvalDeath : evaluate the death of all players
 func (s *State) EvalDeath() {
 	if !(s.CanIMoveWOCheck(s.MovesNext)) { // next player to move cannot be checkmated

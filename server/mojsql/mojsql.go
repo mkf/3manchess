@@ -126,6 +126,7 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 	var bmoats, bcastling, balive []bool
 	bmoats, bcastling, balive = intbit(moats, 3), intbit(castling, 6), intbit(alive, 3)
 	sd.Moats, sd.Castling, sd.EnPassant, sd.Alive = bas3(bmoats), bas6(bcastling), fourint8(yas4(enpassant)), bas3(balive)
+	sd.Board = game.Byte144(board)
 	return err
 }
 
