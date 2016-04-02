@@ -123,6 +123,14 @@ func (s *Service) Before(gameid int64) (*[]server.MoveFollow, *http.Response, er
 	return give, resp, rerr(err, *ser)
 }
 
+//OwnersBots : /api/user/{userId}/bots
+func (s *Service) OwnersBots(owner int64) (*[]server.BotFollow, *http.Response, error) {
+	give := new([]server.BotFollow)
+	ser := new(multi.APIListErr)
+	resp, err := s.sling.New().Get(fmt.Sprintf("api/user/%d/bots", owner)).Receive(give, ser)
+	return give, resp, rerr(err, *ser)
+}
+
 //Play : /api/play/{gameId}
 func (s *Service) Play(gameid int64) (*server.GameplayData, *http.Response, error) {
 	give := new(server.GameplayData)
