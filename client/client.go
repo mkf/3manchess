@@ -164,16 +164,16 @@ func (s *Service) WhoIsIt(playerid int64) (*multi.InfoWhoIsIt, *http.Response, e
 }
 
 //UserInfo : /api/user/{userId}
-func (s *Service) UserInfo(userid int64) (*multi.InfoUser, *http.Response, error) {
-	give := new(multi.InfoUser)
+func (s *Service) UserInfo(userid int64) (*server.InfoUser, *http.Response, error) {
+	give := new(server.InfoUser)
 	ser := new(multi.APIListErr)
 	resp, err := s.sling.New().Get(fmt.Sprintf("api/user/%d", userid)).Receive(give, ser)
 	return give, resp, rerr(err, *ser)
 }
 
 //BotInfo : /api/bot/{botId}
-func (s *Service) BotInfo(botid int64) (*multi.InfoBot, *http.Response, error) {
-	give := new(multi.InfoBot)
+func (s *Service) BotInfo(botid int64) (*server.InfoBot, *http.Response, error) {
+	give := new(server.InfoBot)
 	ser := new(multi.APIListErr)
 	resp, err := s.sling.New().Get(fmt.Sprintf("api/bot/%d", botid)).Receive(give, ser)
 	return give, resp, rerr(err, *ser)

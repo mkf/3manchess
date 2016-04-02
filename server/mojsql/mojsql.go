@@ -293,6 +293,29 @@ func (m *MojSQL) BeforeMD(aftergp int64) (out []server.MoveFollow, err error) {
 	return
 }
 
+func (m *MojSQL) OwnersBots(owner int64) (out []server.BotFollow, err error) {
+	stmt, err := m.conn.Prepare("select id,whoami,ownname,player,settings from chessbot where owner=?")
+	if err != nil {
+		return
+	}
+	rows, err := stmt.Query(owner)
+	if err != nil {
+		return
+	}
+	out = make([]server.BotFollow, 0, 3)
+	for rows.Next() {
+		var neww server.BotFollow
+		neww.Owner = owner
+		err = rows.Scan(&neww.Key, &neww.Key, &neww.WhoAmI, &neww.OwnName, &neww.Player, &neww.Settings)
+		out = append(out, neww)
+		if err != nil {
+			return
+		}
+	}
+	err = rows.Close()
+	return
+}
+
 var minusoneint64 int64 = -1
 
 //AfterMDwPlayers takes the before GameplayID and W,G,B players and returns the after gameplays with the same players

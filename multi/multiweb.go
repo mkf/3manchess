@@ -61,6 +61,7 @@ func (mu *Multi) NewRouter() *mux.Router {
 		{"APILogin", "POST", "/api/login", mu.APILogin},
 		{"APIWhoIsIt", "GET", "/api/player/{playerId}", mu.APIWhoIsIt},
 		{"APIUserInfo", "GET", "/api/user/{userId}", mu.APIUserInfo},
+		{"APIOwnersBots", "GET", "/api/user/{userId}/bots", mu.APIOwnersBots},
 		{"APIBotInfo", "GET", "/api/bot/{botId}", mu.APIBotInfo},
 		{"APIBotKey", "POST", "/api/botkey", mu.APIBotKey},
 	}
@@ -560,15 +561,9 @@ func (mu *Multi) APIWhoIsIt(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type InfoUser struct {
-	Login  string `json:"login"`
-	Name   string `json:"name"`
-	Player int64  `json:"playerid"`
-}
-
 func (mu *Multi) APIUserInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	var iu InfoUser
+	var iu server.InfoUser
 	key, err := strconv.ParseInt(vars["userId"], 10, 64)
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest, "parseint")
@@ -586,17 +581,9 @@ func (mu *Multi) APIUserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type InfoBot struct {
-	WhoAmI   []byte `json:"whoami"`
-	Owner    int64  `json:"ownerid"`
-	OwnName  string `json:"ownname"`
-	Player   int64  `json:"playerid"`
-	Settings []byte `json:"settings"`
-}
-
 func (mu *Multi) APIBotInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	var sib InfoBot
+	var sib server.InfoBot
 	key, err := strconv.ParseInt(vars["botId"], 10, 64)
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest, "parseint")
@@ -610,6 +597,25 @@ func (mu *Multi) APIBotInfo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(sib); err != nil {
+		panic(err)
+	}
+}
+
+func (mu *Multi) APIOwnersBots(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key, err := strconv.ParseInt(vars["userId"], 10, 64)
+	if err != nil {
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+		return
+	}
+	what, err := mu.Server.OwnersBots(key)
+	if err != nil {
+		giveerror(w, r, err, 421, "server_ownersbots")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(what); err != nil {
 		panic(err)
 	}
 }

@@ -17,6 +17,7 @@ type Server interface {
 	AfterMD(beforegp int64) ([]MoveFollow, error)
 	AfterMDwPlayers(beforegp int64, players [3]*int64) ([]MoveFollow, error)
 	BeforeMD(aftergp int64) ([]MoveFollow, error)
+	OwnersBots(owner int64) ([]BotFollow, error)
 	GetAuth(playerid int64) (authkey []byte, err error)
 	NewPlayer() (playerid int64, authkey []byte, err error)
 	SignUp(login string, passwd string, name string) (userid int64, playerid int64, authkey []byte, err error)
@@ -171,4 +172,28 @@ type AfterMoveFollow struct {
 type StateFollow struct {
 	Key int64
 	*game.StateData
+}
+
+type InfoUser struct {
+	Login  string `json:"login"`
+	Name   string `json:"name"`
+	Player int64  `json:"playerid"`
+}
+
+type UserFollow struct {
+	Key int64
+	InfoUser
+}
+
+type InfoBot struct {
+	WhoAmI   []byte `json:"whoami"`
+	Owner    int64  `json:"ownerid"`
+	OwnName  string `json:"ownname"`
+	Player   int64  `json:"playerid"`
+	Settings []byte `json:"settings"`
+}
+
+type BotFollow struct {
+	Key int64
+	InfoBot
 }
