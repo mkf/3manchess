@@ -63,6 +63,11 @@ func TestNew_ai3(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			binfo, _, err := c.BotInfo(bbi)
+			t.Log(binfo)
+			if err != nil {
+				t.Fatal(err)
+			}
 			bbp, bba = bbb.ID, bbb.AuthKey
 		}
 		botsau[bno] = multi.NewBotGive{bbi, bbp, bba}
