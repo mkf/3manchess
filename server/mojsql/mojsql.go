@@ -306,7 +306,7 @@ func (m *MojSQL) OwnersBots(owner int64) (out []server.BotFollow, err error) {
 	for rows.Next() {
 		var neww server.BotFollow
 		neww.Owner = owner
-		err = rows.Scan(&neww.Key, &neww.Key, &neww.WhoAmI, &neww.OwnName, &neww.Player, &neww.Settings)
+		err = rows.Scan(&neww.Key, &neww.WhoAmI, &neww.OwnName, &neww.Player, &neww.Settings)
 		out = append(out, neww)
 		if err != nil {
 			return
