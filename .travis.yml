@@ -44,7 +44,7 @@ install:
 - go install -v -race github.com/ArchieT/3manchess/client
 - go install -v -race github.com/ArchieT/3manchess/client/remote
 script:
-- (while true; do echo "while - trychessserver starting again"; (while true; do sleep 15; free -m; done) & trychessserver -d archiet -u root; free -m; done) &
+- (while true; do echo "while - trychessserver starting again"; trychessserver -d archiet -u root; done) &
 - go test github.com/ArchieT/3manchess/game -covermode=atomic -coverprofile=tmpgame.out
 - cat tmpgame.out >> coverage.txt
 - go test github.com/ArchieT/3manchess/movedet -covermode=atomic -coverprofile=tmpmovedet.out
