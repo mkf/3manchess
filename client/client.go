@@ -140,8 +140,8 @@ func (s *Service) Play(gameid int64) (*server.GameplayData, *http.Response, erro
 }
 
 //State : /api/state/{stateId}
-func (s *Service) State(stateid int64) (*game.StateData, *http.Response, error) {
-	give := new(game.StateData)
+func (s *Service) State(stateid int64) (*game.State, *http.Response, error) {
+	give := new(game.State)
 	ser := new(multi.APIListErr)
 	resp, err := s.sling.New().Get(fmt.Sprintf("api/state/%d", stateid)).Receive(give, ser)
 	return give, resp, rerr(err, *ser)
