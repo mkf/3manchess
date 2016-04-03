@@ -1,5 +1,7 @@
 package game
 
+import "strconv"
+
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
 //Uint8 returns   [[ _ P C C C T T T ]]
@@ -20,6 +22,20 @@ func (s *Square) Uint8() uint8 {
 		return 0
 	}
 	return s.Fig.Uint8()
+}
+
+func (s *Square) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Itoa(s.Uint8()))
+}
+
+func (s *Square) UnmarshalJSON(b []byte) error {
+	i, err := strconv.Atoi(string(b))
+	s.FromUint8(i)
+	return err
+}
+
+func (s *Square) FromUint8(u uint8) {
+	*s = SqUint8(u)
 }
 
 //SqUint8 reproduces a Square from an uint8 repr
