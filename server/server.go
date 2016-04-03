@@ -32,6 +32,18 @@ type Server interface {
 	BotInfo(botid int64) (whoami []byte, owner int64, ownname string, player int64, settings []byte, err error)
 }
 
+func SaveState(sr Server, sta *game.State) (key int64, err error) {
+	return sr.SaveSD(sta.Data())
+}
+
+func LoadState(sr Server, key int64, sta *game.State) error {
+	da := new(game.StateData)
+	if err = sr.LoadSD(key, da); err != nil {
+		return
+	}
+	sta.FromData(da)
+}
+
 type GameplayData struct {
 	State int64     `json:"stateid"`
 	White *int64    `json:"whiteplayer"`
@@ -80,8 +92,8 @@ func (md MoveData) Move(sr Server) game.Move {
 	return md.FromToProm().Move(s)
 }
 
-func AddGame(sr Server, st *game.StateData, players [3]*int64, when time.Time) (key int64, err error) {
-	sk, err := sr.SaveSD(st)
+func AddGame(sr Server, st *game.State, players [3]*int64, when time.Time) (key int64, err error) {
+	sk, err := sr.SaveState(st)
 	if err != nil {
 		return
 	}
@@ -120,7 +132,7 @@ func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int
 		return
 	}
 	log.Println("MoveIT returned", afts)
-	aftskey, err := sr.SaveSD(afts.Data())
+	aftskey, err := sr.SaveState(afts)
 	if err != nil {
 		return
 	}
@@ -146,13 +158,6 @@ func nullminusone(q *int64) int64 {
 	return *q
 }
 
-func LoadState(sr Server, key int64, s *game.State) error {
-	var sd game.StateData
-	err := sr.LoadSD(key, &sd)
-	s.FromData(&sd)
-	return err
-}
-
 type GameplayFollow struct {
 	Key          int64 `json:"id"`
 	GameplayData `json:"game"`
@@ -169,9 +174,14 @@ type AfterMoveFollow struct {
 	//YourMoveNext bool `json:"yourmovenext"`
 }
 
-type StateFollow struct {
+type StateDataFollow struct {
 	Key int64
 	*game.StateData
+}
+
+type StateFollow struct {
+	Key         int64 `json:"key"`
+	*game.State `json:"state"`
 }
 
 type InfoUser struct {
@@ -181,8 +191,8 @@ type InfoUser struct {
 }
 
 type UserFollow struct {
-	Key int64
-	InfoUser
+	Key      int64 `json:"key"`
+	InfoUser `json:"userinfo"`
 }
 
 type InfoBot struct {
@@ -194,6 +204,6 @@ type InfoBot struct {
 }
 
 type BotFollow struct {
-	Key int64
-	InfoBot
+	Key     int64 `json:"key"`
+	InfoBot `json:"botinfo"`
 }
