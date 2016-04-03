@@ -307,10 +307,10 @@ func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
 }
 
 type GameplayPost struct {
-	State game.StateData `json:"state"`
-	White *int64         `json:"whiteplayer"`
-	Gray  *int64         `json:"grayplayer"`
-	Black *int64         `json:"blackplayer"`
+	State game.State `json:"state"`
+	White *int64     `json:"whiteplayer"`
+	Gray  *int64     `json:"grayplayer"`
+	Black *int64     `json:"blackplayer"`
 }
 
 type GameplayGive struct {
@@ -418,13 +418,13 @@ func (mu *Multi) APIPlay(w http.ResponseWriter, r *http.Request) {
 
 func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	var gp game.StateData
+	var gp game.State
 	key, err := strconv.ParseInt(vars["stateId"], 10, 64)
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 		return
 	}
-	err = mu.Server.LoadSD(key, &gp)
+	err = mu.Server.LoadState(key, &gp)
 	if err != nil {
 		giveerror(w, r, err, 421, "server_loadsd")
 		return
@@ -437,8 +437,8 @@ func (mu *Multi) APIState(w http.ResponseWriter, r *http.Request) {
 }
 
 type VFTPGenGive struct {
-	game.StateData `json:"state"`
-	FromToProms    []game.FromToProm `json:"fromtoproms"`
+	game.State  `json:"state"`
+	FromToProms []game.FromToProm `json:"fromtoproms"`
 }
 
 func (mu *Multi) APIVFTPGen(w http.ResponseWriter, r *http.Request) {
@@ -448,15 +448,13 @@ func (mu *Multi) APIVFTPGen(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 	}
-	err = mu.Server.LoadSD(key, &gp.StateData)
+	err = mu.Server.LoadState(key, &gp.State)
 	if err != nil {
 		giveerror(w, r, err, 421, "server_loadsd")
 		return
 	}
 	gp.FromToProms = make([]game.FromToProm, 0, 50)
-	var st game.State
-	st.FromData(&gp.StateData)
-	for ftp := range game.VFTPGen(&st) {
+	for ftp := range game.VFTPGen(&gp.State) {
 		gp.FromToProms = append(gp.FromToProms, ftp)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
