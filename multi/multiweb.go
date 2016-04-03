@@ -274,9 +274,9 @@ type NewBotPost struct {
 }
 
 type NewBotGive struct {
-	Botid    int64
-	PlayerID int64
-	AuthKey  []byte
+	Botid    int64  `json:"botid"`
+	PlayerID int64  `json:"playerid"`
+	AuthKey  []byte `json:"authkey"`
 }
 
 func (mu *Multi) APINewBot(w http.ResponseWriter, r *http.Request) {
