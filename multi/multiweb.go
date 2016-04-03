@@ -311,7 +311,6 @@ type GameplayPost struct {
 	White *int64         `json:"whiteplayer"`
 	Gray  *int64         `json:"grayplayer"`
 	Black *int64         `json:"blackplayer"`
-	Date  time.Time      `json:"when"`
 }
 
 type GameplayGive struct {
@@ -332,7 +331,7 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var gpg GameplayGive
-	gpg.Key, err = server.AddGame(mu.Server, &gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, gpp.Date)
+	gpg.Key, err = server.AddGame(mu.Server, &gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, time.Now())
 	if err != nil {
 		giveerror(w, r, err, 422, "server_addgame")
 		return
