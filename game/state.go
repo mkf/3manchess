@@ -155,14 +155,14 @@ var DEFPLAYERSALIVE = [3]bool{true, true, true}
 
 //State : single gamestate
 type State struct {
-	*Board //[color,figure_lowercase] //[0,0]
-	MoatsState
-	MovesNext Color //W G B
-	Castling        //0W 1G 2B  //0K 1Q
-	EnPassant       //[previousplayer,currentplayer]  [number,letter]
-	HalfmoveClock
-	FullmoveNumber
-	PlayersAlive
+	*Board         `json:"board"`      //[color,figure_lowercase] //[0,0]
+	MoatsState     `json:"moatsstate"` //moatsstate
+	MovesNext      Color               `json:"movesnext"` //W G B
+	Castling       `json:"castling"`   //0W 1G 2B  //0K 1Q
+	EnPassant      `json:"enpassant"`  //[previousplayer,currentplayer]  [number,letter]
+	HalfmoveClock  `json:"halfmoveclock"`
+	FullmoveNumber `json:"fullmovenumber"`
+	PlayersAlive   `json:"alivecolors"`
 }
 
 func (s *State) Equal(d *State) bool {
