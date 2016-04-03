@@ -25,12 +25,12 @@ func (s *Square) Uint8() uint8 {
 }
 
 func (s *Square) MarshalJSON() ([]byte, error) {
-	return []byte(strconv.Itoa(s.Uint8()))
+	return []byte(strconv.Itoa(int(s.Uint8()))), nil
 }
 
 func (s *Square) UnmarshalJSON(b []byte) error {
 	i, err := strconv.Atoi(string(b))
-	s.FromUint8(i)
+	s.FromUint8(uint8(i))
 	return err
 }
 
