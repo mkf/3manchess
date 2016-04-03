@@ -15,7 +15,7 @@ type MojSQL struct {
 }
 
 //Interface returns server.Server(m)
-func (m *MojSQL) Interface() server.Server { return m }
+func (m *MojSQL) Interface() server.Server { return server.Server{m} }
 
 //Initialize initializes the sql binding
 func (m *MojSQL) Initialize(username string, password string, database string) error {
