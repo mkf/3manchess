@@ -13,11 +13,12 @@ import "fmt"
 
 var c *client.Client
 
+var nso game.State
 var ns *game.StateData
 
 func init() {
-	nssssss := game.NewState()
-	ns = nssssss.Data()
+	nso = game.NewState()
+	ns = nso.Data()
 	bu := flag.String("baseurl", os.Getenv("CHESSBASEURL"), "3manchess/multi base URL")
 	flag.Parse()
 	//t.Log("baseurl", bu)
@@ -44,7 +45,7 @@ func TestNew_ai3(t *testing.T) {
 	}
 	t.Log(u, p, a)
 	var mgpp multi.GameplayPost
-	mgpp.State = *ns
+	mgpp.State = nso
 	var botsconf [3]constsitval.AIConfig
 	botsconf[0].OwnedToThreatened = 4.0
 	botsconf[1].OwnedToThreatened = 5.0
