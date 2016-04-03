@@ -38,7 +38,7 @@ func New(c *client.Client, our player.Player, color game.Color, gameid int64, au
 	g := G{
 		c:       c,
 		gameid:  gameid,
-		state:   new(game.State),
+		state:   sd,
 		our:     our,
 		color:   color,
 		auth:    auth,
@@ -50,7 +50,6 @@ func New(c *client.Client, our player.Player, color game.Color, gameid int64, au
 			ec <- i
 		}
 	}(errch)
-	g.state.FromData(sd)
 	go g.Procedure(end, errch)
 	return &g, nil
 }
@@ -125,9 +124,7 @@ func (g *G) getstate() error {
 	if err != nil {
 		return err
 	}
-	s := new(game.State)
-	s.FromData(sd)
-	g.state = s
+	g.state = sd
 	return err
 }
 

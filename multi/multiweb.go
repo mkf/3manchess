@@ -331,7 +331,7 @@ func (mu *Multi) APIAddGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var gpg GameplayGive
-	gpg.Key, err = server.AddGame(mu.Server, &gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, time.Now())
+	gpg.Key, err = mu.Server.AddGame(&gpp.State, [3]*int64{gpp.White, gpp.Gray, gpp.Black}, time.Now())
 	if err != nil {
 		giveerror(w, r, err, 422, "server_addgame")
 		return
@@ -383,7 +383,7 @@ func (mu *Multi) APITurn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var maak MoveAndAfterKeys
-	maak.MoveKey, maak.AfterGameKey, err = server.MoveGame(mu.Server, ourint, turnp.FromToProm, turnp.WhoPlayer.ID)
+	maak.MoveKey, maak.AfterGameKey, err = mu.Server.MoveGame(ourint, turnp.FromToProm, turnp.WhoPlayer.ID)
 	log.Println(maak, err)
 	if err != nil {
 		giveerror(w, r, err, 422, "server_movegame")
@@ -502,7 +502,7 @@ func (mu *Multi) APIAfter(w http.ResponseWriter, r *http.Request) {
 		giveerror(w, r, err, http.StatusBadRequest, "parseint")
 		return
 	}
-	what, err := server.AfterMD(mu.Server, key, them)
+	what, err := mu.Server.AfterMD(key, them)
 	if err != nil {
 		giveerror(w, r, err, 421, "server_aftermd")
 		return

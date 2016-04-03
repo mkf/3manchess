@@ -238,7 +238,7 @@ func (m *MojSQL) LoadMD(key int64, md *server.MoveData) (err error) {
 }
 
 //AfterMD lists moves after the selected gameplay
-func (m *MojSQL) AfterMD(beforegp int64) (out []server.MoveFollow, err error) {
+func (m *MojSQL) AfterMDwe(beforegp int64) (out []server.MoveFollow, err error) {
 	stmt, err := m.conn.Prepare("select id,fromto,aftergame,promotion,who from 3manmv where beforegame=?")
 	if err != nil {
 		return

@@ -5,7 +5,11 @@ import "github.com/ArchieT/3manchess/game"
 import "time"
 import "log"
 
-type Server interface {
+type Server struct {
+	Database
+}
+
+type Database interface {
 	Initialize(username string, password string, database string) error
 	SaveGP(*GameplayData) (key int64, err error)
 	LoadGP(key int64, gp *GameplayData) error
@@ -14,7 +18,7 @@ type Server interface {
 	SaveMD(*MoveData) (key int64, err error)
 	LoadMD(key int64, md *MoveData) error
 	ListGP(uint) ([]GameplayFollow, error)
-	AfterMD(beforegp int64) ([]MoveFollow, error)
+	AfterMDwe(beforegp int64) ([]MoveFollow, error)
 	AfterMDwPlayers(beforegp int64, players [3]*int64) ([]MoveFollow, error)
 	BeforeMD(aftergp int64) ([]MoveFollow, error)
 	OwnersBots(owner int64) ([]BotFollow, error)
@@ -32,11 +36,11 @@ type Server interface {
 	BotInfo(botid int64) (whoami []byte, owner int64, ownname string, player int64, settings []byte, err error)
 }
 
-func SaveState(sr Server, sta *game.State) (key int64, err error) {
+func (sr Server) SaveState(sta *game.State) (key int64, err error) {
 	return sr.SaveSD(sta.Data())
 }
 
-func LoadState(sr Server, key int64, sta *game.State) (err error) {
+func (sr Server) LoadState(key int64, sta *game.State) (err error) {
 	da := new(game.StateData)
 	if err = sr.LoadSD(key, da); err == nil {
 		sta.FromData(da)
@@ -74,25 +78,16 @@ func (md MoveData) FromToProm() game.FromToProm {
 	}
 }
 
-func AfterMD(sr Server, beforegp int64, filterplayers [3]*int64) (out []MoveFollow, err error) {
+func (sr Server) AfterMD(beforegp int64, filterplayers [3]*int64) (out []MoveFollow, err error) {
 	for i := range filterplayers {
 		if filterplayers[i] != nil {
 			return sr.AfterMDwPlayers(beforegp, filterplayers)
 		}
 	}
-	return sr.AfterMD(beforegp)
+	return sr.AfterMDwe(beforegp)
 }
 
-func (md MoveData) Move(sr Server) game.Move {
-	s := new(game.State)
-	err := LoadState(sr, md.BeforeGame, s)
-	if err != nil {
-		panic(err)
-	}
-	return md.FromToProm().Move(s)
-}
-
-func AddGame(sr Server, st *game.State, players [3]*int64, when time.Time) (key int64, err error) {
+func (sr Server) AddGame(st *game.State, players [3]*int64, when time.Time) (key int64, err error) {
 	sk, err := sr.SaveState(st)
 	if err != nil {
 		return
@@ -102,7 +97,7 @@ func AddGame(sr Server, st *game.State, players [3]*int64, when time.Time) (key 
 	return
 }
 
-func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int64, aftkey int64, err error) {
+func (sr Server) MoveGame(before int64, ftp game.FromToProm, who int64) (mkey int64, aftkey int64, err error) {
 	log.Println("MoveGame", sr, before, ftp, who)
 	var befga GameplayData
 	err = sr.LoadGP(before, &befga)
@@ -112,7 +107,7 @@ func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int
 	}
 	befga.Date = time.Now()
 	var sta game.State
-	err = LoadState(sr, befga.State, &sta)
+	err = sr.LoadState(befga.State, &sta)
 	log.Println(sta, err)
 	if err != nil {
 		return
