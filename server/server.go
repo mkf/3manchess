@@ -36,12 +36,12 @@ func SaveState(sr Server, sta *game.State) (key int64, err error) {
 	return sr.SaveSD(sta.Data())
 }
 
-func LoadState(sr Server, key int64, sta *game.State) error {
+func LoadState(sr Server, key int64, sta *game.State) (err error) {
 	da := new(game.StateData)
-	if err = sr.LoadSD(key, da); err != nil {
-		return
+	if err = sr.LoadSD(key, da); err == nil {
+		sta.FromData(da)
 	}
-	sta.FromData(da)
+	return
 }
 
 type GameplayData struct {
