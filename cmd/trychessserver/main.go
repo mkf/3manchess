@@ -18,6 +18,7 @@ func main() {
 	flagutil.SetFlagsFromEnv(flags, "TRYCHESS")
 	log.Println(u, p, d)
 	log.Println(mmm.Initialize(*u, *p, *d))
-	mul := multi.Multi{&mmm}
+	sss := mmm.Interface()
+	mul := multi.Multi{sss}
 	mul.Run()
 }
