@@ -44,7 +44,6 @@ func TestNew_ai3(t *testing.T) {
 	}
 	t.Log(u, p, a)
 	var mgpp multi.GameplayPost
-	mgpp.Date = time.Now()
 	mgpp.State = *ns
 	var botsconf [3]constsitval.AIConfig
 	botsconf[0].OwnedToThreatened = 4.0
