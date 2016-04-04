@@ -24,16 +24,19 @@ func (s *Square) Uint8() uint8 {
 	return s.Fig.Uint8()
 }
 
+//MarshalJSON makes *Square fulfill the Marshaler interface with sq.Uint8()
 func (s *Square) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.Itoa(int(s.Uint8()))), nil
 }
 
+//UnmarshalJSON makes *Square fulfill the Unmarshaler interface wt=with FromUint8(u)
 func (s *Square) UnmarshalJSON(b []byte) error {
 	i, err := strconv.Atoi(string(b))
 	s.FromUint8(uint8(i))
 	return err
 }
 
+//FromUint8 changes the value to SqUint8
 func (s *Square) FromUint8(u uint8) {
 	*s = SqUint8(u)
 }
