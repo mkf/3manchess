@@ -2,6 +2,9 @@ package main
 
 import "github.com/ArchieT/3manchess/client"
 import "github.com/ArchieT/3manchess/multi"
+import "github.com/ArchieT/3manchess/client/remote"
+import "github.com/ArchieT/3manchess/ai/constsitval"
+import "github.com/ArchieT/3manchess/player"
 import "flag"
 import "os"
 import "log"
@@ -39,4 +42,28 @@ func main() {
 	//log.Println(u, p, a)
 	log.Println(u, a)
 	log.Println("botid", *botid)
+	bbb, _, err := c.BotKey(multi.BotKeyGetting{*botid, multi.Authorization{u, a}})
+	if err != nil {
+		log.Fatal(err)
+	}
+	binf, _, err := c.BotInfo(*botid)
+	log.Println(binf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	bbp, bba := bbb.ID, bbb.AuthKey
+	echn := make(chan error)
+	endchn := make(chan bool)
+	go func() {
+		for u := range echn {
+			log.Println(u)
+		}
+	}()
+	var aii player.Player
+	if binf.WhoAmI[:11] == []byte("constsitval") {
+		aii = new(constsitval.AIPlayer)
+	} else {
+		log.Fatal(binf)
+	}
+	//load aiconf
 }
