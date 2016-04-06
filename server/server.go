@@ -143,6 +143,14 @@ func (sr Server) MoveGame(before int64, ftp game.FromToProm, who int64) (mkey in
 		PawnPromotion: int8(ftp.PawnPromotion),
 		Who:           who}
 	mkey, err = sr.SaveMD(&mdfin)
+	if err != nil {
+		return
+	}
+	var loadedmd MoveData
+	err = sr.LoadMD(mkey, &loadedmd)
+	if err == nil {
+		aftskey = loadedmd.AfterGame
+	}
 	return
 }
 
