@@ -240,7 +240,7 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 			cantech = true
 			canfig = b.GPos(to).Empty()
 		}
-	} else if ((from[1]-12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) {
+	} else if ((from[1]+12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) {
 		cantech = true
 		canfig = b.GPos(to).Empty()
 		//pc = true
