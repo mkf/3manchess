@@ -72,7 +72,8 @@ func (ft FromTo) Correct() error {
 
 //Where gives the Square of Before.Board[From]
 func (m *Move) Where() Square {
-	return *m.Before.Board.GPos(m.From)
+	a := m.Before.Board.GPos(m.From)
+	return *a
 }
 
 //What are we moving? What piece is placed in From?
