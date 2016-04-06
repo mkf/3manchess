@@ -37,3 +37,28 @@ func TestSimpleGenNoPanic(t *testing.T) {
 		t.Error("Error forth.After ", err)
 	}
 }
+
+func TestAfter_pawnCrossCenter(t *testing.T) {
+	var i, j int8
+	newState := NewState()
+	move := Move{Pos{1, i * 8}, Pos{3, i * 8}, &newState, 0}
+	statePointer, err := move.After()
+	for i = 1; i < 3; i++ {
+		move := Move{Pos{1, i * 8}, Pos{3, i * 8}, statePointer, 0}
+		statePointer, err = move.After()
+		if err != nil {
+			t.Error("Unexpected error (1st loop, i =", i, "): ", err)
+		}
+	}
+	t.Log("state after 3 moves: ", statePointer)
+	for i = 3; i < 7; i++ {
+		for j = 0; j < 3; j++ {
+			move := Move{Pos{i, j * 8}, Pos{i + 1, j * 8}, statePointer, 0}
+			statePointer, err = move.After()
+			if err != nil {
+				t.Error("Unexpected error (2nd loop, i =", i, ", j =", j, "): ", err)
+			}
+		}
+		t.Log("state after", (i-1) * 3, "moves: ", statePointer)
+	}
+}
