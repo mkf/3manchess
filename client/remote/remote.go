@@ -23,6 +23,14 @@ func (g *G) C() *client.Client {
 	return g.c
 }
 
+func (g *G) GState() *game.State {
+	return g.state
+}
+
+func (g *G) GGameID() int64 {
+	return g.gameid
+}
+
 //New returns a new remote gameplay (G)
 func New(c *client.Client, our player.Player, color game.Color, gameid int64, auth multi.Authorization, af AfterFunc,
 	end chan<- bool, errch chan<- error) (*G, error) {

@@ -111,9 +111,9 @@ func main() {
 		func(g *remote.G) (int64, error) {
 			log.Println("AFTFUNCC")
 			for {
-				log.Println("st for aftfunc", *g.state)
+				log.Println("st for aftfunc", *g.GState())
 				a, _, err := g.C().After(
-					g.gameid,
+					g.GGameID(),
 					[3]*int64{nil, nil, nil},
 				)
 				log.Println("aftfunc kitchen:", a, err)
@@ -130,6 +130,7 @@ func main() {
 		endchn,
 		echn,
 	)
+	log.Println(yg)
 	if err != nil {
 		log.Fatal(err)
 	}
