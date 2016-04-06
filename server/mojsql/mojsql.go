@@ -212,7 +212,9 @@ func (m *MojSQL) ListGP(many uint) (h []server.GameplayFollow, err error) {
 
 //SaveMD inserts MoveData into db
 func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
-	stmt, err := m.conn.Prepare("insert into 3manmv (fromto,beforegame,aftergame,promotion,who) values (?,?,?,?,?)")
+	stmt, err := m.conn.Prepare(
+		`insert into 3manmv (fromto,beforegame,aftergame,promotion,who) 
+		values (?,?,?,?,?) on duplicate key update id=last_insert_id(id)`)
 	key = -1
 	if err != nil {
 		return
