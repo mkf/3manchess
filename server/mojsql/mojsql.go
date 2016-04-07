@@ -220,21 +220,26 @@ func (m *MojSQL) ListGP(many uint) (h []server.GameplayFollow, err error) {
 
 //SaveMD inserts MoveData into db
 func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
-	stmt, err := m.conn.Prepare(
+	key = -1
+	trans, err := m.conn.Begin()
+	if err != nil {
+		return
+	}
+	stmt, err := trans.Prepare(
 		`insert into 3manmv (fromto,beforegame,promotion,who) 
 		values (?,?,?,?) on duplicate key update id=last_insert_id(id)`)
-	key = -1
 	if err != nil {
 		log.Println(stmt)
 		return
 	}
 	fb := fourbyte(md.FromTo)
+	defer trans.Rollback()
 	res, err := stmt.Exec(fb[:], md.BeforeGame, md.PawnPromotion, md.Who)
 	if err != nil {
 		log.Println(res)
 		return
 	}
-	stmt, err = m.conn.Prepare("update 3manmv set aftergame=? where id=last_insert_id() and aftergame is null limit 1")
+	stmt, err = trans.Prepare("update 3manmv set aftergame=? where id=last_insert_id() and aftergame is null limit 1")
 	if err != nil {
 		log.Println(stmt)
 		return
@@ -244,7 +249,11 @@ func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
 		log.Println(resp)
 		return
 	}
-	return res.LastInsertId()
+	lidd, er := res.LastInsertId()
+	if er != nil {
+		return lidd, er
+	}
+	return lidd, trans.Commit()
 }
 
 //LoadMD gets MoveData from db
