@@ -20,7 +20,7 @@ func main() {
 	pwhite := flag.Bool("white", false, "white")
 	pgray := flag.Bool("gray", false, "gray")
 	pblack := flag.Bool("black", false, "black")
-	gameplayid := flag.Int64("gameid", -1, "gameid")
+	sgameplayid := flag.Int64("gameid", -1, "gameid")
 	var pcolor game.Color
 	if *pblack {
 		pcolor = game.Black
@@ -52,7 +52,18 @@ func main() {
 		if len(*name) == 0 || err != nil {
 			log.Println(err)
 	*/
-	gpg, _, err := c.Play(*gameplayid)
+	var gameplayid int64
+	if *sgameplayid == -1 {
+		nso := game.NewState()
+		mgpp, _, err := c.AddGame(multi.GameplayPost{State: nso})
+		gameplayid = mgpp.Key
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		gameplayid = *sgameplayid
+	}
+	gpg, _, err := c.Play(gameplayid)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -106,7 +117,7 @@ func main() {
 		c,
 		aii,
 		pcolor,
-		*gameplayid,
+		gameplayid,
 		multi.Authorization{bbp, bba},
 		func(g *remote.G) (int64, error) {
 			log.Println("AFTFUNCC")
