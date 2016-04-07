@@ -139,12 +139,18 @@ func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
 	players = append(players, gpd.State, gpd.Date)
 	if gpd.White != nil {
 		players = append(players, *(gpd.White))
+	} else {
+		players = append(players, nil)
 	}
 	if gpd.Gray != nil {
 		players = append(players, *(gpd.Gray))
+	} else {
+		players = append(players, nil)
 	}
 	if gpd.Black != nil {
 		players = append(players, *(gpd.Black))
+	} else {
+		players = append(players, nil)
 	}
 	res, err := stmt.Exec(players...)
 	if err != nil {
