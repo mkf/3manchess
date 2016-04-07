@@ -132,8 +132,8 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 //SaveGP inserts GameplayData into db
 func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
 	stmt, err := m.conn.Prepare(
-		`insert into 3mangp (state,created,white,gray,black) values (?,?,?,?,?)
-		on duplicate key update id=last_insert_id(id)`)
+		`insert into 3mangp (state,created,white,gray,black) values (?,?,?,?,?)`)
+	//		on duplicate key update id=last_insert_id(id)`)
 	if err != nil {
 		return -1, err
 	}
@@ -221,15 +221,27 @@ func (m *MojSQL) ListGP(many uint) (h []server.GameplayFollow, err error) {
 //SaveMD inserts MoveData into db
 func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
 	stmt, err := m.conn.Prepare(
-		`insert into 3manmv (fromto,beforegame,aftergame,promotion,who) 
-		values (?,?,?,?,?) on duplicate key update id=last_insert_id(id)`)
+		`insert into 3manmv (fromto,beforegame,promotion,who) 
+		values (?,?,?,?) on duplicate key update id=last_insert_id(id)`)
 	key = -1
 	if err != nil {
+		log.Println(stmt)
 		return
 	}
 	fb := fourbyte(md.FromTo)
-	res, err := stmt.Exec(fb[:], md.BeforeGame, md.AfterGame, md.PawnPromotion, md.Who)
+	res, err := stmt.Exec(fb[:], md.BeforeGame, md.PawnPromotion, md.Who)
 	if err != nil {
+		log.Println(res)
+		return
+	}
+	stmt, err = m.conn.Prepare("update 3manmv set aftergame=? where id=last_insert_id() and aftergame is null limit 1")
+	if err != nil {
+		log.Println(stmt)
+		return
+	}
+	resp, err := stmt.Exec(md.AfterGame)
+	if err != nil {
+		log.Println(resp)
 		return
 	}
 	return res.LastInsertId()
