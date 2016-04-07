@@ -4,9 +4,11 @@ package game
 
 //CanIMoveWOCheck — is there any move that would not end up in a check?
 func (s *State) CanIMoveWOCheck(who Color) bool {
-	for _, oac := range ALLPOS {
+	var oac ACP
+	for ; oac.OK(); oac.P() {
 		if s.Board.GPos(Pos(oac)).Fig.Color == who {
-			for _, oacp := range ALLPOS {
+			var oacp ACP
+			for ; oacp.OK(); oacp.P() {
 				m := Move{Pos(oac), Pos(oacp), s, Queen}
 				if _, err := m.After(); err == nil {
 					return true
