@@ -131,7 +131,9 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 
 //SaveGP inserts GameplayData into db
 func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
-	stmt, err := m.conn.Prepare("insert into 3mangp (state,created,white,gray,black) values (?,?,?,?,?)")
+	stmt, err := m.conn.Prepare(
+		`insert into 3mangp (state,created,white,gray,black) values (?,?,?,?,?)
+		on duplicate key update id=last_insert_id(id)`)
 	if err != nil {
 		return -1, err
 	}

@@ -62,7 +62,8 @@ create table 3mangp (
 	white bigint, 
 	gray bigint, 
 	black bigint, 
-	created timestamp default current_timestamp,
+	created timestamp default current_timestamp, -- first time it was created by these people
+	constraint everything unique ( state,white,gray,black ),
 	constraint
 		foreign key (white) references 3manplayer (id)
 		on update restrict,
