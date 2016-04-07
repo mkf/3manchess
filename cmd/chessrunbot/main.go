@@ -17,26 +17,13 @@ func main() {
 	passwd := flag.String("passwd", "remote", "passwd")
 	//	name := flag.String("name", "", "if you want to sign up")
 	botid := flag.Int64("botid", -1, "botid")
-	pwhite := flag.Bool("white", false, "white")
-	pgray := flag.Bool("gray", false, "gray")
-	pblack := flag.Bool("black", false, "black")
+	flagcolor := flag.Int("color", 1, "color 012 or 123 (probably 123)")
 	sgameplayid := flag.Int64("gameid", -1, "gameid")
-	var pcolor game.Color
-	if *pblack {
-		pcolor = game.Black
-		if *pgray || *pwhite {
-			panic("black and gray or white")
-		}
-	} else if *pgray {
-		pcolor = game.Gray
-		if *pwhite {
-			panic(*pwhite)
-		}
-	} else if *pwhite {
-		pcolor = game.White
-	}
-
 	flag.Parse()
+	var pcolor game.Color
+	pcolor = game.Color(*flagcolor)
+	log.Println(*flagcolor)
+	log.Println(pcolor)
 	c := client.NewClient(nil, *bu)
 	//	var u, p int64
 	var u int64
@@ -113,6 +100,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println(pcolor)
 	yg, err := remote.New(
 		c,
 		aii,
