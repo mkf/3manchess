@@ -59,7 +59,7 @@ func TestAfter_pawnCrossCenter(t *testing.T) {
 				t.Error("Unexpected error (2nd loop, i =", i, ", j =", j, "): ", err)
 			}
 		}
-		t.Log("state after", (i-1) * 3, "moves: ", statePointer)
+		t.Log("state after", (i-1)*3, "moves: ", statePointer)
 	}
 	for i = 0; i < 3; i++ {
 		move := Move{Pos{5, i * 8}, Pos{5, (i*8 + 12) % 24}, statePointer, 0}
