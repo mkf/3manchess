@@ -74,6 +74,14 @@ func (s Square) String() string {
 	return EMPTYOURSTR
 }
 
+func (b *Board) String() string {
+	var s string = "\n"
+	for i := 0; i < 6; i++ {
+		s += fmt.Sprintln((*b)[i])
+	}
+	return s
+}
+
 //Pos : coordinates
 type Pos [2]int8
 
