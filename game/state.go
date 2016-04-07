@@ -232,7 +232,7 @@ func (s *State) EvalDeath() {
 }
 
 func (s *State) String() string {
-	return fmt.Sprintln("Board: ", s.Board.String(), s.MoatsState, s.MovesNext, s.Castling, s.EnPassant, s.HalfmoveClock, s.FullmoveNumber, s.PlayersAlive)
+	return fmt.Sprintln(s.Board.String(), s.MoatsState, s.MovesNext, s.Castling, s.EnPassant, s.HalfmoveClock, s.FullmoveNumber, s.PlayersAlive)
 }
 
 //AnyPiece : if a piece could move (any piece, whatever stays there)

@@ -75,10 +75,9 @@ func (s Square) String() string {
 }
 
 func (b *Board) String() string {
-	var s string
+	var s string = "\n"
 	for i := 0; i < 6; i++ {
 		s += fmt.Sprintln((*b)[i])
-		s += "\n"
 	}
 	return s
 }
