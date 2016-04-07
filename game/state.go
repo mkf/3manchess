@@ -15,6 +15,7 @@ var DEFMOATSSTATE = MoatsState{false, false, false} //are they bridged?
 //Castling : White,Gray,Black King-side,Queen-side
 type Castling [3][2]bool
 
+//Uint8 returns an uint8 repr of a Castling struct
 func (cs Castling) Uint8() uint8 {
 	var u uint8
 	if cs[0][0] {
@@ -38,14 +39,16 @@ func (cs Castling) Uint8() uint8 {
 	return u
 }
 
+//Array returns a [6]bool repr of a Castling struct
 func (cs Castling) Array() [6]bool {
 	var b [6]bool
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 6; i++ {
 		b[i] = cs[i>>1][i%2]
 	}
 	return b
 }
 
+//CastlingFromUint8 reproduces Castling from uint8 repr
 func CastlingFromUint8(u uint8) Castling {
 	var cs Castling
 	cs[0][0] = u%2 == 1
@@ -57,9 +60,10 @@ func CastlingFromUint8(u uint8) Castling {
 	return cs
 }
 
+//CastlingFromArray reproduces Castling from [6]bool repr
 func CastlingFromArray(b [6]bool) Castling {
 	var cs Castling
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 6; i++ {
 		cs[i>>1][i%2] = b[i]
 	}
 	return cs
@@ -151,16 +155,23 @@ var DEFPLAYERSALIVE = [3]bool{true, true, true}
 
 //State : single gamestate
 type State struct {
-	*Board //[color,figure_lowercase] //[0,0]
-	MoatsState
-	MovesNext Color //W G B
-	Castling        //0W 1G 2B  //0K 1Q
-	EnPassant       //[previousplayer,currentplayer]  [number,letter]
-	HalfmoveClock
-	FullmoveNumber
-	PlayersAlive
+	*Board         `json:"board"`      //[color,figure_lowercase] //[0,0]
+	MoatsState     `json:"moatsstate"` //moatsstate
+	MovesNext      Color               `json:"movesnext"` //W G B
+	Castling       `json:"castling"`   //0W 1G 2B  //0K 1Q
+	EnPassant      `json:"enpassant"`  //[previousplayer,currentplayer]  [number,letter]
+	HalfmoveClock  `json:"halfmoveclock"`
+	FullmoveNumber `json:"fullmovenumber"`
+	PlayersAlive   `json:"alivecolors"`
 }
 
+func (s *State) Equal(d *State) bool {
+	return *s.Board == *d.Board && s.MoatsState == d.MoatsState && s.MovesNext == d.MovesNext &&
+		s.Castling == d.Castling && s.EnPassant == d.EnPassant && s.HalfmoveClock == d.HalfmoveClock &&
+		s.FullmoveNumber == d.FullmoveNumber && s.PlayersAlive == d.PlayersAlive
+}
+
+//StateData is a repr of State for db storage
 type StateData struct {
 	Board          [144]byte `json:"boardrepr"`
 	Moats          [3]bool   `json:"moatsstate"`
@@ -172,6 +183,7 @@ type StateData struct {
 	Alive          [3]bool   `json:"alivecolors"`
 }
 
+//FromData pulls data from StateData into State
 func (s *State) FromData(d *StateData) {
 	s.Board = BoardByte(d.Board[:])
 	s.MoatsState = MoatsState(d.Moats)
@@ -183,6 +195,7 @@ func (s *State) FromData(d *StateData) {
 	s.PlayersAlive = PlayersAlive(d.Alive)
 }
 
+//Data returns a StateData repr of a State
 func (s *State) Data() *StateData {
 	d := StateData{
 		Board: s.Board.Byte(), MovesNext: int8(s.MovesNext),
@@ -193,6 +206,17 @@ func (s *State) Data() *StateData {
 		Alive: [3]bool(s.PlayersAlive),
 	}
 	return &d
+}
+
+func Byte144(s []byte) [144]byte {
+	if len(s) != 144 {
+		panic(s)
+	}
+	var d [144]byte
+	for i := 0; i < 144; i++ {
+		d[i] = s[i]
+	}
+	return d
 }
 
 //EvalDeath : evaluate the death of all players
@@ -208,7 +232,7 @@ func (s *State) EvalDeath() {
 }
 
 func (s *State) String() string {
-	return fmt.Sprintln("Board: ", (*s.Board), s.MoatsState, s.MovesNext, s.Castling, s.EnPassant, s.HalfmoveClock, s.FullmoveNumber, s.PlayersAlive)
+	return fmt.Sprintln(s.Board.String(), s.MoatsState, s.MovesNext, s.Castling, s.EnPassant, s.HalfmoveClock, s.FullmoveNumber, s.PlayersAlive)
 }
 
 //AnyPiece : if a piece could move (any piece, whatever stays there)

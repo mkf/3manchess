@@ -2,6 +2,8 @@ package mojsql
 
 import "database/sql"
 
+import "fmt"
+
 func fourbyte(s [4]int8) [4]byte {
 	return [4]byte{byte(s[0]), byte(s[1]), byte(s[2]), byte(s[3])}
 }
@@ -77,6 +79,71 @@ func tobit(b []bool) []byte {
 	return a
 }
 
+func bitint(b []bool) (o uint8) {
+	if len(b) > 8 {
+		panic(b)
+	}
+	for i := range b {
+		o |= one(b[i]) << uint8(len(b)-i-1)
+	}
+	return o
+}
+
+func revbitint(b []bool) (o uint8) {
+	if len(b) > 8 {
+		panic(b)
+	}
+	for i := range b {
+		o |= one(b[i]) << uint8(i)
+	}
+	return o
+}
+
+func one(b bool) uint8 {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+func intbit(o uint8, l int8) []bool {
+	if l == 0 {
+		var b []bool
+		return b
+	}
+	s, p := abspositiv(l)
+	b := make([]bool, s)
+	var i uint8
+	if p {
+		for i = 0; i < s; i++ {
+			if ((o >> (s - 1 - i)) & uint8(1)) != 0 {
+				b[i] = true
+			}
+		}
+	} else {
+		for i = 0; i < s; i++ {
+			if ((o >> i) & uint8(1)) != 0 {
+				b[i] = true
+			}
+		}
+	}
+	return b
+}
+
+func trnry(war bool, tak uint8, nie uint8) uint8 {
+	if war {
+		return tak
+	}
+	return nie
+}
+
+func abspositiv(i int8) (uint8, bool) {
+	if i < 0 {
+		return uint8(-i), false
+	}
+	return uint8(i), true
+}
+
 func makebool(b byte) bool {
 	switch b {
 	case '1':
@@ -89,6 +156,11 @@ func makebool(b byte) bool {
 }
 
 func tobool(b []byte) []bool {
+	defer func() {
+		if err := recover(); err != nil {
+			panic(fmt.Sprint(err, b))
+		}
+	}()
 	a := make([]bool, 0, len(b))
 	for i := 0; i < len(b); i++ {
 		a = append(a, makebool(b[i]))

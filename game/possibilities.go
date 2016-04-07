@@ -240,7 +240,7 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 			cantech = true
 			canfig = b.GPos(to).Empty()
 		}
-	} else if ((from[1]-12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) {
+	} else if ((from[1]+12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) {
 		cantech = true
 		canfig = b.GPos(to).Empty()
 		//pc = true
@@ -291,14 +291,14 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 		sgn = int8(1)
 	}
 	return ((from[0] == 5 && to[0] == 5 && !bool(p)) && //jest na 5 ranku i nie przeszedl przez srodek jeszcze
-		(to[1] == ((from[1]-10)%24) || to[1] == ((from[1]+10)%24)) && //poprawnie przelecial na skos przez srodek
+		(to[1] == ((from[1]+24-10)%24) || to[1] == ((from[1]+10)%24)) && //poprawnie przelecial na skos przez srodek
 		b.GPos(to).Color() != nasz.Color()) || //ten co go bijemy jest innego koloru ALBO
 		((e[0] == to || e[1] == to) && //pozycja tego co go bijemy jest w enpassant
 			(*b)[3][to[1]].What() == Pawn && //ten co go bijemy jest pionkiem
 			(*b)[3][to[1]].Color() != nasz.Color() && //i jest innego koloru
 			(*b)[2][to[1]].Empty()) || //a pole za nim jest puste (jak to po ruchu pre-enpassant) ALBO
 		(to[0] == from[0]+sgn && cancreek && //zwykle bicie, o jeden w kierunku sgn na ranku
-			((to[1] == (from[1]+1)%24) || (to[1] == (from[1]-1)%24)) && //i o jeden w tę lub tamtą stronę (wsio mod24) na file'u
+			((to[1] == (from[1]+1)%24) || (to[1] == (from[1]+24-1)%24)) && //i o jeden w tę lub tamtą stronę (wsio mod24) na file'u
 			b.GPos(to).Color() != nasz.Color()) //a ten co go bijemy jest innego koloru
 }
 

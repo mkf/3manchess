@@ -11,11 +11,13 @@ type Move struct {
 	PawnPromotion FigType
 }
 
+//FromToProm is a struct containing FromTo and Prom
 type FromToProm struct {
 	FromTo        `json:"fromto"`
 	PawnPromotion FigType `json:"pawnpromotion"`
 }
 
+//Move makes a Move from FromToProm and State pointer
 func (ftp FromToProm) Move(bef *State) Move {
 	m := ftp.FromTo.Move(bef)
 	m.PawnPromotion = ftp.PawnPromotion
@@ -70,7 +72,8 @@ func (ft FromTo) Correct() error {
 
 //Where gives the Square of Before.Board[From]
 func (m *Move) Where() Square {
-	return (*(m.Before.Board))[m.From[0]][m.From[1]]
+	a := m.Before.Board.GPos(m.From)
+	return *a
 }
 
 //What are we moving? What piece is placed in From?

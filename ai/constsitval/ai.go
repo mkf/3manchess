@@ -32,6 +32,15 @@ func (a *AIPlayer) Config() ai.Config {
 	return a.Conf
 }
 
+func (a *AIPlayer) SetConf(b []byte) error {
+	ac := new(AIConfig)
+	e := json.Unmarshal(b, ac)
+	if e == nil {
+		a.Conf = *ac
+	}
+	return e
+}
+
 type AIConfig struct {
 	Depth             uint8
 	OwnedToThreatened float64
