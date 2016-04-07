@@ -1,6 +1,16 @@
 package game
 
+import "fmt"
+
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
+
+func (b *Board) String() string {
+	var s string
+	for _, o := range *b {
+		s += fmt.Sprintln(o)
+	}
+	return s
+}
 
 //Rune : Unicode representation of a piece
 func (f *Fig) Rune() rune {
