@@ -13,11 +13,12 @@ import "fmt"
 
 var c *client.Client
 
+var nso game.State
 var ns *game.StateData
 
 func init() {
-	nssssss := game.NewState()
-	ns = nssssss.Data()
+	nso = game.NewState()
+	ns = nso.Data()
 	bu := flag.String("baseurl", os.Getenv("CHESSBASEURL"), "3manchess/multi base URL")
 	flag.Parse()
 	//t.Log("baseurl", bu)
@@ -44,8 +45,7 @@ func TestNew_ai3(t *testing.T) {
 	}
 	t.Log(u, p, a)
 	var mgpp multi.GameplayPost
-	mgpp.Date = time.Now()
-	mgpp.State = *ns
+	mgpp.State = nso
 	var botsconf [3]constsitval.AIConfig
 	botsconf[0].OwnedToThreatened = 4.0
 	botsconf[1].OwnedToThreatened = 5.0
@@ -60,6 +60,11 @@ func TestNew_ai3(t *testing.T) {
 			t.Log(err)
 			bbi = int64(bno + 1) //yeah
 			bbb, _, err := c.BotKey(multi.BotKeyGetting{bbi, multi.Authorization{u, a}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			binfo, _, err := c.BotInfo(bbi)
+			t.Log(binfo)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -86,7 +91,37 @@ func TestNew_ai3(t *testing.T) {
 	for bno := range game.COLORS {
 		var aii constsitval.AIPlayer
 		aii.Conf = botsconf[bno]
-		yg, err := New(c, &aii, game.COLORS[bno], gpg.Key, multi.Authorization{botsau[bno].PlayerID, botsau[bno].AuthKey}, endchn, echn)
+		yg, err := New(
+			c,
+			&aii,
+			game.COLORS[bno],
+			gpg.Key,
+			multi.Authorization{
+				botsau[bno].PlayerID,
+				botsau[bno].AuthKey,
+			},
+			func(g *G) (int64, error) {
+				t.Log("AFTFUNCC")
+				for {
+					t.Log("st for aftfunc", *g.state)
+					a, _, err := g.C().After(
+						g.gameid,
+						[3]*int64{nil, nil, nil},
+					)
+					t.Log("aftfunc kitchen:", a, err)
+					if len(*a) > 0 {
+						return (*a)[0].Key, err
+					}
+					if err != nil {
+						return -1, err
+					}
+					time.Sleep(3 * time.Second)
+				}
+				return -1, err
+			},
+			endchn,
+			echn,
+		)
 		if err != nil {
 			t.Log(err)
 		}

@@ -3,8 +3,13 @@ package server
 //import "github.com/ArchieT/3manchess/player"
 import "github.com/ArchieT/3manchess/game"
 import "time"
+import "log"
 
-type Server interface {
+type Server struct {
+	Database
+}
+
+type Database interface {
 	Initialize(username string, password string, database string) error
 	SaveGP(*GameplayData) (key int64, err error)
 	LoadGP(key int64, gp *GameplayData) error
@@ -13,8 +18,10 @@ type Server interface {
 	SaveMD(*MoveData) (key int64, err error)
 	LoadMD(key int64, md *MoveData) error
 	ListGP(uint) ([]GameplayFollow, error)
-	AfterMD(beforegp int64) ([]MoveFollow, error)
-	AfterMDwPlayers(beforegp int64, players [3]int64) ([]MoveFollow, error)
+	AfterMDwe(beforegp int64) ([]MoveFollow, error)
+	AfterMDwPlayers(beforegp int64, players [3]*int64) ([]MoveFollow, error)
+	BeforeMD(aftergp int64) ([]MoveFollow, error)
+	OwnersBots(owner int64) ([]BotFollow, error)
 	GetAuth(playerid int64) (authkey []byte, err error)
 	NewPlayer() (playerid int64, authkey []byte, err error)
 	SignUp(login string, passwd string, name string) (userid int64, playerid int64, authkey []byte, err error)
@@ -27,6 +34,18 @@ type Server interface {
 	BotKey(botid int64, userid int64, uauth []byte) (playerid int64, botauth []byte, err error)
 	UserInfo(userid int64) (login string, name string, playerid int64, err error)
 	BotInfo(botid int64) (whoami []byte, owner int64, ownname string, player int64, settings []byte, err error)
+}
+
+func (sr Server) SaveState(sta *game.State) (key int64, err error) {
+	return sr.SaveSD(sta.Data())
+}
+
+func (sr Server) LoadState(key int64, sta *game.State) (err error) {
+	da := new(game.StateData)
+	if err = sr.LoadSD(key, da); err == nil {
+		sta.FromData(da)
+	}
+	return
 }
 
 type GameplayData struct {
@@ -45,22 +64,31 @@ type MoveData struct {
 	Who           int64   `json:"playerid"`
 }
 
-func (md MoveData) Move(sr Server) game.Move {
-	s := new(game.State)
-	err := LoadState(sr, md.BeforeGame, s)
-	if err != nil {
-		panic(err)
+func (md MoveData) fromTo() game.FromTo {
+	return game.FromTo{
+		game.Pos{md.FromTo[0], md.FromTo[1]},
+		game.Pos{md.FromTo[2], md.FromTo[3]},
 	}
-	return game.Move{
-		From:          game.Pos{md.FromTo[0], md.FromTo[1]},
-		To:            game.Pos{md.FromTo[2], md.FromTo[3]},
-		Before:        s,
+}
+
+func (md MoveData) FromToProm() game.FromToProm {
+	return game.FromToProm{
+		FromTo:        md.fromTo(),
 		PawnPromotion: game.FigType(md.PawnPromotion),
 	}
 }
 
-func AddGame(sr Server, st *game.StateData, players [3]*int64, when time.Time) (key int64, err error) {
-	sk, err := sr.SaveSD(st)
+func (sr Server) AfterMD(beforegp int64, filterplayers [3]*int64) (out []MoveFollow, err error) {
+	for i := range filterplayers {
+		if filterplayers[i] != nil {
+			return sr.AfterMDwPlayers(beforegp, filterplayers)
+		}
+	}
+	return sr.AfterMDwe(beforegp)
+}
+
+func (sr Server) AddGame(st *game.State, players [3]*int64, when time.Time) (key int64, err error) {
+	sk, err := sr.SaveState(st)
 	if err != nil {
 		return
 	}
@@ -69,15 +97,18 @@ func AddGame(sr Server, st *game.StateData, players [3]*int64, when time.Time) (
 	return
 }
 
-func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int64, aftkey int64, err error) {
+func (sr Server) MoveGame(before int64, ftp game.FromToProm, who int64) (mkey int64, aftkey int64, err error) {
+	log.Println("MoveGame", sr, before, ftp, who)
 	var befga GameplayData
 	err = sr.LoadGP(before, &befga)
+	log.Println(befga, err)
 	if err != nil {
 		return
 	}
 	befga.Date = time.Now()
 	var sta game.State
-	err = LoadState(sr, befga.State, &sta)
+	err = sr.LoadState(befga.State, &sta)
+	log.Println(sta, err)
 	if err != nil {
 		return
 	}
@@ -90,8 +121,13 @@ func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int
 		befga.Black = &who
 	}
 	mov := ftp.Move(&sta)
-	afts := MoveIt(&mov, [3]int64{nullminusone(befga.White), nullminusone(befga.Gray), nullminusone(befga.Black)})
-	aftskey, err := sr.SaveSD(afts.Data())
+	log.Println("now MoveIt", mov)
+	afts, err := mov.EvalAfter()
+	if err != nil {
+		return
+	}
+	log.Println("MoveIT returned", afts)
+	aftskey, err := sr.SaveState(afts)
 	if err != nil {
 		return
 	}
@@ -107,6 +143,14 @@ func MoveGame(sr Server, before int64, ftp game.FromToProm, who int64) (mkey int
 		PawnPromotion: int8(ftp.PawnPromotion),
 		Who:           who}
 	mkey, err = sr.SaveMD(&mdfin)
+	if err != nil {
+		return
+	}
+	var loadedmd MoveData
+	err = sr.LoadMD(mkey, &loadedmd)
+	if err == nil {
+		aftskey = loadedmd.AfterGame
+	}
 	return
 }
 
@@ -115,13 +159,6 @@ func nullminusone(q *int64) int64 {
 		return -1
 	}
 	return *q
-}
-
-func LoadState(sr Server, key int64, s *game.State) error {
-	var sd game.StateData
-	err := sr.LoadSD(key, &sd)
-	s.FromData(&sd)
-	return err
 }
 
 type GameplayFollow struct {
@@ -140,7 +177,36 @@ type AfterMoveFollow struct {
 	//YourMoveNext bool `json:"yourmovenext"`
 }
 
-type StateFollow struct {
+type StateDataFollow struct {
 	Key int64
 	*game.StateData
+}
+
+type StateFollow struct {
+	Key         int64 `json:"key"`
+	*game.State `json:"state"`
+}
+
+type InfoUser struct {
+	Login  string `json:"login"`
+	Name   string `json:"name"`
+	Player int64  `json:"playerid"`
+}
+
+type UserFollow struct {
+	Key      int64 `json:"key"`
+	InfoUser `json:"userinfo"`
+}
+
+type InfoBot struct {
+	WhoAmI   []byte `json:"whoami"`
+	Owner    int64  `json:"ownerid"`
+	OwnName  string `json:"ownname"`
+	Player   int64  `json:"playerid"`
+	Settings []byte `json:"settings"`
+}
+
+type BotFollow struct {
+	Key     int64 `json:"key"`
+	InfoBot `json:"botinfo"`
 }
