@@ -93,7 +93,8 @@ create table 3manmv (
 		on update restrict,
 	constraint
 		foreign key (aftergame) references 3mangp (id)
-		on update restrict,
+		on update cascade,
+		on delete restrict,
 	constraint onemove unique (fromto, beforegame, promotion, who)
 ) engine = InnoDB;
 
