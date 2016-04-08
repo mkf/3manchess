@@ -258,7 +258,7 @@ func (b *Board) kingStraight(from Pos, to Pos, m MoatsState) bool {
 	case Pos{from[0] + 1, from[1]},
 		Pos{from[0] - 1, from[1]},
 		Pos{from[0], (from[1] + 1) % 24},
-		Pos{from[0], (from[1] - 1) % 24}:
+		Pos{from[0], (from[1] + 24 - 1) % 24}:
 		return !(tjf.NotEmpty && tjf.Color() == nasz.Color())
 	}
 	return false
