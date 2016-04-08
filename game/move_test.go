@@ -114,3 +114,42 @@ func TestAfter_plat129(t *testing.T) {
 		t.Log(ft, mov, s)
 	}
 }
+
+func TestAfter_pawnCapture(t *testing.T) {
+	newState := NewState()
+	var s *State
+	s = &newState
+	var mov Move
+	var ft FromTo
+	var err error
+	for i := 0; i < 10; i++ {
+		ft = plat129[i]
+		mov = ft.Move(s)
+		s, err = mov.EvalAfter()
+		if err != nil {
+			t.Error(err, s, mov, ft)
+		}
+		t.Log(ft, mov, s)
+	}
+	s.Board[2][10].NotEmpty = true
+	s.Board[2][10].Fig.FigType = Pawn
+	s.Board[2][10].Fig.Color = White
+	s.Board[2][10].Fig.PawnCenter = true
+	t.Log(s)
+	ft = FromTo{Pos{1, 9}, Pos{2, 10}}
+	mov = ft.Move(s)
+	if s, err = mov.After(); err != nil {
+		t.Error(err, s, mov, ft)
+	}
+	t.Log(ft, mov, s)
+	s.Board[2][18].NotEmpty = true
+	s.Board[2][18].Fig.FigType = Pawn
+	s.Board[2][18].Fig.Color = White
+	s.Board[2][18].Fig.PawnCenter = true
+	t.Log(s)
+	ft = FromTo{Pos{1, 19}, Pos{2, 18}}
+	mov = ft.Move(s)
+	if s, err = mov.After(); err != nil {
+		t.Error(err, s, mov, ft)
+	}
+}
