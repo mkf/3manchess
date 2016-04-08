@@ -62,11 +62,9 @@ func FigUint8(i uint8) Fig {
 func BoardUint(s *([6][24]uint8)) *Board {
 	var b Board
 	var t uint8
-	var oac ACP
-	for oac.OK() {
-		t = (*s)[oac[0]][oac[1]]
-		b[oac[0]][oac[1]] = SqUint8(t)
-		oac.P()
+	for _, pos := range ALLPOS {
+		t = (*s)[pos[0]][pos[1]]
+		b[pos[0]][pos[1]] = SqUint8(t)
 	}
 	return &b
 }
@@ -77,14 +75,12 @@ func byteoac(oac ACP) uint8 { return (24 * uint8(oac[0])) + uint8(oac[1]) }
 func BoardByte(s []byte) *Board {
 	var b Board
 	var t uint8
-	var oac ACP
 	if len(s) != 24*6 {
 		panic(len(s))
 	}
-	for oac.OK() {
-		t = s[byteoac(oac)]
-		b[oac[0]][oac[1]] = SqUint8(t)
-		oac.P()
+	for _, pos := range ALLPOS {
+		t = s[byteoac(ACP(pos))]
+		b[pos[0]][pos[1]] = SqUint8(t)
 	}
 	return &b
 }
@@ -92,10 +88,8 @@ func BoardByte(s []byte) *Board {
 //Byte returns all 6 concatenated ranks, where each rank is 24 squares, each represented by Square.Uint8
 func (b *Board) Byte() [144]byte {
 	var d [144]byte
-	var oac ACP
-	for oac.OK() {
-		d[byteoac(oac)] = b.GPos(Pos(oac)).Uint8()
-		oac.P()
+	for _, pos := range ALLPOS {
+		d[byteoac(ACP(pos))] = b.GPos(pos).Uint8()
 	}
 	return d
 }

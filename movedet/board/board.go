@@ -37,13 +37,11 @@ func (p *Pos) Correct() error {
 type Board [6][24]Square
 
 func FromGameBoard(gb *game.Board) *Board {
-	var oac game.ACP
 	var newb Board
 	var gsq *game.Square
-	for oac.OK() {
-		gsq = gb.GPos(game.Pos(oac))
+	for _, oac := range game.ALLPOS {
+		gsq = gb.GPos(oac)
 		newb[oac[0]][oac[1]] = Square{gsq.NotEmpty, Piece{gsq.FigType, gsq.Color()}}
-		oac.P()
 	}
 	return &newb
 }
@@ -56,16 +54,14 @@ func (b *Board) GPos(p Pos) *Square {
 }
 
 func (b *Board) Equal(gb *game.Board) bool {
-	var oac game.ACP
 	var gs *game.Square
 	var os *Square
-	for oac.OK() {
-		gs = gb.GPos(game.Pos(oac))
+	for _, oac := range game.ALLPOS {
+		gs = gb.GPos(oac)
 		os = b.GPos(Pos(oac))
 		if !os.Equal(gs) {
 			return false
 		}
-		oac.P()
 	}
 	return true
 }
