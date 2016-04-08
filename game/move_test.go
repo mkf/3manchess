@@ -100,7 +100,7 @@ func TestAfter_pawnCrossCenter(t *testing.T) {
 	}
 }
 
-func TestAfter_plat129(t *testing.T) {
+func TestEvalAfter_plat129(t *testing.T) {
 	newState := NewState()
 	var s *State
 	s = &newState
