@@ -266,7 +266,6 @@ func (b *Board) kingStraight(from Pos, to Pos, m MoatsState) bool {
 
 func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	nasz := b.GPos(from)
-	gdziekolor := Color(from[1]>>3 + 1)
 	cancreek := true
 	if from == to {
 		return false
@@ -280,9 +279,6 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 		}
 		cancreek = !(creektemp && ((to[1]%8 == 0 && from[1]%8 == 7) || (from[1]%8 == 0 && to[1]%8 == 7)))
 		//założenie: creeki są aktywne nawet jak już nie ma moatów
-	}
-	if nasz.Color() == gdziekolor && !p {
-		return false //panic("pC" + nasz.Color().String())
 	}
 	var sgn int8
 	if p {
