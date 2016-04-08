@@ -406,7 +406,7 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 	return cantech && canmoat && canfig
 }
 
-func (b *Board) castling(from Pos, to Pos, cs Castling) bool {
+func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
 	var colorproper bool
 	var col Color
 	switch from {
@@ -431,10 +431,27 @@ func (b *Board) castling(from Pos, to Pos, cs Castling) bool {
 	case from[1] + 2: //cuz king is on the plus
 		kingside = cs.Give(col, 'K')
 	}
-	// TODO: check if empty squares between king and rook aren't checked
-	return (kingside && (*b)[0][from[1]+1].Empty() && (*b)[0][from[1]+2].Empty()) || //kingside and kingside empty
-		(queenside && (*b)[0][to[1]+1].Empty() && (*b)[0][to[1]+2].Empty() && (*b)[0][to[1]+3].Empty())
-	//		quenside and queenside empty
+	if kingside && (*b)[0][from[1]+1].Empty() && (*b)[0][from[1]+2].Empty() { // kingside and kingside empty
+		uncheckedPos := [3]Pos{Pos{from[0], from[0]}, Pos{to[0] + 1, to[1] + 1}, Pos{to[0], to[1]}}
+		for _, checkPos := range uncheckedPos {
+			check := b.ThreatChecking(checkPos, pa, DEFENPASSANT)
+			if check.If == true {
+				kingside = false
+				break
+			}
+		}
+	}
+	if !kingside && queenside && (*b)[0][to[1]+1].Empty() && (*b)[0][to[1]+2].Empty() && (*b)[0][to[1]+3].Empty() { // not kingside, queenside and queenside empty
+		uncheckedPos := [3]Pos{Pos{from[0], from[0]}, Pos{to[0] - 1, to[1] - 1}, Pos{to[0], to[1]}}
+		for _, checkPos := range uncheckedPos {
+			check := b.ThreatChecking(checkPos, pa, DEFENPASSANT)
+			if check.If == true {
+				kingside = false
+				break
+			}
+		}
+	}
+	return kingside || queenside
 }
 
 func (b *Board) rook(from Pos, to Pos, m MoatsState) bool { //whether a rook could move like that
@@ -446,8 +463,8 @@ func (b *Board) knight(from Pos, to Pos, m MoatsState) bool { //whether a knight
 func (b *Board) bishop(from Pos, to Pos, m MoatsState) bool { //whether a boshop could move like that
 	return b.diagonal(from, to, m)
 }
-func (b *Board) king(from Pos, to Pos, m MoatsState, cs Castling) bool { //whether a king could move like that
-	return b.kingMove(from, to, m) || b.castling(from, to, cs)
+func (b *Board) king(from Pos, to Pos, m MoatsState, cs Castling, pa PlayersAlive) bool { //whether a king could move like that
+	return b.kingMove(from, to, m) || b.castling(from, to, cs, pa)
 }
 func (b *Board) queen(from Pos, to Pos, m MoatsState) bool { //whether a queen could move like that (concurrency, yay!)
 	return b.straight(from, to, m) || b.diagonal(from, to, m)
@@ -468,7 +485,7 @@ func (b *Board) pawn(from Pos, to Pos, e EnPassant) bool { //whether a pawn coul
 }
 
 //AnyPiece : tell whether the piece being in 'from' could move like that
-func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant) bool {
+func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant, pa PlayersAlive) bool {
 	if err := from.Correct(); err != nil {
 		panic(err)
 	}
@@ -485,7 +502,7 @@ func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassan
 	case Bishop:
 		return b.bishop(from, to, m)
 	case King:
-		return b.king(from, to, m, cs)
+		return b.king(from, to, m, cs, pa)
 	case Queen:
 		return b.queen(from, to, m)
 	default:
