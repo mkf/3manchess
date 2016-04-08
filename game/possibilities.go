@@ -468,7 +468,7 @@ func (b *Board) pawn(from Pos, to Pos, e EnPassant) bool { //whether a pawn coul
 }
 
 //AnyPiece : tell whether the piece being in 'from' could move like that
-func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant) bool {
+func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant, pa PlayersAlive) bool {
 	if err := from.Correct(); err != nil {
 		panic(err)
 	}
