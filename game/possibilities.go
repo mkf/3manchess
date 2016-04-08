@@ -400,13 +400,13 @@ func (b *Board) castling(from Pos, to Pos, cs Castling) bool {
 	var colorproper bool
 	var col Color
 	switch from {
-	case Pos{4, 0}: //white king starting
+	case Pos{0, 4}: //white king starting
 		col = White
 		colorproper = true
-	case Pos{12, 0}: //gray king starting
+	case Pos{0, 12}: //gray king starting
 		col = Gray
 		colorproper = true
-	case Pos{20, 0}: //black king starting
+	case Pos{0, 20}: //black king starting
 		col = Black
 		colorproper = true
 	}
@@ -421,6 +421,7 @@ func (b *Board) castling(from Pos, to Pos, cs Castling) bool {
 	case from[1] + 2: //cuz king is on the plus
 		kingside = cs.Give(col, 'K')
 	}
+	// TODO: check if empty squares between king and rook aren't checked
 	return (kingside && (*b)[0][from[1]+1].Empty() && (*b)[0][from[1]+2].Empty()) || //kingside and kingside empty
 		(queenside && (*b)[0][to[1]+1].Empty() && (*b)[0][to[1]+2].Empty() && (*b)[0][to[1]+3].Empty())
 	//		quenside and queenside empty
