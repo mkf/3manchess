@@ -248,20 +248,30 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	return cantech && canfig //, pc, ep
 }
 
-func (b *Board) kingStraight(from Pos, to Pos, m MoatsState) bool {
+func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
 	if from == to {
 		return false
 	}
-	nasz := b.GPos(from)
-	tjf := b.GPos(to)
-	switch to {
-	case Pos{from[0] + 1, from[1]},
-		Pos{from[0] - 1, from[1]},
-		Pos{from[0], (from[1] + 1) % 24},
-		Pos{from[0], (from[1] + 24 - 1) % 24}:
-		return !(tjf.NotEmpty && tjf.Color() == nasz.Color())
+	if !(b.straight(from, to, m) || b.diagonal(from, to, m)) {
+		return false
 	}
-	return false
+	if (from[0] - to[0] > 1 || from[0] - to[0] < -1) {
+		return false
+	}
+	if !(from[1] - to[1] == 23 || from[1] - to[1] == -23) && // king isn't moving from file 1 to 24 or vice versa AND
+			(from[1] - to[1] > 1 || from[1] - to[1] < -1) {  // isn't moving to adjacent or current file
+		if !(from[0] == 5 && to[0] == 5) { // king isn't moving through the center
+			return false
+		} else { // king is moving through the center
+			if (from[1] + 12) % 24 == to[1] || // king is moving forward through the center OR
+					((from[1] + 10) % 24 == to[1] || (from[1] - 10 + 24) % 24 == to[1]) { // king is moving diagonal through the center
+				return true
+			} else {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
@@ -437,7 +447,7 @@ func (b *Board) bishop(from Pos, to Pos, m MoatsState) bool { //whether a boshop
 	return b.diagonal(from, to, m)
 }
 func (b *Board) king(from Pos, to Pos, m MoatsState, cs Castling) bool { //whether a king could move like that
-	return b.kingStraight(from, to, m) || b.castling(from, to, cs)
+	return b.kingMove(from, to, m) || b.castling(from, to, cs)
 }
 func (b *Board) queen(from Pos, to Pos, m MoatsState) bool { //whether a queen could move like that (concurrency, yay!)
 	return b.straight(from, to, m) || b.diagonal(from, to, m)
