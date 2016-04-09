@@ -148,6 +148,21 @@ func allposinit() { //initialize ALLPOS
 	}
 }
 
+//ALLFROMTO : all valid FromTo
+var ALLFROMTO []FromTo
+
+func allfromtoinit() { //initialize ALLFROMTO
+	var b Board // empty board
+	m := MoatsState{true, true, true}
+	for _, from := range ALLPOS {
+		for _, to := range ALLPOS {
+			if b.knight(from, to, m) || b.queen(from, to, m) {
+				ALLFROMTO = append(ALLFROMTO, FromTo{from, to})
+			}
+		}
+	}
+}
+
 //BOARDFORNEWGAME — a newgame board
 var BOARDFORNEWGAME Board //newgame board
 
