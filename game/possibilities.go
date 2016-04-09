@@ -88,7 +88,7 @@ func (b *Board) canfigstraightvertthrucenter(s, f, t int8) bool { //startfile (f
 
 func (b *Board) canfigstraightvertnormal(file, f, t int8) bool {
 	s := sign(t - f)
-	for i := f + s; s*i < t; i += s {
+	for i := f + s; i != t; i += s {
 		if (*b)[i][file].NotEmpty {
 			return false
 		}
