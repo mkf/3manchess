@@ -112,7 +112,7 @@ func TestEvalAfter_plat129(t *testing.T) {
 	var s *State
 	s = &newState
 	var err error
-	es := make([]error, 0, 1)
+	es := make([]ler, 0, 1)
 	var mov Move
 	for _, ft := range plat129 {
 		if s == nil {
@@ -130,7 +130,7 @@ func TestEvalAfter_plat129(t *testing.T) {
 		t.Error("Invalid move accepted. State afterwards:", s)
 	}
 	if len(es) > 0 {
-		t.Log(es)
+		t.Error(es)
 	}
 }
 
