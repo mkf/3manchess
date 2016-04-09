@@ -464,6 +464,12 @@ func (mu *Multi) APIVFTPGen(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type DiffGive struct {
+	Before    game.State       `json:"beforestate"`
+	After     game.State       `json:"afterstate"`
+	DiffBoard []game.BoardDiff `json:"diffboard"`
+}
+
 func (mu *Multi) APIMove(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var gp server.MoveData
