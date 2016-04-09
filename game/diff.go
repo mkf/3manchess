@@ -18,7 +18,7 @@ func (b *Board) Diff(o *Board) []BoardDiff {
 	var c *BoardDiff
 	for oac.OK() {
 		oa = Pos(oac)
-		if p, a = b.GPos(oa), o.GPos(oa); a != p {
+		if p, a = b.GPos(oa), o.GPos(oa); *a != *p {
 			c = new(BoardDiff)
 			c.Pos = oa
 			if a.Empty() {
