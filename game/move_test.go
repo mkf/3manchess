@@ -18,7 +18,7 @@ var plat129 []FromTo = []FromTo{
 	{Pos{0, 9}, Pos{2, 10}},
 	{Pos{0, 16}, Pos{2, 16}},
 	{Pos{2, 8}, Pos{2, 15}},
-	{Pos{0, 14}, Pos{2, 13}},
+/*	{Pos{0, 14}, Pos{2, 13}},
 	{Pos{2, 16}, Pos{2, 15}},
 	{Pos{0, 1}, Pos{2, 0}},
 	{Pos{0, 11}, Pos{0, 8}},
@@ -31,7 +31,7 @@ var plat129 []FromTo = []FromTo{
 	{Pos{2, 23}, Pos{1, 1}},
 	{Pos{2, 5}, Pos{3, 7}},
 	{Pos{0, 8}, Pos{2, 8}},
-	{Pos{1, 1}, Pos{2, 3}},
+	{Pos{1, 1}, Pos{2, 3}},*/
 }
 
 func TestSimpleGenNoPanic(t *testing.T) {
@@ -105,13 +105,19 @@ func TestEvalAfter_plat129(t *testing.T) {
 	var s *State
 	s = &newState
 	var err error
+	var mov Move
 	for _, ft := range plat129 {
-		mov := ft.Move(s)
-		s, err = mov.EvalAfter()
-		if err != nil {
-			t.Error(err, s, mov, ft)
+		if s == nil {
+			t.Error("Move considered invalid:", mov)
 		}
-		t.Log(ft, mov, s)
+		mov = ft.Move(s)
+		s, err = mov.EvalAfter()
+		if err == nil {
+			t.Log(ft, mov, s)
+		}
+	}
+	if err == nil {
+		t.Error("Invalid move accepted. State afterwards:", s)
 	}
 }
 
