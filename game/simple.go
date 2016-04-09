@@ -5,6 +5,12 @@ package game
 //ACFT — all combinations fromto
 type ACFT FromTo
 
+//N returns new ACFT
+func N() ACFT {
+	var ft ACFT
+	return ft
+}
+
 //P adds one to our FromTo
 func (a *ACFT) P() {
 	(*a)[0][0]++
