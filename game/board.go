@@ -143,11 +143,14 @@ var AMFT map[Pos][]Pos = make(map[Pos][]Pos, 144)
 
 func amftinit() {
 	var b Board
-	var from ACP
-	for ; from.OK(); from.P() {
+	var afrom ACP
+	var from, to Pos
+	for ; afrom.OK(); afrom.P() {
+		from = Pos(afrom)
 		AMFT[from] = make([]Pos, 0, 80)
-		var to ACP
-		for ; to.OK(); to.P() {
+		var ato ACP
+		for ; ato.OK(); ato.P() {
+			to = Pos(ato)
 			if b.queen(from, to, BRIDGEDMOATS) || b.knight(from, to, BRIDGEDMOATS) {
 				AMFT[from] = append(AMFT[from], to)
 			}
