@@ -36,11 +36,6 @@ func (a *ACFT) OK() bool {
 	return (*a)[1][1] != 24
 }
 
-//G checks whether it is correct and returns it
-func (a *ACFT) G() (bool, FromTo) {
-	return a.OK(), FromTo(*a)
-}
-
 func sign(u int8) int8 {
 	switch {
 	case u == 0:
