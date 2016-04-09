@@ -40,17 +40,17 @@ type ACP Pos
 
 //P add one to our Pos
 func (a *ACP) P() {
-	(*a)[0]++
-	if (*a)[0] != 6 {
+	a[0]++
+	if a[0] != 6 {
 		return
 	}
-	(*a)[0] = 0
-	(*a)[1]++
+	a[0] = 0
+	a[1]++
 }
 
 //OK checks whether it is correct
 func (a *ACP) OK() bool {
-	return (*a)[1] != 24
+	return a[1] != 24
 }
 
 //G checks whether it is correct and returns it
