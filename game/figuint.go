@@ -69,7 +69,7 @@ func BoardUint(s *([6][24]uint8)) *Board {
 	return &b
 }
 
-func byteoac(oac ACP) uint8 { return (24 * uint8(oac[0])) + uint8(oac[1]) }
+func byteoac(oac Pos) uint8 { return (24 * uint8(oac[0])) + uint8(oac[1]) }
 
 //BoardByte reproduces a Board from byte slice repr
 func BoardByte(s []byte) *Board {
@@ -79,7 +79,7 @@ func BoardByte(s []byte) *Board {
 		panic(len(s))
 	}
 	for _, pos := range ALLPOS {
-		t = s[byteoac(ACP(pos))]
+		t = s[byteoac(pos)]
 		b[pos[0]][pos[1]] = SqUint8(t)
 	}
 	return &b
@@ -89,7 +89,7 @@ func BoardByte(s []byte) *Board {
 func (b *Board) Byte() [144]byte {
 	var d [144]byte
 	for _, pos := range ALLPOS {
-		d[byteoac(ACP(pos))] = b.GPos(pos).Uint8()
+		d[byteoac(pos)] = b.GPos(pos).Uint8()
 	}
 	return d
 }

@@ -35,7 +35,6 @@ func (i IllegalMoveDetected) Error() string {
 func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error) {
 	//yep, it's right! all over, again!
 	//but now... with concurrency!
-	var oac game.ACP
 	var om *game.Move
 	var os *game.State
 	var ourmove game.Move
@@ -43,7 +42,7 @@ func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error
 	appeared := make([]changefromempty, 0, 2)
 	disappeared := make([]changetoempty, 0, 2)
 	replaced := make([]changereplace, 0, 1)
-	for oac.OK() {
+	for _, oac := range game.ALLPOS {
 		prev := bef.Board.GPos(game.Pos(oac))
 		next := aft.GPos(board.Pos(oac))
 		if prev.Empty() && next.NotEmpty {
@@ -56,7 +55,6 @@ func WhatMove(bef *game.State, aft *board.Board) (*game.Move, *game.State, error
 			//panic([2]game.Board{*bef.Board, *aft})
 			//panic("replacementpanic1")
 		}
-		oac.P()
 	}
 	if len(replaced) > 1 {
 		return om, os, IllegalMoveDetected{"Too many replaced pieces!", "TooManyReplaced"}
