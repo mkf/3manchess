@@ -3,6 +3,7 @@ package game
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
 import "testing"
+import "encoding/json"
 
 var plat129 []FromTo = []FromTo{
 	{Pos{1, 0}, Pos{2, 0}},
@@ -102,9 +103,9 @@ func TestAfter_pawnCrossCenter(t *testing.T) {
 }
 
 type ler struct {
-	Error error
 	*State
 	Move
+	Error error
 }
 
 func TestEvalAfter_plat129(t *testing.T) {
@@ -123,14 +124,18 @@ func TestEvalAfter_plat129(t *testing.T) {
 		if err == nil {
 			t.Log(ft, mov, s)
 		} else {
-			es = append(es, ler{err, s, mov})
+			es = append(es, ler{s, mov, err})
 		}
 	}
 	if len(es) > 0 {
 		if err == nil {
 			t.Error("Invalid move accepted. State afterwards:", s)
 		}
-		t.Error(es)
+		bbbbb, eeeee := json.Marshal(es)
+		if eeeee != nil {
+			panic(eeeee)
+		}
+		t.Error(string(bbbbb))
 	}
 }
 
