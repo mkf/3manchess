@@ -6,8 +6,7 @@ package game
 func VFTPGen(gamestate *State) <-chan FromToProm {
 	allValid := make(chan FromToProm)
 	go func() {
-		var oac ACFT
-		for oac.OK() {
+		for oac := N(); oac.OK(); oac.P() {
 			ft := FromTo(oac)
 			move := Move{ft.From(), ft.To(), gamestate, Queen}
 			if _, err := move.After(); err == nil {
@@ -21,7 +20,6 @@ func VFTPGen(gamestate *State) <-chan FromToProm {
 					allValid <- FromToProm{ft, ZeroFigType}
 				}
 			}
-			oac.P()
 		}
 		close(allValid)
 	}()
