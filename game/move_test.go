@@ -137,6 +137,9 @@ func TestEvalAfter_plat129(t *testing.T) {
 		}
 		t.Error(string(bbbbb))
 	}
+	if len(es) > 0 {
+		t.Error(es)
+	}
 }
 
 func TestAfter_pawnCapture(t *testing.T) {
