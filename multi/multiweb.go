@@ -58,6 +58,7 @@ func (mu *Multi) NewRouter() *mux.Router {
 		{"APIState", "GET", "/api/state/{stateId}", mu.APIState},
 		{"APIVFTPGen", "GET", "/api/state/{stateId}/vftpgen", mu.APIVFTPGen},
 		{"APIMove", "GET", "/api/move/{moveId}", mu.APIMove},
+		{"APIDiff", "GET", "/api/move/{moveId}/diff", mu.APIDiff},
 		{"APILogin", "POST", "/api/login", mu.APILogin},
 		{"APIWhoIsIt", "GET", "/api/player/{playerId}", mu.APIWhoIsIt},
 		{"APIUserInfo", "GET", "/api/user/{userId}", mu.APIUserInfo},
@@ -460,6 +461,50 @@ func (mu *Multi) APIVFTPGen(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(gp); err != nil {
+		panic(err)
+	}
+}
+
+type DiffGive struct {
+	server.MoveData `json:"move"`
+	BeforeGame      server.GameplayData `json:"beforegame"`
+	AfterGame       server.GameplayData `json:"aftergame"`
+	BeforeState     game.State          `json:"beforestate"`
+	AfterState      game.State          `json:"afterstate"`
+	DiffBoard       []game.BoardDiff    `json:"diffboard"`
+}
+
+func (mu *Multi) APIDiff(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	var dig DiffGive
+	key, err := strconv.ParseInt(vars["moveId"], 10, 64)
+	if err != nil {
+		giveerror(w, r, err, http.StatusBadRequest, "parseint")
+	}
+	err = mu.Server.LoadMD(key, &dig.MoveData)
+	if err != nil {
+		giveerror(w, r, err, 421, "server_loadmd")
+	}
+	err = mu.Server.LoadGP(dig.MoveData.BeforeGame, &dig.BeforeGame)
+	if err != nil {
+		giveerror(w, r, err, 421, "server_loadgp_diff_before")
+	}
+	err = mu.Server.LoadGP(dig.MoveData.AfterGame, &dig.AfterGame)
+	if err != nil {
+		giveerror(w, r, err, 421, "server_loadgp_diff_after")
+	}
+	err = mu.Server.LoadState(dig.BeforeGame.State, &dig.BeforeState)
+	if err != nil {
+		giveerror(w, r, err, 421, "server_loadsd_diff_before")
+	}
+	err = mu.Server.LoadState(dig.AfterGame.State, &dig.AfterState)
+	if err != nil {
+		giveerror(w, r, err, 421, "server_loadsd_diff_after")
+	}
+	dig.DiffBoard = dig.BeforeState.Board.Diff(dig.AfterState.Board)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(dig); err != nil {
 		panic(err)
 	}
 }
