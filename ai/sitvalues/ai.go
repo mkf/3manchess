@@ -102,7 +102,7 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 	}
 	var wg sync.WaitGroup
 	possib := make(chan *game.State, 2050)
-	for oac := game.N(); oac.OK(); oac.P() {
+	for _, ft := range game.ALLFROMTO {
 		wg.Add(1)
 		go func(ourft game.FromTo) {
 			sv := ourft.Move(state)
@@ -111,7 +111,7 @@ func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State
 				possib <- v
 			}
 			wg.Done()
-		}(game.FromTo(oac))
+		}(ft)
 	}
 	wg.Wait()
 	var newchance float64
@@ -139,7 +139,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 	var wg, gwg sync.WaitGroup
 	var tmx sync.Mutex
 	wg.Add(1)
-	for oac := game.N(); oac.OK(); oac.P() {
+	for _, ft := range game.ALLFROMTO {
 		go func(ourft game.FromTo) {
 			sv := ourft.Move(s)
 			sv.PawnPromotion = a.Conf.PawnPromotion
@@ -162,7 +162,7 @@ func (a *AIPlayer) Think(s *game.State, hurry <-chan bool) game.Move {
 					gwg.Done()
 				}(ourft)
 			}
-		}(game.FromTo(oac))
+		}(ft)
 	}
 	wg.Done()
 	go func() {
