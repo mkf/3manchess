@@ -137,6 +137,32 @@ var COLORS = [3]Color{White, Gray, Black}
 //FIRSTRANKNEWGAME : first rank, from 0mod8 to 7mod8
 var FIRSTRANKNEWGAME = [8]FigType{Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook}
 
+//ALLPOS : all valid positions
+var ALLPOS [6 * 24]Pos
+
+func allposinit() { //initialize ALLPOS
+	for y := 0; y < 6; y++ {
+		for x := 0; x < 24; x++ {
+			ALLPOS[y*24+x] = Pos{int8(y), int8(x)}
+		}
+	}
+}
+
+//ALLFROMTO : all valid FromTo
+var ALLFROMTO []FromTo
+
+func allfromtoinit() { //initialize ALLFROMTO
+	var b Board // empty board
+	m := MoatsState{true, true, true}
+	for _, from := range ALLPOS {
+		for _, to := range ALLPOS {
+			if b.knight(from, to, m) || b.queen(from, to, m) {
+				ALLFROMTO = append(ALLFROMTO, FromTo{from, to})
+			}
+		}
+	}
+}
+
 //BOARDFORNEWGAME — a newgame board
 var BOARDFORNEWGAME Board //newgame board
 
