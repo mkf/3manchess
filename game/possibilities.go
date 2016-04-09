@@ -314,13 +314,13 @@ func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
 	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
 	cantech := false
 	switch to[1] {
-	case (from[1] + 2) % 24, (from[1] - 2) % 24:
+	case (from[1] + 2) % 24, (from[1] - 2 + 24) % 24:
 		if from[0] == 5 && to[0] == 5 {
 			cantech = true
 		} else if abs(from[0]-to[0]) == 1 {
 			cantech = true
 		}
-	case (from[1] + 1) % 24, (from[1] - 1) % 24:
+	case (from[1] + 1) % 24, (from[1] - 1 + 24) % 24:
 		if from[0] == 5 && to[0] == 4 { // doubtful, awaiting email reply
 			cantech = true
 		} else if abs(from[0]-to[0]) == 2 {
