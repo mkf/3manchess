@@ -4,9 +4,9 @@ package game
 
 //BoardDiff describes a single difference between boards
 type BoardDiff struct {
-	Fig
-	Bef Fig
-	Pos
+	Fig `json:"afterfig"`
+	Bef Fig `json:"beforefig"`
+	Pos `json:"where"`
 }
 
 //Diff returns differences between Boards
