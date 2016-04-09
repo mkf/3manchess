@@ -9,7 +9,7 @@ env: CHESSBASEURL="http://localhost:8082/"
 addons:
   mariadb: '5.5'
 matrix:
- - allow_failures:
+ allow_failures:
   - go: 1.6
     env: TESTUJEMY_MARIADB=10.1 CHESSBASEURL="http://localhost:8082/"
     addons:
