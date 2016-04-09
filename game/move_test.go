@@ -138,7 +138,7 @@ func TestEvalAfter_plat129(t *testing.T) {
 		t.Error(string(bbbbb))
 	}
 	if len(es) > 0 {
-		t.Log(es)
+		t.Error(es)
 	}
 }
 
