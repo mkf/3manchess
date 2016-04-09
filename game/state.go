@@ -262,6 +262,7 @@ var NEWGAME State
 
 func init() { //initialize module pseudoconstants
 	allposinit()
+	allfromtoinit()
 	boardinit()
 	NEWGAME = State{&BOARDFORNEWGAME, DEFMOATSSTATE, White, DEFCASTLING, DEFENPASSANT, HalfmoveClock(0), FullmoveNumber(1), DEFPLAYERSALIVE}
 }
