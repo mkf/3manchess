@@ -21,7 +21,6 @@ func VFTPGen(gamestate *State) <-chan FromToProm {
 						allValid <- FromToProm{ft, ZeroFigType}
 					}
 				}
-				oac.P()
 			}
 		}
 		close(allValid)
