@@ -97,10 +97,9 @@ func (b *Board) canfigstraightvertnormal(file, f, t int8) bool {
 }
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
-	var canMoveDiag bool
 	var moatsOK bool
 	for _, modifyPos := range []Pos{Pos{-1, -1}, Pos{-1, 1}, Pos{1, -1}, Pos{1, 1}} {
-		pos := Pos{from[0]+modifyPos[0], (from[1]+modifyPos[0]+24)%24}
+		pos := Pos{from[0]+modifyPos[0], (from[1]+modifyPos[1]+24)%24}
 		for pos[0] >= 0 {
 			moatsOK = true
 			for i := 0; i < 3 && moatsOK; i++ { // checks if we recently crossed not bridged moat
@@ -122,8 +121,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 				pos[1] = (pos[1]-modifyPos[1] + modifyPos[1]*10 + 24) % 24
 			}
 			if pos == to {
-				canMoveDiag = true
-				break
+				return true
 			}
 			if b[pos[0]][pos[1]].NotEmpty {
 				break
@@ -131,11 +129,8 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 			pos[0] = pos[0] + modifyPos[0]
 			pos[1] = (pos[1] + modifyPos[1] + 24) % 24
 		}
-		if canMoveDiag == true {
-			break
-		}
 	}
-	return canMoveDiag
+	return false
 }
 
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
