@@ -96,116 +96,46 @@ func (b *Board) canfigstraightvertnormal(file, f, t int8) bool {
 	return true
 }
 
-func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
-	nasz := (*b)[from[0]][from[1]] //nasz Square
-	if from == to {
-		return false
-	}
-
-	przel := abs(to[1]-from[1]) % 24
-	vectrank := to[0] - from[0]
-	rankdirec := sign(vectrank)
-	short := abs(vectrank) == przel     //without center
-	long := abs(from[0]+to[0]) == przel //with center
-	cantech := short || long
-
-	var filedirec int8
-	switch to[1] {
-	case (from[1] + przel) % 24:
-		filedirec = +1
-	case (from[1] - przel) % 24:
-		filedirec = -1
-	default:
-		if short && long { //ten warunek był zanegowany od 51d0219 do c984f32 włącznie, odnegowany w 5ff00460b17908610a8365f9e236519759869046
-			panic(from.String() + " " + to.String())
-		}
-	}
-
-	canfigshort, canfiglong, canmoatshort, canmoatlong, capcheckshort, capchecklong := true, true, true, true, true, true
-
-	if from[0] == 0 || to[0] == 0 { //jeżeli jesteśmy na rank 0 i na rank 0 zmierzamy
-		var sprawdzamy, mdir int8
-
-		//if from[0] == 0 { // jeżeli wyjeżdżamy do środka
-		//mdir := filedirec     // short jedzie w kierunku mdir, long jedzie w -mdir
-		//sprawdzamy := from[1] //
-		//} else { // czyli inaczej:  else if to[0]==0  czyli  jeżeli jedziemy na brzeg
-		//mdir := -filedirec
-		//sprawdzamy := to[1]
-		//}
-
-		var dirtemp int8     // jak pojedziesz w tę stronę to wjedziesz w moat'a, jak nie wjedziesz to chyba zero
-		capchecktemp := true // czy wjedziesz w moat'a jak pojedziesz w stronę `dirtemp`, redundantne
-		canmoattemp := true  // czy ten moat jest bridged czy nie
-
-		//switch sprawdzamy { case 0, 23: canmoattemp = m[0];  case 8, 7: m[1];  case 16, 15: m[2] }
-		canmoattemp = m[((sprawdzamy+1)/24)%3]
-		switch sprawdzamy % 8 {
-		case 0: //cross jest jak pojedziemy na minus
-			dirtemp = -1
-			capchecktemp = false
-		case 7: //cross jest jak pojedziemy na plus
-			dirtemp = 1
-			capchecktemp = false
-		}
-		if dirtemp == mdir {
-			capcheckshort = capchecktemp
-			canmoatshort = canmoattemp
-		} else if dirtemp == -mdir {
-			capchecklong = capchecktemp
-			canmoatlong = canmoattemp
-		}
-	}
-	var bijemyostatniego bool
-	if short && canmoatshort {
-		var i int8
-		for i = 1; i < przel; i++ {
-			if (*b)[from[0]+(i*rankdirec)][(((from[1]+(i*filedirec))%24)+24)%24].NotEmpty {
-				canfigshort = false
+func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
+	var canMoveDiag bool
+	var moatsOK bool
+	for _, modifyPos := range []Pos{Pos{-1, -1}, Pos{-1, 1}, Pos{1, -1}, Pos{1, 1}} {
+		pos := Pos{from[0]+modifyPos[0], (from[1]+modifyPos[0]+24)%24}
+		for pos[0] >= 0 {
+			moatsOK = true
+			for i := 0; i < 3 && moatsOK; i++ { // checks if we recently crossed not bridged moat
+				ft := FromTo{Pos{pos[0]-modifyPos[0], (pos[1]-modifyPos[1]+24)%24}, pos}
+				switch ft {
+				case FromTo{Pos{0,int8((23 + i*8)%24)},Pos{1,int8((i*8)%24)}}, FromTo{Pos{1,int8((i*8)%24)},Pos{0,int8((23 + i*8)%24)}},
+					FromTo{Pos{1,int8((23 + i*8)%24)},Pos{0,int8((i*8)%24)}},FromTo{Pos{0,int8((i*8)%24)},Pos{1,int8((23 + i*8)%24)}}:
+					if !m[i] {
+						moatsOK = false
+					}
+				}
+			}
+			if !moatsOK {
 				break
 			}
-		}
-		ostatni := (*b)[from[0]+(przel*rankdirec)][(((from[1]+(przel*filedirec))%24)+24)%24]
-		if ostatni.NotEmpty {
-			bijemyostatniego = ostatni.Color() != nasz.Color()
-			if !bijemyostatniego {
-				canfigshort = false
+			if pos[0] > 5 { // we are crossing the center
+				pos[0] = 5
+				modifyPos[0] = -1
+				pos[1] = (pos[1]-modifyPos[1] + modifyPos[1]*10 + 24) % 24
 			}
+			if pos == to {
+				canMoveDiag = true
+				break
+			}
+			if b[pos[0]][pos[1]].NotEmpty {
+				break
+			}
+			pos[0] = pos[0] + modifyPos[0]
+			pos[1] = (pos[1] + modifyPos[1] + 24) % 24
+		}
+		if canMoveDiag == true {
+			break
 		}
 	}
-	if long && canmoatlong {
-		var i int8
-		if canfiglong {
-			for i = 1; i <= (5 - from[0]); i++ {
-				if (*b)[from[0]+i][(((from[1]+(i*filedirec))%24)+24)%24].NotEmpty {
-					canfiglong = false
-					break
-				}
-			}
-		}
-		if canfiglong {
-			for i = 0; i+5-from[0] < przel; i++ {
-				if (*b)[5-i][(((from[1]+((5-from[0]+i)*filedirec))%24)+24)%24].NotEmpty {
-					canfiglong = false
-					break
-				}
-			}
-		}
-		ostatni := (*b)[(((10-from[0]-przel)%6)+6)%6][(((from[1]+(przel*filedirec))%24)+24)%24]
-		if r := recover(); r != nil {
-			panic(from[0] + przel)
-		}
-		if ostatni.NotEmpty {
-			if ostatni.Color() != nasz.Color() {
-				bijemyostatniego = true
-			} else {
-				canfiglong = false
-			}
-		}
-	}
-	canshort := cantech && canfigshort && canmoatshort && (capcheckshort || !bijemyostatniego)
-	canlong := cantech && canfiglong && canmoatlong && (capchecklong || !bijemyostatniego)
-	return canshort || canlong
+	return canMoveDiag
 }
 
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
