@@ -135,7 +135,7 @@ func TestEvalAfter_plat129(t *testing.T) {
 		if eeeee != nil {
 			panic(eeeee)
 		}
-		t.Error(string(bbbbb))
+		t.Log(string(bbbbb))
 	}
 }
 
