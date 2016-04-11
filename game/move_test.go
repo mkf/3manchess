@@ -18,7 +18,7 @@ var plat129 []FromTo = []FromTo{
 	{Pos{0, 9}, Pos{2, 10}},
 	{Pos{0, 16}, Pos{2, 16}},
 	{Pos{2, 8}, Pos{2, 15}},
-/*	{Pos{0, 14}, Pos{2, 13}},
+	/*{Pos{0, 14}, Pos{2, 13}},
 	{Pos{2, 16}, Pos{2, 15}},
 	{Pos{0, 1}, Pos{2, 0}},
 	{Pos{0, 11}, Pos{0, 8}},
@@ -31,7 +31,8 @@ var plat129 []FromTo = []FromTo{
 	{Pos{2, 23}, Pos{1, 1}},
 	{Pos{2, 5}, Pos{3, 7}},
 	{Pos{0, 8}, Pos{2, 8}},
-	{Pos{1, 1}, Pos{2, 3}},*/
+	{Pos{1, 1}, Pos{2, 3}},
+	*/
 }
 
 func TestSimpleGenNoPanic(t *testing.T) {
