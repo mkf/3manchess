@@ -142,15 +142,16 @@ var BRIDGEDMOATS = MoatsState{true, true, true}
 var AMFT map[Pos][]Pos = make(map[Pos][]Pos, 144)
 
 func amftinit() {
+	var allPos [6 * 24]Pos
+	for y := 0; y < 6; y++ {
+		for x := 0; x < 24; x++ {
+			allPos[y*24 + x] = Pos{int8(y), int8(x)}
+		}
+	}
 	var b Board
-	var afrom ACP
-	var from, to Pos
-	for ; afrom.OK(); afrom.P() {
-		from = Pos(afrom)
+	for _, from := range allPos {
 		AMFT[from] = make([]Pos, 0, 61) // 61 is the biggest encountered number of to's since 497ca04494eb470c5d1d5778453f7ae026cb00b9
-		var ato ACP
-		for ; ato.OK(); ato.P() {
-			to = Pos(ato)
+		for _, to := range allPos {
 			if b.queen(from, to, BRIDGEDMOATS) || b.knight(from, to, BRIDGEDMOATS) {
 				AMFT[from] = append(AMFT[from], to)
 			}
