@@ -3,7 +3,6 @@ package game
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
 import "testing"
-import "encoding/json"
 
 var plat129 []FromTo = []FromTo{
 	{Pos{1, 0}, Pos{2, 0}},
