@@ -143,16 +143,16 @@ var AMFT map[Pos][]Pos = make(map[Pos][]Pos, 144)
 
 func amftinit() {
 	var b Board
-	var afrom ACP
 	var from, to Pos
-	for ; afrom.OK(); afrom.P() {
-		from = Pos(afrom)
-		AMFT[from] = make([]Pos, 0, 61) // 61 is the biggest encountered number of to's since 497ca04494eb470c5d1d5778453f7ae026cb00b9
-		var ato ACP
-		for ; ato.OK(); ato.P() {
-			to = Pos(ato)
-			if b.queen(from, to, BRIDGEDMOATS) || b.knight(from, to, BRIDGEDMOATS) {
-				AMFT[from] = append(AMFT[from], to)
+	for from[0] = 0; from[0] < 6; from[0]++ {
+		for from[1] = 0; from[1] < 24; from[1]++ {
+			AMFT[from] = make([]Pos, 0, 61) // 61 is the biggest encountered number of to's since 497ca04494eb470c5d1d5778453f7ae026cb00b9
+			for to[0] = 0; to[0] < 6; to[0]++ {
+				for to[1] = 0; to[1] < 24; to[1]++ {
+					if b.queen(from, to, BRIDGEDMOATS) || b.knight(from, to, BRIDGEDMOATS) {
+						AMFT[from] = append(AMFT[from], to)
+					}
+				}
 			}
 		}
 	}
