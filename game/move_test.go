@@ -107,8 +107,8 @@ func TestEvalAfter_plat129(t *testing.T) {
 	var err error
 	var mov Move
 	for _, ft := range plat129 {
-		if s == nil {
-			t.Error("Move considered invalid:", mov)
+		if err != nil {
+			t.Error("Move considered invalid:", err, mov)
 		}
 		mov = ft.Move(s)
 		s, err = mov.EvalAfter()
@@ -117,7 +117,7 @@ func TestEvalAfter_plat129(t *testing.T) {
 		}
 	}
 	if err == nil {
-		t.Error("Invalid move accepted. State afterwards:", s)
+		t.Error("Invalid move accepted:", mov)
 	}
 }
 
