@@ -2,29 +2,6 @@ package game
 
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
-//ACP — all combinations pos
-type ACP Pos
-
-//P add one to our Pos
-func (a *ACP) P() {
-	a[0]++
-	if a[0] != 6 {
-		return
-	}
-	a[0] = 0
-	a[1]++
-}
-
-//OK checks whether it is correct
-func (a *ACP) OK() bool {
-	return a[1] != 24
-}
-
-//G checks whether it is correct and returns it
-func (a *ACP) G() (bool, Pos) {
-	return a.OK(), Pos(*a)
-}
-
 func sign(u int8) int8 {
 	switch {
 	case u == 0:
