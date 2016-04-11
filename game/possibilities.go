@@ -100,14 +100,14 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 	var canMoveDiag bool
 	var moatsOK bool
 	for _, modifyPos := range []Pos{Pos{-1, -1}, Pos{-1, 1}, Pos{1, -1}, Pos{1, 1}} {
-		pos := Pos{from[0]+modifyPos[0], (from[1]+modifyPos[0]+24)%24}
+		pos := Pos{from[0] + modifyPos[0], (from[1] + modifyPos[0] + 24) % 24}
 		for pos[0] >= 0 {
 			moatsOK = true
 			for i := 0; i < 3 && moatsOK; i++ { // checks if we recently crossed not bridged moat
-				ft := FromTo{Pos{pos[0]-modifyPos[0], (pos[1]-modifyPos[1]+24)%24}, pos}
+				ft := FromTo{Pos{pos[0] - modifyPos[0], (pos[1] - modifyPos[1] + 24) % 24}, pos}
 				switch ft {
-				case FromTo{Pos{0,int8((23 + i*8)%24)},Pos{1,int8((i*8)%24)}}, FromTo{Pos{1,int8((i*8)%24)},Pos{0,int8((23 + i*8)%24)}},
-					FromTo{Pos{1,int8((23 + i*8)%24)},Pos{0,int8((i*8)%24)}},FromTo{Pos{0,int8((i*8)%24)},Pos{1,int8((23 + i*8)%24)}}:
+				case FromTo{Pos{0, int8((23 + i*8) % 24)}, Pos{1, int8((i * 8) % 24)}}, FromTo{Pos{1, int8((i * 8) % 24)}, Pos{0, int8((23 + i*8) % 24)}},
+					FromTo{Pos{1, int8((23 + i*8) % 24)}, Pos{0, int8((i * 8) % 24)}}, FromTo{Pos{0, int8((i * 8) % 24)}, Pos{1, int8((23 + i*8) % 24)}}:
 					if !m[i] {
 						moatsOK = false
 					}
@@ -119,7 +119,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 			if pos[0] > 5 { // we are crossing the center
 				pos[0] = 5
 				modifyPos[0] = -1
-				pos[1] = (pos[1]-modifyPos[1] + modifyPos[1]*10 + 24) % 24
+				pos[1] = (pos[1] - modifyPos[1] + modifyPos[1]*10 + 24) % 24
 			}
 			if pos == to {
 				canMoveDiag = true
@@ -185,16 +185,16 @@ func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
 	if !(b.straight(from, to, m) || b.diagonal(from, to, m)) {
 		return false
 	}
-	if (from[0] - to[0] > 1 || from[0] - to[0] < -1) {
+	if from[0]-to[0] > 1 || from[0]-to[0] < -1 {
 		return false
 	}
-	if !(from[1] - to[1] == 23 || from[1] - to[1] == -23) && // king isn't moving from file 1 to 24 or vice versa AND
-			(from[1] - to[1] > 1 || from[1] - to[1] < -1) {  // isn't moving to adjacent or current file
+	if !(from[1]-to[1] == 23 || from[1]-to[1] == -23) && // king isn't moving from file 1 to 24 or vice versa AND
+		(from[1]-to[1] > 1 || from[1]-to[1] < -1) { // isn't moving to adjacent or current file
 		if !(from[0] == 5 && to[0] == 5) { // king isn't moving through the center
 			return false
 		} else { // king is moving through the center
-			if (from[1] + 12) % 24 == to[1] || // king is moving forward through the center OR
-					((from[1] + 10) % 24 == to[1] || (from[1] - 10 + 24) % 24 == to[1]) { // king is moving diagonal through the center
+			if (from[1]+12)%24 == to[1] || // king is moving forward through the center OR
+				((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1]) { // king is moving diagonal through the center
 				return true
 			} else {
 				return false
