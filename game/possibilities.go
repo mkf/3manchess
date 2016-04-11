@@ -96,62 +96,19 @@ func (b *Board) canfigstraightvertnormal(file, f, t int8) bool {
 	return true
 }
 
-var PLUSMINUSPAIRS = [4][2]int8{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}}
-
-func (p Pos) AddVector(v [2]int8) Pos {
-	return Pos{p[0] + v[0], (((p[1] + v[0]) % 24) + 24) % 24}
-}
-
-func (p Pos) MinusVector(v [2]int8) Pos {
-	return p.AddVector([2]int8{-v[0], -v[1]})
-}
-
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
+	var canMoveDiag bool
 	var moatsOK bool
-	var i int8
-	for _, modifyPos := range PLUSMINUSPAIRS {
-		//pos := Pos{from[0]+modifyPos[0], (from[1]+modifyPos[0]+24)%24}
-		pos := from.AddVector(modifyPos)
+	for _, modifyPos := range []Pos{Pos{-1, -1}, Pos{-1, 1}, Pos{1, -1}, Pos{1, 1}} {
+		pos := Pos{from[0]+modifyPos[0], (from[1]+modifyPos[0]+24)%24}
 		for pos[0] >= 0 {
 			moatsOK = true
-			for i = 0; i < 3 && moatsOK; i++ { // checks if we recently crossed not bridged moat
-				pft := pos.MinusVector(modifyPos)
-				if !m[i] {
-					var (
-						timeseight                         int8 = (i * 8) % 24
-						teminusone                         int8 = (timeseight - 1 + 24) % 24
-						iftemin, iftimee, ifftzer, ifftone [2]bool
-					)
-					switch pft[0] {
-					case 0:
-						ifftzer[0] = true
-					case 1:
-						ifftone[0] = true
-					}
-					switch pos[0] {
-					case 0:
-						ifftzer[1] = true
-					case 1:
-						ifftone[1] = true
-					}
-					switch pft[1] {
-					case teminusone:
-						iftemin[0] = true
-					case timeseight:
-						iftimee[0] = true
-					}
-					switch pos[1] {
-					case teminusone:
-						iftemin[1] = true
-					case timeseight:
-						iftimee[1] = true
-					}
-					czymoatsnieok := false ||
-						(ifftzer[0] && iftemin[0] && ifftone[1] && iftimee[1]) ||
-						(ifftone[0] && iftimee[0] && ifftzer[1] && iftemin[1]) ||
-						(ifftone[0] && iftemin[0] && ifftzer[1] && iftimee[1]) ||
-						(ifftzer[0] && iftimee[0] && ifftone[1] && iftemin[1])
-					if czymoatsnieok {
+			for i := 0; i < 3 && moatsOK; i++ { // checks if we recently crossed not bridged moat
+				ft := FromTo{Pos{pos[0]-modifyPos[0], (pos[1]-modifyPos[1]+24)%24}, pos}
+				switch ft {
+				case FromTo{Pos{0,int8((23 + i*8)%24)},Pos{1,int8((i*8)%24)}}, FromTo{Pos{1,int8((i*8)%24)},Pos{0,int8((23 + i*8)%24)}},
+					FromTo{Pos{1,int8((23 + i*8)%24)},Pos{0,int8((i*8)%24)}},FromTo{Pos{0,int8((i*8)%24)},Pos{1,int8((23 + i*8)%24)}}:
+					if !m[i] {
 						moatsOK = false
 					}
 				}
@@ -160,22 +117,25 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 				break
 			}
 			if pos[0] > 5 { // we are crossing the center
+				pos[0] = 5
 				modifyPos[0] = -1
-				pos = Pos{
-					5,
-					(pos[1] + modifyPos[1]*(10-1) + 24) % 24,
-				}
+				pos[1] = (pos[1]-modifyPos[1] + modifyPos[1]*10 + 24) % 24
 			}
 			if pos == to {
-				return true
+				canMoveDiag = true
+				break
 			}
 			if b[pos[0]][pos[1]].NotEmpty {
 				break
 			}
-			pos = pos.AddVector(modifyPos)
+			pos[0] = pos[0] + modifyPos[0]
+			pos[1] = (pos[1] + modifyPos[1] + 24) % 24
+		}
+		if canMoveDiag == true {
+			break
 		}
 	}
-	return false
+	return canMoveDiag
 }
 
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
@@ -225,16 +185,16 @@ func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
 	if !(b.straight(from, to, m) || b.diagonal(from, to, m)) {
 		return false
 	}
-	if from[0]-to[0] > 1 || from[0]-to[0] < -1 {
+	if (from[0] - to[0] > 1 || from[0] - to[0] < -1) {
 		return false
 	}
-	if !(from[1]-to[1] == 23 || from[1]-to[1] == -23) && // king isn't moving from file 1 to 24 or vice versa AND
-		(from[1]-to[1] > 1 || from[1]-to[1] < -1) { // isn't moving to adjacent or current file
+	if !(from[1] - to[1] == 23 || from[1] - to[1] == -23) && // king isn't moving from file 1 to 24 or vice versa AND
+			(from[1] - to[1] > 1 || from[1] - to[1] < -1) {  // isn't moving to adjacent or current file
 		if !(from[0] == 5 && to[0] == 5) { // king isn't moving through the center
 			return false
 		} else { // king is moving through the center
-			if (from[1]+12)%24 == to[1] || // king is moving forward through the center OR
-				((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1]) { // king is moving diagonal through the center
+			if (from[1] + 12) % 24 == to[1] || // king is moving forward through the center OR
+					((from[1] + 10) % 24 == to[1] || (from[1] - 10 + 24) % 24 == to[1]) { // king is moving diagonal through the center
 				return true
 			} else {
 				return false
