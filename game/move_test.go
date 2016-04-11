@@ -113,29 +113,19 @@ func TestEvalAfter_plat129(t *testing.T) {
 	var s *State
 	s = &newState
 	var err error
-	es := make([]ler, 0, 1)
 	var mov Move
 	for _, ft := range plat129 {
-		if s == nil {
+		if err != nil {
 			t.Error("Move considered invalid:", err, mov)
 		}
 		mov = ft.Move(s)
 		s, err = mov.EvalAfter()
 		if err == nil {
 			t.Log(ft, mov, s)
-		} else {
-			es = append(es, ler{s, mov, err})
 		}
 	}
-	if len(es) > 0 {
-		if err == nil {
-			t.Error("Invalid move accepted. State afterwards:", s)
-		}
-		bbbbb, eeeee := json.Marshal(es)
-		if eeeee != nil {
-			panic(eeeee)
-		}
-		t.Log(string(bbbbb))
+	if err == nil {
+		t.Error("Invalid move accepted:", mov)
 	}
 }
 
