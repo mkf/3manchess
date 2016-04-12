@@ -218,30 +218,19 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	return cantech && canfig //, pc, ep
 }
 
+func absu(i int8) uint8 {
+	if i < 0 {
+		return uint8(-i)
+	}
+	return uint8(i)
+}
+
 func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
-	if from == to {
-		return false
-	}
-	if !(b.straight(from, to, m) || b.diagonal(from, to, m)) {
-		return false
-	}
-	if from[0]-to[0] > 1 || from[0]-to[0] < -1 {
-		return false
-	}
-	if !(from[1]-to[1] == 23 || from[1]-to[1] == -23) && // king isn't moving from file 1 to 24 or vice versa AND
-		(from[1]-to[1] > 1 || from[1]-to[1] < -1) { // isn't moving to adjacent or current file
-		if !(from[0] == 5 && to[0] == 5) { // king isn't moving through the center
-			return false
-		} else { // king is moving through the center
-			if (from[1]+12)%24 == to[1] || // king is moving forward through the center OR
-				((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1]) { // king is moving diagonal through the center
-				return true
-			} else {
-				return false
-			}
-		}
-	}
-	return true
+	return from != to && b.queen(from, to, m) && absu(from[0]-to[0]) <= 1 &&
+		((absu(from[1]-to[1]) == 23 || absu(from[1]-to[1]) > 1) || // king isn't moving to adjacent or current file (such as from file 1 to 24 or vice versa)
+			(from[0] == 5 && to[0] == 5 && // king is moving through the center
+				((from[1]+12)%24 == to[1] || // king movin fwd thru center
+					((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1])))) // king movin diag thru center
 }
 
 func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
