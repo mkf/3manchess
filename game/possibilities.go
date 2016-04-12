@@ -227,7 +227,8 @@ func absu(i int8) uint8 {
 
 func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
 	return from != to && b.queen(from, to, m) && absu(from[0]-to[0]) <= 1 &&
-		((absu(from[1]-to[1]) == 23 || absu(from[1]-to[1]) > 1) || // king isn't moving to adjacent or current file (such as from file 1 to 24 or vice versa)
+		((absu(from[1]-to[1]) == 23 || absu(from[1]-to[1]) > 1) ||
+			// king isn't moving to adjacent or current file (such as from file 1 to 24 or vice versa)
 			(from[0] == 5 && to[0] == 5 && // king is moving through the center
 				((from[1]+12)%24 == to[1] || // king movin fwd thru center
 					((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1])))) // king movin diag thru center
