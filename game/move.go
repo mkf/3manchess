@@ -390,6 +390,8 @@ func (m *Move) After() (*State, error) { //situation after
 			case King:
 				return &next, IllegalMoveError{m, "KingPromotion", "Promotion to King"}
 			} //let's say that you can promote a pawn to a pawn
+		} else if m.From[0] == m.To[0] {
+			next.Board[m.To[0]][m.To[1]].Fig.PawnCenter = true
 		}
 	} else {
 		var empty Square
