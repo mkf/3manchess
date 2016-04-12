@@ -22,6 +22,13 @@ func abs(u int8) int8 {
 	return u
 }
 
+func absu(i int8) uint8 {
+	if i < 0 {
+		return uint8(-i)
+	}
+	return uint8(i)
+}
+
 func min(i int8, j int8) int8 {
 	if i < j {
 		return i
