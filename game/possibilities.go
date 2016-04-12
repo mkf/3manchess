@@ -218,13 +218,6 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	return cantech && canfig //, pc, ep
 }
 
-func absu(i int8) uint8 {
-	if i < 0 {
-		return uint8(-i)
-	}
-	return uint8(i)
-}
-
 func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
 	return from != to && b.queen(from, to, m) && absu(from[0]-to[0]) <= 1 &&
 		((absu(from[1]-to[1]) == 23 || absu(from[1]-to[1]) <= 1) ||
