@@ -226,16 +226,22 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	} else {
 		sgn = int8(1)
 	}
+	var ep Pos
+	if e[0] == to {
+		ep = e[0]
+	} else {
+		ep = e[1]
+	}
 	return ((from[0] == 5 && to[0] == 5 && !bool(p)) && //jest na 5 ranku i nie przeszedl przez srodek jeszcze
 		(to[1] == ((from[1]+24-10)%24) || to[1] == ((from[1]+10)%24)) && //poprawnie przelecial na skos przez srodek
-		b.GPos(to).Color() != nasz.Color()) || //ten co go bijemy jest innego koloru ALBO
-		((e[0] == to || e[1] == to) && //pozycja tego co go bijemy jest w enpassant
-			(*b)[3][to[1]].What() == Pawn && //ten co go bijemy jest pionkiem
-			(*b)[3][to[1]].Color() != nasz.Color() && //i jest innego koloru
-			(*b)[2][to[1]].Empty()) || //a pole za nim jest puste (jak to po ruchu pre-enpassant) ALBO
-		(to[0] == from[0]+sgn && cancreek && //zwykle bicie, o jeden w kierunku sgn na ranku
-			((to[1] == (from[1]+1)%24) || (to[1] == (from[1]+24-1)%24)) && //i o jeden w tę lub tamtą stronę (wsio mod24) na file'u
-			b.GPos(to).Color() != nasz.Color()) //a ten co go bijemy jest innego koloru
+		b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz.Fig.Color) || //ten co go bijemy jest innego koloru ALBO
+		(((to[1] == (from[1]+1)%24) || (to[1] == (from[1]+24-1)%24)) && //o jeden w tę lub tamtą stronę (wsio mod24) na file'ua
+			((e[0] == to || e[1] == to) && //pozycja tego co go bijemy jest w enpassant
+				(*b)[3][ep[1]].Fig.FigType == Pawn && //ten co go bijemy jest pionkiem
+				(*b)[3][ep[1]].NotEmpty && (*b)[3][ep[1]].Fig.Color != nasz.Fig.Color && //i jest innego koloru
+				(*b)[2][ep[1]].Empty()) || //a pole za nim jest puste (jak to po ruchu pre-enpassant) ALBO
+			(to[0] == from[0]+sgn && cancreek && //zwykle bicie, o jeden w kierunku sgn na ranku
+				b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz.Fig.Color)) //a ten co go bijemy jest innego koloru
 }
 
 func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
