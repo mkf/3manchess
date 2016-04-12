@@ -380,7 +380,7 @@ func (m *Move) After() (*State, error) { //situation after
 		}
 		if moatbridging {
 			next.MoatsState[m.From[1]/8] = true
-			next.MoatsState[m.From[1]/8+1] = true
+			next.MoatsState[(m.From[1]/8+1)%3] = true
 		}
 		if m.To[0] == 0 && m.From[0] == 1 {
 			next.Board[m.To[0]][m.To[1]] = Square{NotEmpty: true, Fig: Fig{FigType: m.PawnPromotion, Color: m.What().Color, PawnCenter: false}}
