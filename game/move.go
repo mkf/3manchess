@@ -329,7 +329,7 @@ func (m *Move) After() (*State, error) { //situation after
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
 		moatbridging := true
-		if !next.MoatsState[m.From[1]/8] || !next.MoatsState[m.From[1]/8+1] {
+		if !next.MoatsState[m.From[1]/8] || !next.MoatsState[(m.From[1]/8+1)%3] {
 			for i := (m.From[1] / 8) * 8; i < ((m.From[1]/8)*8)+8; i++ { //check if all of the color's rank0 is empty
 				if next.Board[0][i].NotEmpty { //if one of the squares is not empty
 					moatbridging = false //then it is false
