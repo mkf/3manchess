@@ -362,7 +362,7 @@ func (m *Move) After() (*State, error) { //situation after
 		}
 		if moatbridging {
 			next.MoatsState[m.From[1]/8] = true
-			next.MoatsState[m.From[1]/8+1] = true
+			next.MoatsState[(m.From[1]/8+1)%3] = true
 		}
 	} else if m.What().FigType == Pawn {
 		var empty Square
