@@ -329,7 +329,7 @@ func (m *Move) After() (*State, error) { //situation after
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
 		moatbridging := true
-		if !next.MoatsState[m.From[1]/8] || !next.MoatsState[m.From[1]/8+1] {
+		if !next.MoatsState[m.From[1]/8] || !next.MoatsState[(m.From[1]/8+1)%3] {
 			for i := (m.From[1] / 8) * 8; i < ((m.From[1]/8)*8)+8; i++ { //check if all of the color's rank0 is empty
 				if next.Board[0][i].NotEmpty { //if one of the squares is not empty
 					moatbridging = false //then it is false
@@ -338,8 +338,8 @@ func (m *Move) After() (*State, error) { //situation after
 			}
 		}
 		if moatbridging { //if all of the color's rank0 is empty
-			next.MoatsState[m.From[1]/8] = true   //bridge queenside
-			next.MoatsState[m.From[1]/8+1] = true //bridge kingside
+			next.MoatsState[m.From[1]/8] = true       //bridge queenside
+			next.MoatsState[(m.From[1]/8+1)%3] = true //bridge kingside
 		}
 	} else if m.What().FigType == King {
 		var empty Square
@@ -362,7 +362,7 @@ func (m *Move) After() (*State, error) { //situation after
 		}
 		if moatbridging {
 			next.MoatsState[m.From[1]/8] = true
-			next.MoatsState[m.From[1]/8+1] = true
+			next.MoatsState[(m.From[1]/8+1)%3] = true
 		}
 	} else if m.What().FigType == Pawn {
 		var empty Square
@@ -380,7 +380,7 @@ func (m *Move) After() (*State, error) { //situation after
 		}
 		if moatbridging {
 			next.MoatsState[m.From[1]/8] = true
-			next.MoatsState[m.From[1]/8+1] = true
+			next.MoatsState[(m.From[1]/8+1)%3] = true
 		}
 		if m.To[0] == 0 && m.From[0] == 1 {
 			next.Board[m.To[0]][m.To[1]] = Square{NotEmpty: true, Fig: Fig{FigType: m.PawnPromotion, Color: m.What().Color, PawnCenter: false}}
@@ -411,7 +411,7 @@ func (m *Move) After() (*State, error) { //situation after
 		}
 		if moatbridging {
 			next.MoatsState[m.From[1]/8] = true
-			next.MoatsState[m.From[1]/8+1] = true
+			next.MoatsState[(m.From[1]/8+1)%3] = true
 		}
 	}
 

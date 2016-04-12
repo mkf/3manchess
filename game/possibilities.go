@@ -178,30 +178,20 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	return cantech && canfig //, pc, ep
 }
 
+func absu(i int8) uint8 {
+	if i < 0 {
+		return uint8(-i)
+	}
+	return uint8(i)
+}
+
 func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
-	if from == to {
-		return false
-	}
-	if !(b.straight(from, to, m) || b.diagonal(from, to, m)) {
-		return false
-	}
-	if from[0]-to[0] > 1 || from[0]-to[0] < -1 {
-		return false
-	}
-	if !(from[1]-to[1] == 23 || from[1]-to[1] == -23) && // king isn't moving from file 1 to 24 or vice versa AND
-		(from[1]-to[1] > 1 || from[1]-to[1] < -1) { // isn't moving to adjacent or current file
-		if !(from[0] == 5 && to[0] == 5) { // king isn't moving through the center
-			return false
-		} else { // king is moving through the center
-			if (from[1]+12)%24 == to[1] || // king is moving forward through the center OR
-				((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1]) { // king is moving diagonal through the center
-				return true
-			} else {
-				return false
-			}
-		}
-	}
-	return true
+	return from != to && b.queen(from, to, m) && absu(from[0]-to[0]) <= 1 &&
+		((absu(from[1]-to[1]) == 23 || absu(from[1]-to[1]) <= 1) ||
+			// king isn't moving to adjacent or current file (such as from file 1 to 24 or vice versa)
+			(from[0] == 5 && to[0] == 5 && // king is moving through the center
+				((from[1]+12)%24 == to[1] || // king movin fwd thru center
+					((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1])))) // king movin diag thru center
 }
 
 func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
@@ -244,102 +234,52 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 				b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz.Fig.Color)) //a ten co go bijemy jest innego koloru
 }
 
+func xoreq(n1, n2, w int8) bool {
+	switch n1 {
+	case 0:
+		return n2 == w
+	case w:
+		return n2 == 0
+	}
+	return false
+}
+
+var xrqnmv = map[int8]map[int8]int8{
+	6: {0: 1},
+	7: {1: 1, 0: 2},
+	0: {6: 1, 7: 2},
+	1: {7: 1},
+}
+
 func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
-	nasz := (*b)[from[0]][from[1]]
 	//gdziekolor := ColorUint8(uint8(from[1]>>3))
 	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
-	cantech := false
+	var can bool
 	switch to[1] {
 	case (from[1] + 2) % 24, (from[1] - 2 + 24) % 24:
-		if from[0] == 5 && to[0] == 5 {
-			cantech = true
-		} else if abs(from[0]-to[0]) == 1 {
-			cantech = true
-		}
+		can = from[0] == 5 && to[0] == 5 || abs(from[0]-to[0]) == 1
 	case (from[1] + 1) % 24, (from[1] - 1 + 24) % 24:
-		if from[0] == 5 && to[0] == 4 { // doubtful, awaiting email reply
-			cantech = true
-		} else if abs(from[0]-to[0]) == 2 {
-			cantech = true
-		}
+		can = from[0] == 5 && to[0] == 4 || abs(from[0]-to[0]) == 2
 	}
-	canmoat := true
-	//cancheck := true
-	if cantech && from[0] < 3 && to[0] < 3 {
-		var ourmoat bool
+	if !can {
+		return false
+	}
+	can = from[0] >= 3 && to[0] >= 3
+	if !can {
 		switch from[1] {
 		case 22, 23, 0, 1:
-			ourmoat = m[0]
+			can = m[0]
 		case 6, 7, 8, 9:
-			ourmoat = m[1]
+			can = m[1]
 		case 14, 15, 16, 17:
-			ourmoat = m[2]
+			can = m[2]
 		}
-		switch from[1] % 8 {
-		case 6:
-			if to[1]%8 == 0 {
-				if from[0]+to[0] == 1 {
-					canmoat = ourmoat
-				}
-			}
-		case 7:
-			if to[1]%8 == 1 {
-				if from[0]+to[0] == 1 {
-					canmoat = ourmoat
-				}
-			} else if to[1]%8 == 0 {
-				switch from[0] {
-				case 0:
-					if to[0] == 2 { //cancheck = false
-						canmoat = ourmoat
-					}
-				case 2:
-					if to[0] == 0 { //cancheck = false
-						canmoat = ourmoat
-					}
-				}
-			}
-		case 0:
-			if to[1]%8 == 6 {
-				if from[0]+to[0] == 1 {
-					canmoat = ourmoat
-				}
-			} else if to[1]%8 == 7 {
-				switch from[0] {
-				case 0:
-					if to[0] == 2 { //cancheck = false
-						canmoat = ourmoat
-					}
-				case 2:
-					if to[0] == 0 { //cancheck = false
-						canmoat = ourmoat
-					}
-				}
-			}
-		case 1:
-			if to[1]%8 == 7 {
-				switch from[0] {
-				case 0:
-					if to[0] == 1 { //cancheck = false
-						canmoat = ourmoat
-					}
-				case 1:
-					if to[0] == 0 { //cancheck = false
-						canmoat = ourmoat
-					}
-				}
-			}
+		if !can && xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]) {
+			return false
 		}
 	}
-	canfig := true
-	if cantech && canmoat {
-		if (*b)[to[0]][to[1]].NotEmpty {
-			if (*b)[to[0]][to[1]].Color() == nasz.Color() {
-				canfig = false
-			}
-		}
-	}
-	return cantech && canmoat && canfig
+	dosq := b.GPos(to)
+	return dosq.Empty() || dosq.Color() != b.GPos(from).Color()
 }
 
 func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
