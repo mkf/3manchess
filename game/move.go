@@ -338,8 +338,8 @@ func (m *Move) After() (*State, error) { //situation after
 			}
 		}
 		if moatbridging { //if all of the color's rank0 is empty
-			next.MoatsState[m.From[1]/8] = true   //bridge queenside
-			next.MoatsState[m.From[1]/8+1] = true //bridge kingside
+			next.MoatsState[m.From[1]/8] = true       //bridge queenside
+			next.MoatsState[(m.From[1]/8+1)%3] = true //bridge kingside
 		}
 	} else if m.What().FigType == King {
 		var empty Square
