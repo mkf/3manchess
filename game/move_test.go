@@ -101,12 +101,6 @@ func TestAfter_pawnCrossCenter(t *testing.T) {
 	}
 }
 
-type ler struct {
-	*State
-	Move
-	Error error
-}
-
 func TestEvalAfter_plat129(t *testing.T) {
 	newState := NewState()
 	var s *State
