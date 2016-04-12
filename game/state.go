@@ -221,7 +221,7 @@ func Byte144(s []byte) [144]byte {
 
 //EvalDeath : evaluate the death of all players
 func (s *State) EvalDeath() {
-	if !(s.CanIMoveWOCheck(s.MovesNext)) { // next player to move cannot be checkmated
+	if !s.Board.IsKingPresent(s.MovesNext) || !s.CanIMoveWOCheck(s.MovesNext) { // next player to move cannot be checkmated
 		s.PlayersAlive.Die(s.MovesNext)
 	}
 	for _, c := range COLORS { // all players must have theirs' kings
