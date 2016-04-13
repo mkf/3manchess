@@ -97,24 +97,19 @@ func (b *Board) canfigstraightvertnormal(file, f, t int8) bool {
 }
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
-	var canMoveDiag bool
-	var moatsOK bool
-	for _, modifyPos := range []Pos{Pos{-1, -1}, Pos{-1, 1}, Pos{1, -1}, Pos{1, 1}} {
+	for _, modifyPos := range []Pos{Pos{-1, -1}, Pos{-1, 1}, Pos{1, -1}, Pos{1, 1}} { // testing all directions
 		pos := Pos{from[0] + modifyPos[0], (from[1] + modifyPos[0] + 24) % 24}
 		for pos[0] >= 0 {
-			moatsOK = true
-			for i := 0; i < 3 && moatsOK; i++ { // checks if we recently crossed not bridged moat
-				ft := FromTo{Pos{pos[0] - modifyPos[0], (pos[1] - modifyPos[1] + 24) % 24}, pos}
-				switch ft {
-				case FromTo{Pos{0, int8((23 + i*8) % 24)}, Pos{1, int8((i * 8) % 24)}}, FromTo{Pos{1, int8((i * 8) % 24)}, Pos{0, int8((23 + i*8) % 24)}},
-					FromTo{Pos{1, int8((23 + i*8) % 24)}, Pos{0, int8((i * 8) % 24)}}, FromTo{Pos{0, int8((i * 8) % 24)}, Pos{1, int8((23 + i*8) % 24)}}:
-					if !m[i] {
-						moatsOK = false
-					}
+			if abs(from[1]%8 - to[1]%8) == 7 && max(from[0], to[0]) == 1 { // we crossed a moat (moving diagonally)
+				var i int8 // moat index
+				if from[1]%8 == 7 {
+					i = from[1] / 8
+				} else {
+					i = to[1] / 8
 				}
-			}
-			if !moatsOK {
-				break
+				if !m[i] {
+					break;
+				}
 			}
 			if pos[0] > 5 { // we are crossing the center
 				pos[0] = 5
@@ -122,8 +117,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 				pos[1] = (pos[1] - modifyPos[1] + modifyPos[1]*10 + 24) % 24
 			}
 			if pos == to {
-				canMoveDiag = true
-				break
+				return true
 			}
 			if b[pos[0]][pos[1]].NotEmpty {
 				break
@@ -131,11 +125,8 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 			pos[0] = pos[0] + modifyPos[0]
 			pos[1] = (pos[1] + modifyPos[1] + 24) % 24
 		}
-		if canMoveDiag == true {
-			break
-		}
 	}
-	return canMoveDiag
+	return false
 }
 
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
