@@ -126,7 +126,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 				modifyPos[0] = -1
 				pos = Pos{
 					5,
-					(pos[1] + modifyPos[1]*(10-1) + 24) % 24,
+					(pos[1] + (-1+10)*modifyPos[1] + 24) % 24,
 				}
 			}
 			if pos == to {
@@ -227,7 +227,7 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 				(*b)[3][ep[1]].Fig.FigType == Pawn && //ten co go bijemy jest pionkiem
 				(*b)[3][ep[1]].NotEmpty && (*b)[3][ep[1]].Fig.Color != nasz.Fig.Color && //i jest innego koloru
 				(*b)[2][ep[1]].Empty()) || //a pole za nim jest puste (jak to po ruchu pre-enpassant) ALBO
-			(b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz.Fig.Color))) //ten co go bijemy jest innego koloru
+				(b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz.Fig.Color))) //ten co go bijemy jest innego koloru
 }
 
 func xoreq(n1, n2, w int8) bool {
