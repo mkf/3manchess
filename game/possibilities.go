@@ -142,9 +142,6 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 }
 
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
-	var cantech, canfig bool
-	//pc := p
-	//ep := e
 	if from == to {
 		//panic("Same square!")
 		return false
@@ -161,24 +158,17 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 		sgn = 1
 	}
 	if from[1] == to[1] {
-		realsgn := sign(to[0] - from[0])
-		if realsgn != sgn {
+		if sign(to[0]-from[0]) != sgn {
 			return false //,p,e
 		}
 		if !bool(p) && from[0] == 1 && to[0] == 3 {
-			cantech = true
-			canfig = (*b)[2][from[1]].Empty() && b.GPos(to).Empty()
+			return (*b)[2][from[1]].Empty() && b.GPos(to).Empty()
 			//ep:=e.Appeared(Pos{2,from[1]})
 		} else if to[0] == from[0]+sgn {
-			cantech = true
-			canfig = b.GPos(to).Empty()
+			return b.GPos(to).Empty()
 		}
-	} else if ((from[1]+12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) {
-		cantech = true
-		canfig = b.GPos(to).Empty()
-		//pc = true
 	}
-	return cantech && canfig //, pc, ep
+	return ((from[1]+12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) && b.GPos(to).Empty()
 }
 
 func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
