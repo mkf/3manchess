@@ -127,7 +127,7 @@ func (m *Move) IsItPawnRunningEnPassant() bool {
 //IsItPawnCapturingEnPassant or not?
 func (m *Move) IsItPawnCapturingEnPassant() bool {
 	return bool(m.What().PawnCenter) && m.What().FigType == Pawn && m.From[0] == 3 && m.To[0] == 2 &&
-		absu(m.From[1]-m.To[1]) == 1 && m.Before.Board.GPos(m.To).Empty()
+		m.From[1] != m.To[1] && m.Before.Board.GPos(m.To).Empty()
 }
 
 //IllegalMoveError : error on illegal move
