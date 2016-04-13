@@ -107,9 +107,6 @@ func (p Pos) MinusVector(v [2]int8) Pos {
 }
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
-	//<<<<<<< HEAD
-	var moatsOK bool
-	var i int8
 	for _, modifyPos := range PLUSMINUSPAIRS {
 		pos := from.AddVector(modifyPos)
 		for pos[0] >= 0 {
