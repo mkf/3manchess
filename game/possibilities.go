@@ -108,10 +108,9 @@ func (p Pos) MinusVector(v [2]int8) Pos {
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 	for _, modifyPos := range PLUSMINUSPAIRS {
-		pos := from.AddVector(modifyPos)
-		for pos[0] >= 0 {
+		for pos := from.AddVector(modifyPos); pos[0] >= 0; pos = pos.AddVector(modifyPos) {
 			if max(from[0], to[0]) == 1 && abs(from[1]%8-to[1]%8) == 7 {
-				// 				we crossed a moat (moving diagonally)
+				// we crossed a moat (moving diagonally)
 				var i int8 // moat index
 				if from[1]%8 == 7 {
 					i = from[1] / 8
@@ -135,7 +134,6 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 			if b.GPos(pos).NotEmpty {
 				break
 			}
-			pos = pos.AddVector(modifyPos)
 		}
 	}
 	return false
