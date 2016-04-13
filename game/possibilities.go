@@ -107,57 +107,23 @@ func (p Pos) MinusVector(v [2]int8) Pos {
 }
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
+	//<<<<<<< HEAD
 	var moatsOK bool
 	var i int8
 	for _, modifyPos := range PLUSMINUSPAIRS {
-		//pos := Pos{from[0]+modifyPos[0], (from[1]+modifyPos[0]+24)%24}
 		pos := from.AddVector(modifyPos)
 		for pos[0] >= 0 {
-			moatsOK = true
-			for i = 0; i < 3 && moatsOK; i++ { // checks if we recently crossed not bridged moat
-				pft := pos.MinusVector(modifyPos)
-				if !m[i] {
-					var (
-						timeseight                         int8 = (i * 8) % 24
-						teminusone                         int8 = (timeseight - 1 + 24) % 24
-						iftemin, iftimee, ifftzer, ifftone [2]bool
-					)
-					switch pft[0] {
-					case 0:
-						ifftzer[0] = true
-					case 1:
-						ifftone[0] = true
-					}
-					switch pos[0] {
-					case 0:
-						ifftzer[1] = true
-					case 1:
-						ifftone[1] = true
-					}
-					switch pft[1] {
-					case teminusone:
-						iftemin[0] = true
-					case timeseight:
-						iftimee[0] = true
-					}
-					switch pos[1] {
-					case teminusone:
-						iftemin[1] = true
-					case timeseight:
-						iftimee[1] = true
-					}
-					czymoatsnieok := false ||
-						(ifftzer[0] && iftemin[0] && ifftone[1] && iftimee[1]) ||
-						(ifftone[0] && iftimee[0] && ifftzer[1] && iftemin[1]) ||
-						(ifftone[0] && iftemin[0] && ifftzer[1] && iftimee[1]) ||
-						(ifftzer[0] && iftimee[0] && ifftone[1] && iftemin[1])
-					if czymoatsnieok {
-						moatsOK = false
-					}
+			if max(from[0], to[0]) == 1 && abs(from[1]%8-to[1]%8) == 7 {
+				// 				we crossed a moat (moving diagonally)
+				var i int8 // moat index
+				if from[1]%8 == 7 {
+					i = from[1] / 8
+				} else {
+					i = to[1] / 8
 				}
-			}
-			if !moatsOK {
-				break
+				if !m[i] {
+					break
+				}
 			}
 			if pos[0] > 5 { // we are crossing the center
 				modifyPos[0] = -1
@@ -169,7 +135,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 			if pos == to {
 				return true
 			}
-			if b[pos[0]][pos[1]].NotEmpty {
+			if b.GPos(pos).NotEmpty {
 				break
 			}
 			pos = pos.AddVector(modifyPos)
