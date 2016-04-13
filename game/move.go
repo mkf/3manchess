@@ -126,10 +126,10 @@ func (m *Move) IsItPawnRunningEnPassant() bool {
 
 //IsItPawnCapturingEnPassant or not?
 func (m *Move) IsItPawnCapturingEnPassant() bool {
-	if !(m.What().FigType == Pawn) {
+	if m.What().FigType != Pawn {
 		return false
 	}
-	if m.From[0] == 3 && m.To[0] == 2 && (*(m.Before.Board))[3][m.To[1]].What() == Pawn {
+	if m.From[1] != m.To[1] && !m.Before.Board.GPos(m.To).NotEmpty {
 		return true
 	}
 	return false
