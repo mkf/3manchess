@@ -292,7 +292,7 @@ func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
 		kingside = cs.Give(col, 'K')
 	}
 	if kingside && (*b)[0][from[1]+1].Empty() && (*b)[0][from[1]+2].Empty() { // kingside and kingside empty
-		uncheckedPos := [3]Pos{Pos{from[0], from[0]}, Pos{to[0] + 1, to[1] + 1}, Pos{to[0], to[1]}}
+		uncheckedPos := [3]Pos{{from[0], from[0]}, {to[0] + 1, to[1] + 1}, {to[0], to[1]}}
 		for _, checkPos := range uncheckedPos {
 			check := b.ThreatChecking(checkPos, pa, DEFENPASSANT)
 			if check.If == true {
@@ -302,7 +302,7 @@ func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
 		}
 	}
 	if !kingside && queenside && (*b)[0][to[1]+1].Empty() && (*b)[0][to[1]+2].Empty() && (*b)[0][to[1]+3].Empty() { // not kingside, queenside and queenside empty
-		uncheckedPos := [3]Pos{Pos{from[0], from[0]}, Pos{to[0] - 1, to[1] - 1}, Pos{to[0], to[1]}}
+		uncheckedPos := [3]Pos{{from[0], from[0]}, {to[0] - 1, to[1] - 1}, {to[0], to[1]}}
 		for _, checkPos := range uncheckedPos {
 			check := b.ThreatChecking(checkPos, pa, DEFENPASSANT)
 			if check.If == true {
