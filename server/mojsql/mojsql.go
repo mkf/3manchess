@@ -29,16 +29,6 @@ func (m *MojSQL) Initialize(username string, password string, database string) e
 	return err
 }
 
-//TransactionStart — placeholder, does nothing
-func (m *MojSQL) TransactionStart() error {
-	return nil
-}
-
-//TransactionEnd — placeholder, does nothing
-func (m *MojSQL) TransactionEnd() error {
-	return nil
-}
-
 //SaveSD inserts StateData into db
 func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	key = -1
@@ -77,6 +67,7 @@ func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 			?,         -- fm
 			?          -- al
 		) on duplicate key update id=last_insert_id(id)`)
+	defer resstmt.Close()
 	log.Println(resstmt, err)
 	if err != nil {
 		return
@@ -112,6 +103,7 @@ func (m *MojSQL) LoadSD(key int64, sd *game.StateData) error {
 			fullmovenumber,
 			alive+0
 		from 3manst where id=?`)
+	defer givestmt.Close()
 	if err != nil {
 		return err
 	}
@@ -134,6 +126,7 @@ func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
 	stmt, err := m.conn.Prepare(
 		`insert into 3mangp (state,created,white,gray,black) values (?,?,?,?,?)`)
 	//		on duplicate key update id=last_insert_id(id)`)
+	defer stmt.Close()
 	if err != nil {
 		return -1, err
 	}
@@ -164,6 +157,7 @@ func (m *MojSQL) SaveGP(gpd *server.GameplayData) (int64, error) {
 //LoadGP gets GameplayData from db
 func (m *MojSQL) LoadGP(key int64, gpd *server.GameplayData) error {
 	stmt, err := m.conn.Prepare("select state,white,gray,black,created from 3mangp where id=?")
+	defer stmt.Close()
 	if err != nil {
 		return err
 	}
@@ -193,6 +187,7 @@ func (m *MojSQL) ListGP(many uint) (h []server.GameplayFollow, err error) {
 		ile = many
 	}
 	stmt, err := m.conn.Prepare(qstr)
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -228,6 +223,7 @@ func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
 	stmt, err := trans.Prepare(
 		`insert into 3manmv (fromto,beforegame,promotion,who) 
 		values (?,?,?,?) on duplicate key update id=last_insert_id(id)`)
+	defer stmt.Close()
 	if err != nil {
 		log.Println(stmt)
 		return
@@ -259,6 +255,7 @@ func (m *MojSQL) SaveMD(md *server.MoveData) (key int64, err error) {
 //LoadMD gets MoveData from db
 func (m *MojSQL) LoadMD(key int64, md *server.MoveData) (err error) {
 	stmt, err := m.conn.Prepare("select fromto,beforegame,aftergame,promotion,who from 3manmv where id=?")
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -271,6 +268,7 @@ func (m *MojSQL) LoadMD(key int64, md *server.MoveData) (err error) {
 //AfterMD lists moves after the selected gameplay
 func (m *MojSQL) AfterMDwe(beforegp int64) (out []server.MoveFollow, err error) {
 	stmt, err := m.conn.Prepare("select id,fromto,aftergame,promotion,who from 3manmv where beforegame=?")
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -301,6 +299,7 @@ func procafter(beforegp int64, rows *sql.Rows, er error) (out []server.MoveFollo
 
 func (m *MojSQL) BeforeMD(aftergp int64) (out []server.MoveFollow, err error) {
 	stmt, err := m.conn.Prepare("select id,fromto,beforegame,promotion,who from 3manmv where aftergame=?")
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -326,6 +325,7 @@ func (m *MojSQL) BeforeMD(aftergp int64) (out []server.MoveFollow, err error) {
 
 func (m *MojSQL) OwnersBots(owner int64) (out []server.BotFollow, err error) {
 	stmt, err := m.conn.Prepare("select id,whoami,ownname,player,settings from chessbot where owner=?")
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -359,6 +359,7 @@ func (m *MojSQL) AfterMDwPlayers(beforegp int64, players [3]*int64) (out []serve
 			(g.gray=? and "prawda"=?) and
 			(g.black=? and "prawda"=?)
 	`)
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -381,6 +382,7 @@ func (m *MojSQL) AfterMDwPlayers(beforegp int64, players [3]*int64) (out []serve
 //GetAuth : PLAYER(ID) → PLAYER(AUTH)
 func (m *MojSQL) GetAuth(playerid int64) (authkey []byte, err error) {
 	stmt, err := m.conn.Prepare("select auth from 3manplayer where id=?")
+	defer stmt.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -410,6 +412,7 @@ func (m *MojSQL) SignUp(login string, passwd string, name string) (userid int64,
 		return -1, playerid, authkey, err
 	}
 	stmt, err := m.conn.Prepare("insert into chessuser (login,passwd,name,player) values (?,sha2(?,256),?,?)")
+	defer stmt.Close()
 	if err != nil {
 		return -1, playerid, authkey, err
 	}
@@ -424,6 +427,7 @@ func (m *MojSQL) SignUp(login string, passwd string, name string) (userid int64,
 //LogIn : USER(LOGIN + PASSWD) → USER(ID + AUTH)
 func (m *MojSQL) LogIn(login string, passwd string) (userid int64, authkey []byte, err error) {
 	stmt, err := m.conn.Prepare("select u.id,p.auth from chessuser u inner join 3manplayer p where u.login=? and u.passwd=sha2(?,256) and u.player=p.id")
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -464,6 +468,7 @@ func (m *MojSQL) PAuth(playerid int64, authkey []byte) (bool, error) {
 
 func (m *MojSQL) procauth(query string, id int64, authkey []byte) (bool, error) {
 	stmt, err := m.conn.Prepare(query)
+	defer stmt.Close()
 	if err != nil {
 		return false, err
 	}
@@ -484,6 +489,7 @@ func (m *MojSQL) NewBot(whoami []byte, userid int64, uauth []byte, ownname strin
 		return
 	}
 	stmt, err := m.conn.Prepare("insert into chessbot (whoami,owner,ownname,player,settings) values (?,?,?,?,?)")
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -498,6 +504,7 @@ func (m *MojSQL) NewBot(whoami []byte, userid int64, uauth []byte, ownname strin
 //BotOwnerLoginAndName : BOTID → OWNER(LOGIN+NAME)   //TO BE DEPRECATED
 func (m *MojSQL) BotOwnerLoginAndName(botid int64) (login string, name string, err error) {
 	stmt, err := m.conn.Prepare("select u.login,u.name from chessbot b inner join chessuser u where b.owner=u.id and b.id=?")
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -508,6 +515,7 @@ func (m *MojSQL) BotOwnerLoginAndName(botid int64) (login string, name string, e
 //UserInfo gets info about a user from db
 func (m *MojSQL) UserInfo(userid int64) (login string, name string, playerid int64, err error) {
 	stmt, err := m.conn.Prepare("select login,name,player from chessuser where id=?")
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -518,6 +526,7 @@ func (m *MojSQL) UserInfo(userid int64) (login string, name string, playerid int
 //BotInfo gets info about a bot from db
 func (m *MojSQL) BotInfo(botid int64) (whoami []byte, owner int64, ownname string, player int64, settings []byte, err error) {
 	stmt, err := m.conn.Prepare("select whoami,owner,ownname,player,settings from chessbot where id=?")
+	defer stmt.Close()
 	if err != nil {
 		return
 	}
@@ -532,6 +541,7 @@ func (m *MojSQL) WhoIsIt(playerid int64) (id int64, isitabot bool, err error) {
 		`select id, '0' as isitabot from chessuser where player=? 
 		union all 
 		select id, '1' as isitabot from chessbot where player=?`)
+	defer stmt.Close()
 	if err != nil {
 		return -1, false, err
 	}
@@ -547,6 +557,7 @@ func (m *MojSQL) BotKey(botid int64, userid int64, uauth []byte) (playerid int64
 		return -1, nil, err
 	}
 	stmt, err := m.conn.Prepare("select p.id,p.auth from chessbot b join 3manplayer p on b.player=p.id where b.id=?")
+	defer stmt.Close()
 	if err != nil {
 		return -1, nil, err
 	}
