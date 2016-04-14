@@ -93,11 +93,11 @@ func (a *AIPlayer) ErrorChannel() chan<- error {
 func (a *AIPlayer) Worker(chance float64, give chan<- float64, state *game.State, whoarewe game.Color) {
 	state.EvalDeath()
 	if !(state.PlayersAlive.Give(whoarewe)) { //if we are dead
-		give <- a.SitValue(state) * chance
+		give <- a.SitValue(state, whoarewe) * chance
 		return
 	}
 	if chance < a.curfixprec { //if we are too deep
-		give <- a.SitValue(state) * chance
+		give <- a.SitValue(state, whoarewe) * chance
 		return
 	}
 	var wg sync.WaitGroup

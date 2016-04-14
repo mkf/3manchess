@@ -4,7 +4,7 @@ package sitvalues
 
 import "github.com/ArchieT/3manchess/game"
 
-const DEATH float64 = 100000
+const DEATH float64 = -100000
 
 const OPDIES float64 = 15000
 
@@ -17,8 +17,7 @@ var VALUES = map[game.FigType]int32{
 	game.King:   3,
 }
 
-func (a *AIPlayer) SitValue(s *game.State) float64 {
-	who := s.MovesNext.Next().Next()
+func (a *AIPlayer) SitValue(s *game.State, who game.Color) float64 {
 	nasze, ich := s.Board.FriendsNAllies(who, s.PlayersAlive)
 	myatakujem := s.Board.WeAreThreateningTypes(who, s.PlayersAlive, s.EnPassant)
 	nasatakujo := s.Board.WeAreThreatened(who, s.PlayersAlive, s.EnPassant)
@@ -38,13 +37,11 @@ func (a *AIPlayer) SitValue(s *game.State) float64 {
 	}
 	zyjacy = float64(own-theirs)*(a.Conf.OwnedToThreatened) + float64(myich-oninas)
 	if !s.PlayersAlive.Give(who) {
-		return -DEATH
+		return DEATH
 	}
-	if !s.PlayersAlive.Give(who.Next()) {
-		zyjacy += OPDIES
-	}
-	if !s.PlayersAlive.Give(who.Next().Next()) {
-		zyjacy += OPDIES
-	}
+	for _, player := range game.COLORS {
+		if player != who && !s.PlayersAlive.Give(player) {
+			zyjacy += OPDIES
+		}
 	return zyjacy
 }

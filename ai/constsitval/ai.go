@@ -90,7 +90,7 @@ func (a *AIPlayer) Worker(s *game.State, whoarewe game.Color, depth uint8) []flo
 	index := 0 // index is for mythoughts map
 	var bestsitval float64
 	for state := range game.ASAOMGen(s, whoarewe) {
-		mythoughts[index] = append(mythoughts[index], a.SitValue(state)) // fills in first element of mythoughts[index]
+		mythoughts[index] = append(mythoughts[index], a.SitValue(state, whoarewe)) // fills in first element of mythoughts[index]
 		if int(depth) > 0 {
 			bestsitval = -1000000
 			if state.MovesNext == whoarewe {
