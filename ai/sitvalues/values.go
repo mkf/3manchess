@@ -11,10 +11,10 @@ const OPDIES float64 = 15000
 var VALUES = map[game.FigType]int32{
 	game.Pawn:   1,
 	game.Knight: 3,
-	game.Bishop: 6,
-	game.Rook:   5,
+	game.Bishop: 5,
+	game.Rook:   6,
 	game.Queen:  10,
-	game.King:   2400,
+	game.King:   3,
 }
 
 func (a *AIPlayer) SitValue(s *game.State) float64 {
