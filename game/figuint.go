@@ -52,7 +52,7 @@ func SqUint8(i uint8) Square {
 //FigUint8 reproduces a Fig from an uint8 repr
 func FigUint8(i uint8) Fig {
 	var f Fig
-	f.PawnCenter = PawnCenter((i >> 7) > 0)
+	f.PawnCenter = PawnCenter((i >> 6) > 0)
 	f.Color = Color((i >> 3) & 7)
 	f.FigType = FigType(i & 7)
 	return f
