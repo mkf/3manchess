@@ -29,16 +29,6 @@ func (m *MojSQL) Initialize(username string, password string, database string) e
 	return err
 }
 
-//TransactionStart — placeholder, does nothing
-func (m *MojSQL) TransactionStart() error {
-	return nil
-}
-
-//TransactionEnd — placeholder, does nothing
-func (m *MojSQL) TransactionEnd() error {
-	return nil
-}
-
 //SaveSD inserts StateData into db
 func (m *MojSQL) SaveSD(sd *game.StateData) (key int64, err error) {
 	key = -1
