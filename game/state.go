@@ -123,6 +123,14 @@ func (e EnPassant) Nothing() EnPassant {
 //HalfmoveClock : not used atm, TODO
 type HalfmoveClock uint8
 
+//inc : increase HalfmoveClock
+func (c *HalfmoveClock) inc() HalfmoveClock {
+	if *c != 255 {
+		*c++
+	}
+	return *c
+}
+
 //FullmoveNumber : not used atm, TODO
 type FullmoveNumber uint16
 

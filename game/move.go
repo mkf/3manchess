@@ -277,7 +277,7 @@ func (m *Move) After() (*State, error) { //situation after
 		next.Board[0][m.From[1]] = empty                        //emptying king's square
 		next.Board[0][m.From[1]+3] = empty                      //emptying rook's square
 		next.Castling = next.Castling.OffKing(m.What().Color)
-		next.HalfmoveClock++
+		next.HalfmoveClock.inc()
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
 	} else if m.IsItQueenSideCastling() {
@@ -287,7 +287,7 @@ func (m *Move) After() (*State, error) { //situation after
 		next.Board[0][m.From[1]] = empty                        //emptying the king's square
 		next.Board[0][m.From[1]+4] = empty                      //emptying the rook's square
 		next.Castling = next.Castling.OffKing(m.What().Color)
-		next.HalfmoveClock++
+		next.HalfmoveClock.inc()
 		next.FullmoveNumber++
 		next.EnPassant = next.EnPassant.Nothing()
 	} else if m.IsItPawnRunningEnPassant() {
@@ -317,7 +317,7 @@ func (m *Move) After() (*State, error) { //situation after
 			}
 		}
 		if czyempty { //if the target square is empty
-			next.HalfmoveClock++
+			next.HalfmoveClock.inc()
 		} else {
 			next.HalfmoveClock = HalfmoveClock(0) //capturing sth
 		}
@@ -343,7 +343,7 @@ func (m *Move) After() (*State, error) { //situation after
 		next.Board[m.From[0]][m.From[1]] = empty
 		next.Castling = next.Castling.OffKing(m.Before.MovesNext)
 		if czyempty {
-			next.HalfmoveClock++
+			next.HalfmoveClock.inc()
 		} else {
 			next.HalfmoveClock = HalfmoveClock(0)
 		}
@@ -394,7 +394,7 @@ func (m *Move) After() (*State, error) { //situation after
 		next.Board[m.To[0]][m.To[1]] = next.Board[m.From[0]][m.From[1]]
 		next.Board[m.From[0]][m.From[1]] = empty
 		if czyempty {
-			next.HalfmoveClock++
+			next.HalfmoveClock.inc()
 		} else {
 			next.HalfmoveClock = HalfmoveClock(0)
 		}
