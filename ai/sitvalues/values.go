@@ -43,5 +43,6 @@ func (a *AIPlayer) SitValue(s *game.State, who game.Color) float64 {
 		if player != who && !s.PlayersAlive.Give(player) {
 			zyjacy += OPDIES
 		}
+	}
 	return zyjacy
 }
