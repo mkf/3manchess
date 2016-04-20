@@ -11,10 +11,17 @@ func TestAMFT_filetranslate(t *testing.T) {
 			if len(dlategotu) != len(dlazera) {
 				t.Error(len(dlazera), len(dlategotu), rank, file, "\n", dlazera, "\n", dlategotu)
 			} else {
-				for el := range dlazera {
-					orel := dlazera[el].AddVector([2]int8{0, file})
-					if orel != dlategotu[el] {
-						t.Error(orel, dlategotu[el], "\n", dlazera, "\n", dlategotu, "\n", dlazera[el], rank, file)
+				for _, el := range dlazera {
+					orel := el.AddVector([2]int8{0, file})
+					jesttensam := false
+					//if orel != dlategotu[el] {
+					for _, dlael := range dlategotu {
+						if orel == dlael {
+							jesttensam = true
+						}
+					}
+					if !jesttensam {
+						t.Error(orel, "\n", dlazera, "\n", dlategotu, "\n", el, rank, file)
 					}
 				}
 			}
