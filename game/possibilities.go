@@ -99,11 +99,20 @@ func (b *Board) canfigstraightvertnormal(file, f, t int8) bool {
 var PLUSMINUSPAIRS = [4][2]int8{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}}
 
 func (p Pos) AddVector(v [2]int8) Pos {
-	return Pos{p[0] + v[0], (((p[1] + v[0]) % 24) + 24) % 24}
+	return Pos{p[0] + v[0], (((p[1] + v[1]) % 24) + 24) % 24}
 }
 
 func (p Pos) MinusVector(v [2]int8) Pos {
 	return p.AddVector([2]int8{-v[0], -v[1]})
+}
+
+var datafordiagonal = [6][6][2]int8{ //fromrank, torank, short&long file vector lenght
+	{{0, 0}, {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}},
+	{{1, 1}, {0, 2}, {1, 3}, {2, 4}, {3, 5}, {4, 6}},
+	{{2, 2}, {1, 3}, {0, 4}, {1, 5}, {2, 6}, {3, 7}},
+	{{3, 3}, {2, 4}, {1, 5}, {0, 6}, {1, 7}, {2, 8}},
+	{{4, 4}, {3, 5}, {2, 6}, {1, 7}, {0, 8}, {1, 9}},
+	{{5, 5}, {4, 6}, {3, 7}, {2, 8}, {1, 9}, {0, 10}},
 }
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
