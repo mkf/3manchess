@@ -120,7 +120,7 @@ var datafordiagonal = [6][6][2]int8{ //fromrank, torank, short&long file vector 
 func tablediagonal(fromrank, torank int8, longnotshort bool) int8 {
 	if longnotshort {
 		return fromrank + torank
-	} else if shortnotlong {
+	} else {
 		return abs(fromrank - torank)
 	}
 }
