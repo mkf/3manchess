@@ -99,7 +99,7 @@ func (b *Board) canfigstraightvertnormal(file, f, t int8) bool {
 var PLUSMINUSPAIRS = [4][2]int8{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}}
 
 func (p Pos) AddVector(v [2]int8) Pos {
-	return Pos{p[0] + v[0], (((p[1] + v[1]) % 24) + 24) % 24}
+	return Pos{p[0] + v[0], (p[1] + v[1] + 24) % 24}
 }
 
 func (p Pos) MinusVector(v [2]int8) Pos {
