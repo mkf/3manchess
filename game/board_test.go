@@ -29,17 +29,17 @@ func TestAMFT_filetranslate(t *testing.T) {
 	}
 }
 
-func showamft(p Pos) {
+func showamft(p Pos, vfile int8) {
 	var wyjscie [6][24]bool
 	for _, val := range AMFT[p] {
 		wyjscie[val[0]][val[1]] = true
 	}
 	fmt.Println(p)
 	for i := int8(5); i >= 0; i-- {
-		for j := int8(0); j < 24; j++ {
-			if wyjscie[i][j] {
+		for j := vfile; j < 24+vfile; j++ {
+			if wyjscie[i][(j+24)%24] {
 				fmt.Print("▓")
-			} else if j == p[1] && i == p[0] {
+			} else if (j+24)%24 == p[1] && i == p[0] {
 				fmt.Print("█")
 			} else {
 				fmt.Print("░")
@@ -49,5 +49,9 @@ func showamft(p Pos) {
 	}
 }
 
-func TestAMFT_zero(t *testing.T) { showamft(Pos{0, 0}) }
-func TestAMFT_5a12(t *testing.T) { showamft(Pos{5, 12}) }
+func TestAMFT_0a0(t *testing.T)  { showamft(Pos{0, 0}, 12) }
+func TestAMFT_0a12(t *testing.T) { showamft(Pos{0, 12}, 0) }
+func TestAMFT_0a7(t *testing.T)  { showamft(Pos{0, 7}, 7+12) }
+func TestAMFT_5a0(t *testing.T)  { showamft(Pos{5, 0}, 12) }
+func TestAMFT_5a12(t *testing.T) { showamft(Pos{5, 12}, 0) }
+func TestAMFT_5a7(t *testing.T)  { showamft(Pos{5, 7}, 7+12) }
