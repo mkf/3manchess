@@ -136,6 +136,7 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 					5,
 					(pos[1] + (-1+10)*modifyPos[1] + 24) % 24,
 				}
+				modifyPos[1] *= -1
 			}
 			if pos == to {
 				return true
