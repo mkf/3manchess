@@ -165,12 +165,14 @@ func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 				}
 			}
 			if pos[0] > 5 { // we are crossing the center
-				modifyPos[0] = -1
 				pos = Pos{
 					5,
 					(pos[1] + (-1+10)*modifyPos[1] + 24) % 24,
 				}
-				modifyPos[1] *= -1
+				modifyPos = Pos{
+					-1,
+					modifyPos[1] * -1,
+				}
 			}
 			if pos == to {
 				return true
