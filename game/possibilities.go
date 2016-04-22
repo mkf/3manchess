@@ -126,6 +126,9 @@ func tablediagonal(fromrank, torank int8, longnotshort bool) int8 {
 }
 
 func techdiagonal(from, to Pos) (short, long bool, znak int8) {
+	if from == to {
+		return false, false, 1
+	}
 	shorttd := tablediagonal(from[0], to[0], false)
 	longtd := tablediagonal(from[0], to[0], true)
 	switch to[1] {
@@ -179,6 +182,12 @@ func (b *Board) canfiglongdiagonal(from, to Pos, znak int8) bool {
 		}
 	}
 	return !(b.GPos(to).NotEmpty && b.GPos(to).Color() == b.GPos(from).Color())
+}
+
+func (b *Board) moatnumdiagonal(from, to Pos, znak int8) {
+	if from[0] == 0 {
+	} else if to[0] == 0 {
+	}
 }
 
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
