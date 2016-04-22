@@ -184,13 +184,65 @@ func (b *Board) canfiglongdiagonal(from, to Pos, znak int8) bool {
 	return !(b.GPos(to).NotEmpty && b.GPos(to).Color() == b.GPos(from).Color())
 }
 
-func (b *Board) moatnumdiagonal(from, to Pos, znak int8) {
-	if from[0] == 0 {
-	} else if to[0] == 0 {
+func (b *Board) canfigdiagonal(from, to Pos, znak int8, longnotshort bool) bool {
+	if longnotshort {
+		return b.canfiglongdiagonal(from, to, znak)
+	}
+	return b.canfigshortdiagonal(from, to, znak)
+}
+
+func moatnumdiagonal(from, to Pos, znak int8, longnotshort bool) int8 {
+	if from[0] == 0 && (from[1]%8 == 7 && (!longnotshort && znak == -1 || longnotshort && znak == 1) ||
+		from[1]%8 == 0 && (!longnotshort && znak == 1 || longnotshort && znak == -1)) {
+		return (from[1] - 1) / 8
+	} else if to[0] == 0 && (to[1]%8 == 7 && (!longnotshort && znak == 1 || longnotshort && znak != 1) ||
+		to[1]%8 == 0 && (!longnotshort && znak == -1 || longnotshort && znak == 1)) {
+		return (to[1] - 1) / 8
+	} else {
+		return -1
 	}
 }
 
-func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
+func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
+	short, long, znak := techdiagonal(from, to)
+	var canfigshort, canfiglong bool
+	if !(short || long) {
+		return false
+	}
+	if short {
+		canfigshort = b.canfigshortdiagonal(from, to, znak)
+	}
+	if long {
+		canfiglong = b.canfiglongdiagonal(from, to, znak)
+	}
+	if !(canfigshort || canfiglong) {
+		return false
+	}
+	var moatnumshort, moatnumlong int8 = -1, -1
+	if canfigshort {
+		moatnumshort = moatnumdiagonal(from, to, znak, false)
+	}
+	if canfiglong {
+		moatnumlong = moatnumdiagonal(from, to, znak, true)
+	}
+	var moatnum int8 = -1
+	if moatnumshort != moatnumlong {
+		if moatnumshort == -1 {
+			moatnum = moatnumlong
+		}
+		if moatnumlong == -1 {
+			moatnum = moatnumshort
+		}
+	} else {
+		moatnum = moatnumshort
+	}
+	if moatnum != -1 && !m[moatnum] {
+		return false
+	}
+	return false
+}
+
+func (b *Board) olddiagonal(from Pos, to Pos, m MoatsState) bool {
 	for _, modifyPos := range PLUSMINUSPAIRS {
 		for pos := from.AddVector(modifyPos); pos[0] >= 0; pos = pos.AddVector(modifyPos) {
 			if max(from[0], to[0]) == 1 && abs(from[1]%8-to[1]%8) == 7 {
