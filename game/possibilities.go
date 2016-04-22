@@ -149,6 +149,38 @@ func techdiagonal(from, to Pos) (short, long bool, znak int8) {
 	return
 }
 
+func (b *Board) canfigshortdiagonal(from, to Pos, znak int8) bool {
+	rankznak := sign(to[0] - from[0])
+	for a := from.AddVector([2]int8{rankznak, znak}); a != to; a = a.AddVector([2]int8{rankznak, znak}) {
+		if b.GPos(a).NotEmpty {
+			return false
+		}
+	}
+	return !(b.GPos(to).NotEmpty && b.GPos(to).Color() == b.GPos(from).Color())
+}
+
+func (b *Board) canfiglongdiagonal(from, to Pos, znak int8) bool {
+	a := from.AddVector([2]int8{1, znak})
+	for ; a[0] < 5; a = a.AddVector([2]int8{1, znak}) {
+		if b.GPos(a).NotEmpty {
+			return false
+		}
+	}
+	if a[0] != 5 {
+		panic(a)
+	}
+	if b.GPos(a).NotEmpty {
+		return false
+	}
+	a = a.AddVector([2]int8{0, -znak * tablediagonal(5, 5, true)})
+	for ; a != to; a = a.AddVector([2]int8{-1, -znak}) {
+		if b.GPos(a).NotEmpty {
+			return false
+		}
+	}
+	return !(b.GPos(to).NotEmpty && b.GPos(to).Color() == b.GPos(from).Color())
+}
+
 func (b *Board) diagonal(from Pos, to Pos, m MoatsState) bool {
 	for _, modifyPos := range PLUSMINUSPAIRS {
 		for pos := from.AddVector(modifyPos); pos[0] >= 0; pos = pos.AddVector(modifyPos) {
