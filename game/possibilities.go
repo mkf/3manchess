@@ -163,8 +163,14 @@ func (b *Board) canfigshortdiagonal(from, to Pos, znak int8) bool {
 }
 
 func (b *Board) canfiglongdiagonal(from, to Pos, znak int8) bool {
-	a := from.AddVector([2]int8{1, znak})
-	for ; a[0] < 5; a = a.AddVector([2]int8{1, znak}) {
+	czycent := (from[0] == 5)
+	var a Pos
+	if !czycent {
+		a = from.AddVector([2]int8{1, -znak})
+	} else {
+		a = from
+	}
+	for ; a[0] < 5; a = a.AddVector([2]int8{1, -znak}) {
 		if b.GPos(a).NotEmpty {
 			return false
 		}
@@ -172,16 +178,17 @@ func (b *Board) canfiglongdiagonal(from, to Pos, znak int8) bool {
 	if a[0] != 5 {
 		panic(a)
 	}
-	if b.GPos(a).NotEmpty {
+	if !czycent && b.GPos(a).NotEmpty {
 		return false
 	}
-	a = a.AddVector([2]int8{0, -znak * tablediagonal(5, 5, true)})
+	a = a.AddVector([2]int8{0, znak * tablediagonal(5, 5, true)})
 	for ; a != to; a = a.AddVector([2]int8{-1, -znak}) {
 		if b.GPos(a).NotEmpty {
 			return false
 		}
 	}
-	return !(b.GPos(to).NotEmpty && b.GPos(to).Color() == b.GPos(from).Color())
+	retr := b.GPos(to).Empty() || b.GPos(to).Color() != b.GPos(from).Color()
+	return retr
 }
 
 func (b *Board) canfigdiagonal(from, to Pos, znak int8, longnotshort bool) bool {
@@ -239,7 +246,7 @@ func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
 	if moatnum != -1 && !m[moatnum] {
 		return false
 	}
-	return false
+	return true
 }
 
 func (b *Board) olddiagonal(from Pos, to Pos, m MoatsState) bool {
