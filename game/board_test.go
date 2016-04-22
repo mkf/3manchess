@@ -50,6 +50,7 @@ func showamft(p Pos, vfile int8) {
 }
 
 func TestAMFT_0a0(t *testing.T)  { showamft(Pos{0, 0}, 12) }
+func TestAMFT_0a11(t *testing.T) { showamft(Pos{0, 11}, 1) }
 func TestAMFT_0a12(t *testing.T) { showamft(Pos{0, 12}, 0) }
 func TestAMFT_0a7(t *testing.T)  { showamft(Pos{0, 7}, 7+12) }
 func TestAMFT_5a0(t *testing.T)  { showamft(Pos{5, 0}, 12) }
