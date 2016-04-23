@@ -132,8 +132,8 @@ func techdiagonal(from, to Pos) (short, long bool, znak int8) {
 	if from == to {
 		return false, false, 1
 	}
-	shorttd := tablediagonal(from[0], to[0], false)
-	longtd := tablediagonal(from[0], to[0], true)
+	shorttd := abs(from[0] - to[0])
+	longtd := (from[0] + to[0])
 	switch to[1] {
 	case (from[1] + shorttd) % 24:
 		short = true
