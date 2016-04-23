@@ -134,7 +134,7 @@ func TestAfter_pawnCapture(t *testing.T) {
 		mov = ft.Move(s)
 		s, err = mov.EvalAfter()
 		if err != nil {
-			t.Error(err, s, mov, ft)
+			t.Fatal(err, s, mov, ft)
 		}
 		t.Log(ft, mov, s)
 	}
@@ -146,7 +146,7 @@ func TestAfter_pawnCapture(t *testing.T) {
 	ft = FromTo{Pos{1, 9}, Pos{2, 10}}
 	mov = ft.Move(s)
 	if s, err = mov.After(); err != nil {
-		t.Error(err, s, mov, ft)
+		t.Fatal(err, s, mov, ft)
 	}
 	t.Log(ft, mov, s)
 	s.Board[2][18].NotEmpty = true

@@ -84,7 +84,7 @@ func (b *Board) canfigstraightvertthrucenter(s, f, t int8) bool { //startfile (f
 			return false
 		}
 	}
-	return (*b)[t][e].Empty() || (*b)[t][e].Color() != (*b)[f][s].Color()
+	return true
 }
 
 func (b *Board) canfigstraightvertnormal(file, f, t int8) bool {
@@ -160,7 +160,7 @@ func (b *Board) canfigshortdiagonal(from, to Pos, znak int8) bool {
 			return false
 		}
 	}
-	return !(b.GPos(to).NotEmpty && b.GPos(to).Color() == b.GPos(from).Color())
+	return true
 }
 
 func (b *Board) canfiglongdiagonal(from, to Pos, znak int8) bool {
@@ -188,8 +188,7 @@ func (b *Board) canfiglongdiagonal(from, to Pos, znak int8) bool {
 			return false
 		}
 	}
-	retr := b.GPos(to).Empty() || b.GPos(to).Color() != b.GPos(from).Color()
-	return retr
+	return true
 }
 
 func (b *Board) canfigdiagonal(from, to Pos, znak int8, longnotshort bool) bool {
