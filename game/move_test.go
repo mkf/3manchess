@@ -3,6 +3,13 @@ package game
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
 import "testing"
+import "encoding/json"
+
+var s64286 *State = new(State)
+
+func init() {
+	json.Unmarshal([]byte(`{"board":[[9,10,11,12,13,0,10,9,0,18,19,20,21,19,18,17,25,0,27,28,0,27,26,25],[14,14,14,14,0,14,14,0,0,22,22,22,22,22,22,0,30,30,30,30,0,30,30,30],[0,0,0,0,86,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,17,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,0,0,0,0,0,0,0,29],[11,0,0,0,0,0,0,0,22,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0]],"moatsstate":[false,false,false],"movesnext":2,"castling":[[true,true],[true,false],[false,false]],"enpassant":[[127,127],[127,127]],"halfmoveclock":8,"fullmovenumber":38,"alivecolors":[true,true,true]}`), s64286)
+}
 
 var plat129 []FromTo = []FromTo{
 	{Pos{1, 0}, Pos{2, 0}},
@@ -159,4 +166,14 @@ func TestAfter_pawnCapture(t *testing.T) {
 	if s, err = mov.After(); err != nil {
 		t.Error(err, s, mov, ft)
 	}
+}
+
+func TestAfter_s64286(t *testing.T) {
+	ft := FromTo{{0, 15}, {4, 15}}
+	mov := ft.Move(s64286)
+	s, err := mov.EvalAfter()
+	if err != nil {
+		t.Fatal(err, s, mov)
+	}
+	t.Log(mov, s)
 }
