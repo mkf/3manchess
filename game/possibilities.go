@@ -64,11 +64,13 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 		cantech, canmoat = true, true
 		canfig = b.canfigstraightvertnormal(from[1], from[0], to[0])
 	}
-	if !(cantech && canmoat && canfig) && ((from[1]+12)%24) == to[1] { //if the adjacent file, passing through center
-		cantech, canmoat = true, true
-		canfig = canfig || b.canfigstraightvertthrucenter(to[1], from[0], to[0])
+	if cantech && canmoat && canfig {
+		return true
 	}
-	return cantech && canmoat && canfig
+	if ((from[1] + 12) % 24) == to[1] { //if the adjacent file, passing through center
+		return b.canfigstraightvertthrucenter(to[1], from[0], to[0])
+	}
+	return false
 }
 
 func (b *Board) canfigstraightvertthrucenter(s, f, t int8) bool { //startfile (from[0]), from, to
