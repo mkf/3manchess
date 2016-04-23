@@ -3,7 +3,10 @@ package game
 //© Copyright 2015-2016 Michał Krzysztof Feiler & Paweł Zacharek
 
 //CanIMoveWOCheck — is there any move that would not end up in a check?
-func (s *State) CanIMoveWOCheck(who Color) bool {
+func (os *State) CanIMoveWOCheck(who Color) bool {
+	s := new(State)
+	*s = *os
+	s.MovesNext = who
 	for oac, loacp := range AMFT {
 		if s.Board.GPos(Pos(oac)).Fig.Color == who {
 			for _, oacp := range loacp {

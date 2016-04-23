@@ -233,6 +233,7 @@ func (s *State) EvalDeath() {
 	player := s.MovesNext
 	for _ = range COLORS {
 		if !s.PlayersAlive.Give(player) {
+			player = player.Next()
 			continue
 		}
 		if testCheckmate && (!s.Board.IsKingPresent(player) || !s.CanIMoveWOCheck(player)) { // next player to move cannot be checkmated
