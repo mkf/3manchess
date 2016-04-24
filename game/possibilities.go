@@ -55,6 +55,20 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			canmoat = canmoat || (direcshort == 1 && ((canfigplus && mshort) || (canfigminus && mlong))) ||
 				(direcshort == -1 && ((canfigminus && mshort) || (canfigplus && mlong)))
 
+			if canmoat {
+				if b.GPos(to).NotEmpty {
+					return false
+				}
+			}
+			/*if canmoat {
+				cheb := *b
+				ourmoasq := new(Square)
+				ourmoasq.FromUint8(0)
+				*cheb.GPos(to),*cheb.GPos(from) = *cheb.GPos(from),*ourmoasq
+
+			}
+			*/
+
 		} else { //if same rank, but not first rank
 			canmoat = true
 			canfigplus, canfigminus := b.canfigstraighthoriz(from[0], from[1], to[1])
