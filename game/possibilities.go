@@ -443,7 +443,7 @@ func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
 		uncheckedPos := [3]Pos{{from[0], from[0]}, {to[0] + 1, to[1] + 1}, {to[0], to[1]}}
 		for _, checkPos := range uncheckedPos {
 			check := b.ThreatChecking(checkPos, pa, DEFENPASSANT)
-			if check.If == true {
+			if check.If {
 				kingside = false
 				break
 			}
@@ -453,7 +453,7 @@ func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
 		uncheckedPos := [3]Pos{{from[0], from[0]}, {to[0] - 1, to[1] - 1}, {to[0], to[1]}}
 		for _, checkPos := range uncheckedPos {
 			check := b.ThreatChecking(checkPos, pa, DEFENPASSANT)
-			if check.If == true {
+			if check.If {
 				kingside = false
 				break
 			}
