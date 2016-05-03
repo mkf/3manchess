@@ -400,7 +400,7 @@ func canmoatKnight(from, to Pos, m MoatsState) (bool, bool) {
 	if !techKnight(from, to) {
 		return false, false
 	}
-	if from[0] < 3 || to[0] < 3 && xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]) {
+	if (from[0] < 3 || to[0] < 3) && xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]) {
 		return m[((from[1]+2)/8)%3], false
 	}
 	return true, true

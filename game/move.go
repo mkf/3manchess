@@ -71,28 +71,28 @@ func (ft FromTo) Correct() error {
 //}
 
 //Where gives the Square of Before.Board[From]
-func (m *Move) Where() Square {
+func (m Move) Where() Square {
 	a := m.Before.Board.GPos(m.From)
 	return *a
 }
 
 //What are we moving? What piece is placed in From?
-func (m *Move) What() Fig {
+func (m Move) What() Fig {
 	return m.Where().Fig
 }
 
 //AlreadyHere is something? What is in To, Before?
-func (m *Move) AlreadyHere() Fig {
+func (m Move) AlreadyHere() Fig {
 	return (*(m.Before.Board))[m.To[0]][m.To[1]].Fig
 }
 
 //PiecePossible is such a move?
-func (m *Move) PiecePossible() bool {
+func (m Move) PiecePossible() bool {
 	return m.Before.AnyPiece(m.From, m.To)
 }
 
 //IsItQueenSideCastling or not?
-func (m *Move) IsItQueenSideCastling() bool {
+func (m Move) IsItQueenSideCastling() bool {
 	if !(m.What().FigType == King) {
 		return false
 	}
@@ -103,7 +103,7 @@ func (m *Move) IsItQueenSideCastling() bool {
 }
 
 //IsItKingSideCastling or not?
-func (m *Move) IsItKingSideCastling() bool {
+func (m Move) IsItKingSideCastling() bool {
 	if !(m.What().FigType == King) {
 		return false
 	}
@@ -114,7 +114,7 @@ func (m *Move) IsItKingSideCastling() bool {
 }
 
 //IsItPawnRunningEnPassant or not?
-func (m *Move) IsItPawnRunningEnPassant() bool {
+func (m Move) IsItPawnRunningEnPassant() bool {
 	if !(m.What().FigType == Pawn) {
 		return false
 	}
@@ -125,14 +125,14 @@ func (m *Move) IsItPawnRunningEnPassant() bool {
 }
 
 //IsItPawnCapturingEnPassant or not?
-func (m *Move) IsItPawnCapturingEnPassant() bool {
+func (m Move) IsItPawnCapturingEnPassant() bool {
 	return bool(m.What().PawnCenter) && m.What().FigType == Pawn && m.From[0] == 3 && m.To[0] == 2 &&
 		m.From[1] != m.To[1] && m.Before.Board.GPos(m.To).Empty()
 }
 
 //IllegalMoveError : error on illegal move
 type IllegalMoveError struct { //illegal move error
-	*Move              //move pointer
+	Move               //move pointer
 	Codename    string //easy codename
 	Description string //what is the problem?
 }
@@ -238,7 +238,7 @@ func (b *Board) WeAreThreatened(who Color, pa PlayersAlive, ep EnPassant) <-chan
 //TODO: Checkmate, stalemate detection. Doing something with the halfmove timer.
 
 //Possible is such a move? Returns an error, same error as After() would give you, ¡¡¡except for CheckChecking!!!
-func (m *Move) Possible() error {
+func (m Move) Possible() error {
 	if err := m.From.Correct(); err != nil {
 		return err
 	}
@@ -261,7 +261,7 @@ func (m *Move) Possible() error {
 }
 
 //After : return the gamestate afterwards, also error
-func (m *Move) After() (*State, error) { //situation after
+func (m Move) After() (*State, error) { //situation after
 	if merr := m.Possible(); merr != nil {
 		return nil, merr
 	}
@@ -420,7 +420,7 @@ func (m *Move) After() (*State, error) { //situation after
 }
 
 //EvalAfter : return the evaluated gamestate afterwards, also error
-func (m *Move) EvalAfter() (state *State, err error) {
+func (m Move) EvalAfter() (state *State, err error) {
 	if state, err = m.After(); err == nil {
 		state.EvalDeath()
 		state.FixMovesNext()
