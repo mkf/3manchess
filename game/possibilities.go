@@ -388,9 +388,13 @@ func techKnight(from, to Pos) bool { //cantech
 	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
 	switch to[1] {
 	case (from[1] + 2) % 24, (from[1] - 2 + 24) % 24:
-		return from[0] == 5 && to[0] == 5 || abs(from[0]-to[0]) == 1
+		return abs(from[0]-to[0]) == 1
 	case (from[1] + 1) % 24, (from[1] - 1 + 24) % 24:
-		return from[0] == 5 && to[0] == 4 || abs(from[0]-to[0]) == 2
+		return abs(from[0]-to[0]) == 2
+	case (from[1] + 1 + 12) % 24, (from[1] - 1 + 12) % 24:
+		return from[0] == 5 && to[0] == 4 || from[0] == 4 && to[0] == 5
+	case (from[1] + 2 + 12) % 24, (from[1] - 2 + 12) % 24:
+		return from[0] == 5 && to[0] == 5
 	}
 	return false
 }
