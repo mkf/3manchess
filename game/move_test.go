@@ -118,6 +118,9 @@ func TestEvalAfter_plat129(t *testing.T) {
 		if err != nil {
 			t.Error("Move considered invalid:", err, mov)
 		}
+		if s == nil {
+			t.Fatal("Cannot continue, s==nil. next ft:", ft)
+		}
 		mov = ft.Move(s)
 		s, err = mov.EvalAfter()
 		if err == nil {

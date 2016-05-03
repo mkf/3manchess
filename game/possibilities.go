@@ -380,12 +380,12 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 				(b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz.Fig.Color))) //ten co go bijemy jest innego koloru
 }
 
-func xoreq(n1, n2, w int8) bool {
-	switch n1 {
+func xoreq(fr, tr, w int8) bool {
+	switch fr {
 	case 0:
-		return n2 == w
+		return tr == w
 	case w:
-		return n2 == 0
+		return tr == 0
 	}
 	return false
 }
@@ -397,35 +397,40 @@ var xrqnmv = map[int8]map[int8]int8{
 	1: {7: 1},
 }
 
-func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
+func techKnight(from, to Pos) bool { //cantech
 	//gdziekolor := ColorUint8(uint8(from[1]>>3))
 	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
-	var can bool
 	switch to[1] {
 	case (from[1] + 2) % 24, (from[1] - 2 + 24) % 24:
-		can = from[0] == 5 && to[0] == 5 || abs(from[0]-to[0]) == 1
+		return abs(from[0]-to[0]) == 1
 	case (from[1] + 1) % 24, (from[1] - 1 + 24) % 24:
-		can = from[0] == 5 && to[0] == 4 || abs(from[0]-to[0]) == 2
+		return abs(from[0]-to[0]) == 2
+	case (from[1] + 1 + 12) % 24, (from[1] - 1 + 12) % 24:
+		return from[0] == 5 && to[0] == 4 || from[0] == 4 && to[0] == 5
+	case (from[1] + 2 + 12) % 24, (from[1] - 2 + 12) % 24:
+		return from[0] == 5 && to[0] == 5
 	}
-	if !can {
+	return false
+}
+
+//canmoatKnight returns cantech(canmoat)&cancap
+func canmoatKnight(from, to Pos, m MoatsState) (bool, bool) {
+	if !techKnight(from, to) {
+		return false, false
+	}
+	if (from[0] < 3 || to[0] < 3) && xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]) {
+		return m[((from[1]+2)/8)%3], false
+	}
+	return true, true
+}
+
+func (b *Board) knightMove(from, to Pos, m MoatsState) bool {
+	t, c := canmoatKnight(from, to, m)
+	if !t {
 		return false
 	}
-	can = from[0] >= 3 && to[0] >= 3
-	if !can {
-		switch from[1] {
-		case 22, 23, 0, 1:
-			can = m[0]
-		case 6, 7, 8, 9:
-			can = m[1]
-		case 14, 15, 16, 17:
-			can = m[2]
-		}
-		if !can && xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]) {
-			return false
-		}
-	}
 	dosq := b.GPos(to)
-	return dosq.Empty() || dosq.Color() != b.GPos(from).Color()
+	return dosq.Empty() || c && dosq.Color() != b.GPos(from).Color()
 }
 
 func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
@@ -457,7 +462,7 @@ func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
 		uncheckedPos := [3]Pos{{from[0], from[0]}, {to[0] + 1, to[1] + 1}, {to[0], to[1]}}
 		for _, checkPos := range uncheckedPos {
 			check := b.ThreatChecking(checkPos, pa, DEFENPASSANT)
-			if check.If == true {
+			if check.If {
 				kingside = false
 				break
 			}
@@ -467,7 +472,7 @@ func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
 		uncheckedPos := [3]Pos{{from[0], from[0]}, {to[0] - 1, to[1] - 1}, {to[0], to[1]}}
 		for _, checkPos := range uncheckedPos {
 			check := b.ThreatChecking(checkPos, pa, DEFENPASSANT)
-			if check.If == true {
+			if check.If {
 				kingside = false
 				break
 			}
