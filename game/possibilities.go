@@ -263,34 +263,32 @@ func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
 	return moatnum == -1 || m[moatnum] && b.GPos(to).Empty()
 }
 
+func (b *Board) checkbadpc(from Pos, p PawnCenter) {
+	n := b.GPos(from).Color()
+	if n == Color(from[1]>>3+1) && p {
+		panic("pS" + n.String())
+	}
+}
+
+func (p PawnCenter) ujemny() int8 {
+	if p {
+		return -1
+	} else {
+		return 1
+	}
+}
+
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
 	if from == to {
-		//panic("Same square!")
 		return false
 	}
-	nasz := b.GPos(from)
-	gdziekolor := Color(from[1]>>3 + 1)
-	if nasz.Color() == gdziekolor && p {
-		panic("pS" + nasz.Color().String())
-	}
-	var sgn int8
-	if p {
-		sgn = -1
-	} else {
-		sgn = 1
-	}
-	if from[1] == to[1] {
-		if sign(to[0]-from[0]) != sgn {
-			return false //,p,e
-		}
-		if !bool(p) && from[0] == 1 && to[0] == 3 {
-			return (*b)[2][from[1]].Empty() && b.GPos(to).Empty()
-			//ep:=e.Appeared(Pos{2,from[1]})
-		} else if to[0] == from[0]+sgn {
-			return b.GPos(to).Empty()
-		}
-	}
-	return ((from[1]+12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) && b.GPos(to).Empty()
+	b.checkbadpc(from, p)
+	sgn := p.ujemny()
+	return from[1] == to[1] && sign(to[0]-from[0]) == sgn &&
+		((from[0] == 1 && to[0] == 3 ||
+			b[2][from[1]].Empty() && b.GPos(to).Empty()) ||
+			to[0] == from[0]+sgn && b.GPos(to).Empty()) ||
+		((from[1]+12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) && b.GPos(to).Empty()
 }
 
 func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
