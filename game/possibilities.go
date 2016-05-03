@@ -263,42 +263,6 @@ func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
 	return moatnum == -1 || m[moatnum] && b.GPos(to).Empty()
 }
 
-func (b *Board) olddiagonal(from Pos, to Pos, m MoatsState) bool {
-	for _, modifyPos := range PLUSMINUSPAIRS {
-		for pos := from.AddVector(modifyPos); pos[0] >= 0; pos = pos.AddVector(modifyPos) {
-			if max(from[0], to[0]) == 1 && abs(from[1]%8-to[1]%8) == 7 {
-				// we crossed a moat (moving diagonally)
-				var i int8 // moat index
-				if from[1]%8 == 7 {
-					i = from[1] / 8
-				} else {
-					i = to[1] / 8
-				}
-				if !m[i] {
-					break
-				}
-			}
-			if pos[0] > 5 { // we are crossing the center
-				pos = Pos{
-					5,
-					(pos[1] + (-1+10)*modifyPos[1] + 24) % 24,
-				}
-				modifyPos = Pos{
-					-1,
-					modifyPos[1] * -1,
-				}
-			}
-			if pos == to {
-				return true
-			}
-			if b.GPos(pos).NotEmpty {
-				break
-			}
-		}
-	}
-	return false
-}
-
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
 	if from == to {
 		//panic("Same square!")
