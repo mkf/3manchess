@@ -226,6 +226,24 @@ func moatnumdiagonal(from, to Pos, znak int8, longnotshort bool) int8 {
 	}
 }
 
+func moatnumsdiagonal(from, to Pos, l, s bool, znak int8) int8 {
+	var mns, mnl int8 = -1, -1
+	if s {
+		mns = moatnumdiagonal(from, to, znak, false)
+	}
+	if l {
+		mnl = moatnumdiagonal(from, to, znak, true)
+	}
+	switch mns {
+	case -1, mnl:
+		return mnl
+	}
+	if mnl == -1 {
+		return mns
+	}
+	return -1
+}
+
 func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
 	short, long, znak := techdiagonal(from, to)
 	var canfigshort, canfiglong bool
@@ -241,28 +259,8 @@ func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
 	if !(canfigshort || canfiglong) {
 		return false
 	}
-	var moatnumshort, moatnumlong int8 = -1, -1
-	if canfigshort {
-		moatnumshort = moatnumdiagonal(from, to, znak, false)
-	}
-	if canfiglong {
-		moatnumlong = moatnumdiagonal(from, to, znak, true)
-	}
-	var moatnum int8 = -1
-	if moatnumshort != moatnumlong {
-		if moatnumshort == -1 {
-			moatnum = moatnumlong
-		}
-		if moatnumlong == -1 {
-			moatnum = moatnumshort
-		}
-	} else {
-		moatnum = moatnumshort
-	}
-	if moatnum != -1 && !m[moatnum] {
-		return false
-	}
-	return true
+	moatnum := moatnumsdiagonal(from, to, canfiglong, canfigshort, znak)
+	return moatnum == -1 || m[moatnum] && b.GPos(to).Empty()
 }
 
 func (b *Board) olddiagonal(from Pos, to Pos, m MoatsState) bool {
