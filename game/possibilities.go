@@ -403,7 +403,7 @@ func canmoatKnight(from, to Pos, m MoatsState) (bool, bool) {
 	if from[0] < 3 || to[0] < 3 {
 		switch from[1] {
 		case 6, 7, 0, 1:
-			return !m[((from[1]+2)/8)%3] && !xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]), false
+			return m[((from[1]+2)/8)%3] && !xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]), false
 		}
 	}
 	return true, true
