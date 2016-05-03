@@ -56,6 +56,9 @@ func TestAMFT_0a7(t *testing.T)  { showamft(Pos{0, 7}, 7+12) }
 func TestAMFT_5a0(t *testing.T)  { showamft(Pos{5, 0}, 12) }
 func TestAMFT_5a12(t *testing.T) { showamft(Pos{5, 12}, 0) }
 func TestAMFT_5a7(t *testing.T)  { showamft(Pos{5, 7}, 7+12) }
+func TestAMFT_4a0(t *testing.T)  { showamft(Pos{4, 0}, 12) }
+func TestAMFT_4a12(t *testing.T) { showamft(Pos{4, 12}, 0) }
+func TestAMFT_4a7(t *testing.T)  { showamft(Pos{4, 7}, 7+12) }
 func TestAMFT_3a0(t *testing.T)  { showamft(Pos{3, 0}, 12) }
 func TestAMFT_3a12(t *testing.T) { showamft(Pos{3, 12}, 0) }
 func TestAMFT_3a7(t *testing.T)  { showamft(Pos{3, 7}, 7+12) }
