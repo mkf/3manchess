@@ -366,12 +366,12 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 				(b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz.Fig.Color))) //ten co go bijemy jest innego koloru
 }
 
-func xoreq(n1, n2, w int8) bool {
-	switch n1 {
+func xoreq(fr, tr, w int8) bool {
+	switch fr {
 	case 0:
-		return n2 == w
+		return tr == w
 	case w:
-		return n2 == 0
+		return tr == 0
 	}
 	return false
 }
@@ -400,11 +400,8 @@ func canmoatKnight(from, to Pos, m MoatsState) (bool, bool) {
 	if !techKnight(from, to) {
 		return false, false
 	}
-	if from[0] < 3 || to[0] < 3 {
-		switch from[1] {
-		case 6, 7, 0, 1:
-			return m[((from[1]+2)/8)%3] || !xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]), false
-		}
+	if from[0] < 3 || to[0] < 3 && xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]) {
+		return m[((from[1]+2)/8)%3], false
 	}
 	return true, true
 }
