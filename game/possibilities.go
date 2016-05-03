@@ -383,31 +383,34 @@ var xrqnmv = map[int8]map[int8]int8{
 	1: {7: 1},
 }
 
-func techKnight(from Pos, to Pos, m MoatsState) (bool, bool) { //cantech&cancapt
+func techKnight(from, to Pos) bool { //cantech
 	//gdziekolor := ColorUint8(uint8(from[1]>>3))
 	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
 	switch to[1] {
 	case (from[1] + 2) % 24, (from[1] - 2 + 24) % 24:
-		if (from[0] != 5 || to[0] != 5) && abs(from[0]-to[0]) != 1 {
-			return false, false
-		}
+		return from[0] == 5 && to[0] == 5 || abs(from[0]-to[0]) == 1
 	case (from[1] + 1) % 24, (from[1] - 1 + 24) % 24:
-		if (from[0] != 5 || to[0] != 4) && abs(from[0]-to[0]) != 2 {
-			return false, false
+		return from[0] == 5 && to[0] == 4 || abs(from[0]-to[0]) == 2
+	}
+	return false
+}
+
+//canmoatKnight returns cantech(canmoat)&cancap
+func canmoatKnight(from, to Pos, m MoatsState) (bool, bool) {
+	if !techKnight(from, to) {
+		return false, false
+	}
+	if from[0] < 3 || to[0] < 3 {
+		switch from[1] {
+		case 6, 7, 0, 1:
+			return !m[((from[1]+2)/8)%3] && !xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]), false
 		}
-	}
-	if from[0] >= 3 && to[0] >= 3 {
-		return true, true
-	}
-	switch from[1] {
-	case 6, 7, 0, 1:
-		return !m[((from[1]+2)/8)%3] && !xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]), false
 	}
 	return true, true
 }
 
-func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
-	t, c := techKnight(from, to, m)
+func (b *Board) knightMove(from, to Pos, m MoatsState) bool {
+	t, c := canmoatKnight(from, to, m)
 	if !t {
 		return false
 	}
