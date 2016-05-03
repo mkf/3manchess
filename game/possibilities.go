@@ -392,7 +392,7 @@ func techKnight(from Pos, to Pos, m MoatsState) (bool, bool) { //cantech&cancapt
 			return false, false
 		}
 	case (from[1] + 1) % 24, (from[1] - 1 + 24) % 24:
-		if (from[0] == 5 || to[0] == 4) && abs(from[0]-to[0]) != 2 {
+		if (from[0] != 5 || to[0] != 4) && abs(from[0]-to[0]) != 2 {
 			return false, false
 		}
 	}
