@@ -383,35 +383,36 @@ var xrqnmv = map[int8]map[int8]int8{
 	1: {7: 1},
 }
 
-func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
+func techKnight(from Pos, to Pos, m MoatsState) (bool, bool) { //cantech&cancapt
 	//gdziekolor := ColorUint8(uint8(from[1]>>3))
 	//analiza wszystkich przypadkow ruchu przez moaty, gdzie wszystkie mozliwosci można wpisać ręcznie
-	var can bool
 	switch to[1] {
 	case (from[1] + 2) % 24, (from[1] - 2 + 24) % 24:
-		can = from[0] == 5 && to[0] == 5 || abs(from[0]-to[0]) == 1
+		if (from[0] != 5 || to[0] != 5) && abs(from[0]-to[0]) != 1 {
+			return false, false
+		}
 	case (from[1] + 1) % 24, (from[1] - 1 + 24) % 24:
-		can = from[0] == 5 && to[0] == 4 || abs(from[0]-to[0]) == 2
+		if (from[0] == 5 || to[0] == 4) && abs(from[0]-to[0]) != 2 {
+			return false, false
+		}
 	}
-	if !can {
+	if from[0] >= 3 && to[0] >= 3 {
+		return true, true
+	}
+	switch from[1] {
+	case 6, 7, 0, 1:
+		return !m[((from[1]+2)/8)%3] && !xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]), false
+	}
+	return true, true
+}
+
+func (b *Board) knightMove(from Pos, to Pos, m MoatsState) bool {
+	t, c := techKnight(from, to, m)
+	if !t {
 		return false
 	}
-	can = from[0] >= 3 && to[0] >= 3
-	if !can {
-		switch from[1] {
-		case 22, 23, 0, 1:
-			can = m[0]
-		case 6, 7, 8, 9:
-			can = m[1]
-		case 14, 15, 16, 17:
-			can = m[2]
-		}
-		if !can && xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]) {
-			return false
-		}
-	}
 	dosq := b.GPos(to)
-	return dosq.Empty() || dosq.Color() != b.GPos(from).Color()
+	return dosq.Empty() || c && dosq.Color() != b.GPos(from).Color()
 }
 
 func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
