@@ -280,7 +280,6 @@ func (p PawnCenter) ujemny() int8 {
 
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
 	if from == to {
-		//panic("Same square!")
 		return false
 	}
 	b.checkbadpc(from, p)
