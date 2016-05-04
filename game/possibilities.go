@@ -214,20 +214,48 @@ func (b *Board) canfigdiagonal(from, to Pos, znak int8, longnotshort bool) bool 
 	return b.canfigshortdiagonal(from, to, znak)
 }
 
-func moatnumdiagonal(from, to Pos, znak int8, longnotshort bool) int8 {
-	if from[0] == 0 &&
-		(from[1]%8 == 7 &&
-			(!longnotshort && znak == -1 || longnotshort && znak == 1) ||
-			from[1]%8 == 0 &&
-				(!longnotshort && znak == 1 || longnotshort && znak == -1)) {
-		return (from[1] - 1) / 8
-	} else if to[0] == 0 &&
-		(to[1]%8 == 7 && (!longnotshort && znak == 1 || longnotshort && znak != 1) ||
-			to[1]%8 == 0 && (!longnotshort && znak == -1 || longnotshort && znak == 1)) {
-		return (to[1] - 1) / 8
+func bujemny(b bool) int8 {
+	if b {
+		return -1
+	} else {
+		return 1
+	}
+}
+
+func bdodatni(b bool) int8 {
+	if b {
+		return 1
 	} else {
 		return -1
 	}
+}
+
+func moatnumdiagonal(from, to Pos, znak int8, longnotshort bool) int8 {
+	switch 0 {
+	case from[0]:
+		switch from[1] % 8 {
+		case 7:
+			if longnotshort == (znak > 0) {
+				return (from[1] - 1) / 8
+			}
+		case 0:
+			if longnotshort == (znak < 0) {
+				return (from[1] - 1) / 8
+			}
+		}
+	case to[0]:
+		switch to[1] % 8 {
+		case 7:
+			if longnotshort == (znak < 0) {
+				return (to[1] - 1) / 8
+			}
+		case 0:
+			if longnotshort == (znak > 0) {
+				return (to[1] - 1) / 8
+			}
+		}
+	}
+	return -1
 }
 
 func moatnumsdiagonal(from, to Pos, l, s bool, znak int8) int8 {
