@@ -263,6 +263,14 @@ func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
 	return moatnum == -1 || m[moatnum] && b.GPos(to).Empty()
 }
 
+func (p PawnCenter) ujemny() int8 {
+	if p {
+		return -1
+	} else {
+		return 1
+	}
+}
+
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
 	if from == to {
 		//panic("Same square!")
@@ -273,12 +281,7 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	if nasz.Color() == gdziekolor && p {
 		panic("pS" + nasz.Color().String())
 	}
-	var sgn int8
-	if p {
-		sgn = -1
-	} else {
-		sgn = 1
-	}
+	sgn := p.ujemny()
 	if from[1] == to[1] {
 		if sign(to[0]-from[0]) != sgn {
 			return false //,p,e
@@ -302,44 +305,40 @@ func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
 					((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1])))) // king movin diag thru center
 }
 
+func pawncreek(from, to Pos) bool {
+	switch [2]int8{from[0], to[0]} { //przemieszczenie między rankami
+	case [2]int8{0, 1}, [2]int8{1, 0}, [2]int8{1, 2}, [2]int8{2, 1}, [2]int8{2, 3}, [2]int8{3, 2}:
+		return (to[1]%8 == 0 && from[1]%8 == 7) || (from[1]%8 == 0 && to[1]%8 == 7) //otrze się o creek
+	}
+	return true //normalnie nie musi się męczyć z creekami
+	//założenie: creeki są aktywne nawet jak już nie ma moatów
+}
+
+func (e EnPassant) ktorys(to Pos) Pos {
+	if e[0] == to {
+		return e[0]
+	} else {
+		return e[1]
+	}
+}
+
 func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
-	nasz := b.GPos(from)
-	cancreek := true
 	if from == to {
 		return false
 	}
-	if !p {
-		creektemp := false                //normalnie nie musi się męczyć z creekami
-		fromto := [2]int8{from[0], to[0]} //przemieszczenie między rankami
-		switch fromto {
-		case [2]int8{0, 1}, [2]int8{1, 0}, [2]int8{1, 2}, [2]int8{2, 1}, [2]int8{2, 3}, [2]int8{3, 2}:
-			creektemp = true //otrze się o creek
-		}
-		cancreek = !(creektemp && ((to[1]%8 == 0 && from[1]%8 == 7) || (from[1]%8 == 0 && to[1]%8 == 7)))
-		//założenie: creeki są aktywne nawet jak już nie ma moatów
-	}
-	var sgn int8
-	if p {
-		sgn = int8(-1)
-	} else {
-		sgn = int8(1)
-	}
-	var ep Pos
-	if e[0] == to {
-		ep = e[0]
-	} else {
-		ep = e[1]
-	}
+	sgn := p.ujemny()
+	ep := e.ktorys(to)
+	nasz := b.GPos(from).Fig.Color
 	return ((from[0] == 5 && to[0] == 5 && !bool(p)) && //jest na 5 ranku i nie przeszedl przez srodek jeszcze
 		(to[1] == ((from[1]+24-10)%24) || to[1] == ((from[1]+10)%24)) && //poprawnie przelecial na skos przez srodek
-		b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz.Fig.Color) || //ten co go bijemy jest innego koloru ALBO
-		(to[0] == from[0]+sgn && cancreek && //zwykle bicie, o jeden w kierunku sgn na ranku
+		b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz) || //ten co go bijemy jest innego koloru ALBO
+		(to[0] == from[0]+sgn && (bool(p) || pawncreek(from, to)) && //zwykle bicie, o jeden w kierunku sgn na ranku
 			((to[1] == (from[1]+1)%24) || (to[1] == (from[1]+24-1)%24)) && //o jeden w tę lub tamtą stronę (wsio mod24) na file'u
-			(((e[0] == to || e[1] == to) && //pozycja tego co go bijemy jest w enpassant
+			(((ep == to) && //pozycja tego co go bijemy jest w enpassant
 				(*b)[3][ep[1]].Fig.FigType == Pawn && //ten co go bijemy jest pionkiem
-				(*b)[3][ep[1]].NotEmpty && (*b)[3][ep[1]].Fig.Color != nasz.Fig.Color && //i jest innego koloru
+				(*b)[3][ep[1]].NotEmpty && (*b)[3][ep[1]].Fig.Color != nasz && //i jest innego koloru
 				(*b)[2][ep[1]].Empty()) || //a pole za nim jest puste (jak to po ruchu pre-enpassant) ALBO
-				(b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz.Fig.Color))) //ten co go bijemy jest innego koloru
+				(b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz))) //ten co go bijemy jest innego koloru
 }
 
 func xoreq(fr, tr, w int8) bool {
