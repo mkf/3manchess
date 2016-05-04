@@ -230,27 +230,27 @@ func bdodatni(b bool) int8 {
 	}
 }
 
-func moatnumdiagonal(from, to Pos, znak int8, longnotshort bool) int8 {
+func moatnumdiagonal(from, to Pos, z, longnotshort bool) int8 {
 	switch int8(0) {
 	case from[0]:
 		switch from[1] % 8 {
 		case 7:
-			if longnotshort == (znak > 0) {
+			if z == longnotshort {
 				return (from[1] - 1) / 8
 			}
 		case 0:
-			if longnotshort == (znak < 0) {
+			if !z == longnotshort {
 				return (from[1] - 1) / 8
 			}
 		}
 	case to[0]:
 		switch to[1] % 8 {
 		case 7:
-			if longnotshort == (znak < 0) {
+			if !z == longnotshort {
 				return (to[1] - 1) / 8
 			}
 		case 0:
-			if longnotshort == (znak > 0) {
+			if z == longnotshort {
 				return (to[1] - 1) / 8
 			}
 		}
@@ -261,10 +261,10 @@ func moatnumdiagonal(from, to Pos, znak int8, longnotshort bool) int8 {
 func moatnumsdiagonal(from, to Pos, l, s bool, znak int8) int8 {
 	var mns, mnl int8 = -1, -1
 	if s {
-		mns = moatnumdiagonal(from, to, znak, false)
+		mns = moatnumdiagonal(from, to, znak > 0, false)
 	}
 	if l {
-		mnl = moatnumdiagonal(from, to, znak, true)
+		mnl = moatnumdiagonal(from, to, znak > 0, true)
 	}
 	switch mns {
 	case -1, mnl:
