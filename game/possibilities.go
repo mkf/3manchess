@@ -371,7 +371,7 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 			}
 		}
 	case from[0] + p.ujemny():
-		if p || pawncreek(from, to) {
+		if bool(p) || pawncreek(from, to) {
 			switch to[1] {
 			case (from[1] + 1) % 24, (from[1] + 24 - 1) % 24:
 				switch to {
