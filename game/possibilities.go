@@ -236,22 +236,22 @@ func moatnumdiagonal(from, to Pos, z, longnotshort bool) int8 {
 		switch from[1] % 8 {
 		case 7:
 			if z == longnotshort {
-				return (from[1] - 1) / 8
+				return (from[1]>>3 + 1) % 3
 			}
 		case 0:
 			if !z == longnotshort {
-				return (from[1] - 1) / 8
+				return from[1] >> 3
 			}
 		}
 	case to[0]:
 		switch to[1] % 8 {
 		case 7:
 			if !z == longnotshort {
-				return (to[1] - 1) / 8
+				return (to[1]>>3 + 1) % 3
 			}
 		case 0:
 			if z == longnotshort {
-				return (to[1] - 1) / 8
+				return to[1] >> 3
 			}
 		}
 	}
