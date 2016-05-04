@@ -258,13 +258,13 @@ func moatnumdiagonal(from, to Pos, z, longnotshort bool) int8 {
 	return -1
 }
 
-func moatnumsdiagonal(from, to Pos, l, s bool, znak int8) int8 {
+func moatnumsdiagonal(from, to Pos, l, s, z bool) int8 {
 	var mns, mnl int8 = -1, -1
 	if s {
-		mns = moatnumdiagonal(from, to, znak > 0, false)
+		mns = moatnumdiagonal(from, to, z, false)
 	}
 	if l {
-		mnl = moatnumdiagonal(from, to, znak > 0, true)
+		mnl = moatnumdiagonal(from, to, z, true)
 	}
 	switch mns {
 	case -1, mnl:
@@ -291,7 +291,7 @@ func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
 	if !(canfigshort || canfiglong) {
 		return false
 	}
-	moatnum := moatnumsdiagonal(from, to, canfiglong, canfigshort, znak)
+	moatnum := moatnumsdiagonal(from, to, canfiglong, canfigshort, znak > 0)
 	return moatnum == -1 || m[moatnum] && b.GPos(to).Empty()
 }
 
