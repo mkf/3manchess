@@ -215,11 +215,15 @@ func (b *Board) canfigdiagonal(from, to Pos, znak int8, longnotshort bool) bool 
 }
 
 func moatnumdiagonal(from, to Pos, znak int8, longnotshort bool) int8 {
-	if from[0] == 0 && (from[1]%8 == 7 && (!longnotshort && znak == -1 || longnotshort && znak == 1) ||
-		from[1]%8 == 0 && (!longnotshort && znak == 1 || longnotshort && znak == -1)) {
+	if from[0] == 0 &&
+		(from[1]%8 == 7 &&
+			(!longnotshort && znak == -1 || longnotshort && znak == 1) ||
+			from[1]%8 == 0 &&
+				(!longnotshort && znak == 1 || longnotshort && znak == -1)) {
 		return (from[1] - 1) / 8
-	} else if to[0] == 0 && (to[1]%8 == 7 && (!longnotshort && znak == 1 || longnotshort && znak != 1) ||
-		to[1]%8 == 0 && (!longnotshort && znak == -1 || longnotshort && znak == 1)) {
+	} else if to[0] == 0 &&
+		(to[1]%8 == 7 && (!longnotshort && znak == 1 || longnotshort && znak != 1) ||
+			to[1]%8 == 0 && (!longnotshort && znak == -1 || longnotshort && znak == 1)) {
 		return (to[1] - 1) / 8
 	} else {
 		return -1
