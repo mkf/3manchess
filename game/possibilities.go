@@ -285,14 +285,15 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	b.checkbadpc(from, p)
 	sgn := p.ujemny()
 	if from[1] == to[1] {
-		if sign(to[0]-from[0]) != sgn {
-			return false //,p,e
-		}
-		if !bool(p) && from[0] == 1 && to[0] == 3 {
-			return (*b)[2][from[1]].Empty() && b.GPos(to).Empty()
+		switch to[0] - from[0] {
+		case +2:
+			return !bool(p) && from[0] == 1 &&
+				(*b)[2][from[1]].Empty() && b.GPos(to).Empty()
 			//ep:=e.Appeared(Pos{2,from[1]})
-		} else if to[0] == from[0]+sgn {
+		case sgn:
 			return b.GPos(to).Empty()
+		default:
+			return false //,p,e
 		}
 	}
 	return ((from[1]+12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) && b.GPos(to).Empty()
