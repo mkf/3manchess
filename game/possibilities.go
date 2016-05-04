@@ -231,7 +231,7 @@ func bdodatni(b bool) int8 {
 }
 
 func moatnumdiagonal(from, to Pos, znak int8, longnotshort bool) int8 {
-	switch 0 {
+	switch int8(0) {
 	case from[0]:
 		switch from[1] % 8 {
 		case 7:
