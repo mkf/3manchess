@@ -339,10 +339,10 @@ func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
 					((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1])))) // king movin diag thru center
 }
 
-func pawncreek(from, to Pos) bool {
-	switch [2]int8{from[0], to[0]} { //przemieszczenie między rankami
-	case [2]int8{0, 1}, [2]int8{1, 0}, [2]int8{1, 2}, [2]int8{2, 1}, [2]int8{2, 3}, [2]int8{3, 2}:
-		return (to[1]%8 == 0 && from[1]%8 == 7) || (from[1]%8 == 0 && to[1]%8 == 7) //otrze się o creek
+func pawncreek(from Pos, tof int8) bool {
+	switch [2]int8{from[1] % 8, tof % 8} { //przemieszczenie między rankami
+	case [2]int8{0, 7}, [2]int8{7, 0}:
+		return from[0] < 3 //otrze się o creek
 	}
 	return true //normalnie nie musi się męczyć z creekami
 	//założenie: creeki są aktywne nawet jak już nie ma moatów
@@ -371,7 +371,7 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 			}
 		}
 	case from[0] + p.ujemny():
-		if bool(p) || pawncreek(from, to) {
+		if bool(p) || pawncreek(from, to[1]) {
 			switch to[1] {
 			case (from[1] + 1) % 24, (from[1] + 24 - 1) % 24:
 				switch to {
