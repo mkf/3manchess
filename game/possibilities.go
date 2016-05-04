@@ -263,6 +263,13 @@ func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
 	return moatnum == -1 || m[moatnum] && b.GPos(to).Empty()
 }
 
+func (b *Board) checkbadpc(from Pos, p PawnCenter) {
+	n := b.GPos(from).Color()
+	if n == Color(from[1]>>3+1) && p {
+		panic("pS" + n.String())
+	}
+}
+
 func (p PawnCenter) ujemny() int8 {
 	if p {
 		return -1
@@ -276,11 +283,7 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 		//panic("Same square!")
 		return false
 	}
-	nasz := b.GPos(from)
-	gdziekolor := Color(from[1]>>3 + 1)
-	if nasz.Color() == gdziekolor && p {
-		panic("pS" + nasz.Color().String())
-	}
+	b.checkbadpc(from, p)
 	sgn := p.ujemny()
 	if from[1] == to[1] {
 		if sign(to[0]-from[0]) != sgn {
