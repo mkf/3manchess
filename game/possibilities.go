@@ -283,14 +283,13 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 		return false
 	}
 	b.checkbadpc(from, p)
-	sgn := p.ujemny()
 	if from[1] == to[1] {
 		switch to[0] - from[0] {
 		case +2:
 			return !bool(p) && from[0] == 1 &&
 				(*b)[2][from[1]].Empty() && b.GPos(to).Empty()
 			//ep:=e.Appeared(Pos{2,from[1]})
-		case sgn:
+		case p.ujemny():
 			return b.GPos(to).Empty()
 		default:
 			return false //,p,e
