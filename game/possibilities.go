@@ -360,19 +360,31 @@ func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
 	if from == to {
 		return false
 	}
-	sgn := p.ujemny()
 	ep := e.ktorys(to)
 	nasz := b.GPos(from).Fig.Color
-	return ((from[0] == 5 && to[0] == 5 && !bool(p)) && //jest na 5 ranku i nie przeszedl przez srodek jeszcze
-		(to[1] == ((from[1]+24-10)%24) || to[1] == ((from[1]+10)%24)) && //poprawnie przelecial na skos przez srodek
-		b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz) || //ten co go bijemy jest innego koloru ALBO
-		(to[0] == from[0]+sgn && (bool(p) || pawncreek(from, to)) && //zwykle bicie, o jeden w kierunku sgn na ranku
-			((to[1] == (from[1]+1)%24) || (to[1] == (from[1]+24-1)%24)) && //o jeden w tę lub tamtą stronę (wsio mod24) na file'u
-			(((ep == to) && //pozycja tego co go bijemy jest w enpassant
-				(*b)[3][ep[1]].Fig.FigType == Pawn && //ten co go bijemy jest pionkiem
-				(*b)[3][ep[1]].NotEmpty && (*b)[3][ep[1]].Fig.Color != nasz && //i jest innego koloru
-				(*b)[2][ep[1]].Empty()) || //a pole za nim jest puste (jak to po ruchu pre-enpassant) ALBO
-				(b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz))) //ten co go bijemy jest innego koloru
+	switch to[0] {
+	case from[0]:
+		if from[0] == 5 && !p {
+			switch to[1] {
+			case (from[1] + 24 - 10) % 24, (from[1] + 10) % 24:
+				return b.GPos(to).NotEmpty && b.GPos(to).Fig.Color != nasz
+			}
+		}
+	case from[0] + p.ujemny():
+		if p || pawncreek(from, to) {
+			switch to[1] {
+			case (from[1] + 1) % 24, (from[1] + 24 - 1) % 24:
+				switch to {
+				case ep:
+					ep3, ep2 := (*b)[3][ep[1]], (*b)[2][ep[1]]
+					return ep3.FigType == Pawn && ep3.NotEmpty && ep3.Fig.Color != nasz && ep2.Empty()
+				}
+				doc := b.GPos(to)
+				return doc.NotEmpty && doc.Color() != nasz
+			}
+		}
+	}
+	return false
 }
 
 func xoreq(fr, tr, w int8) bool {
