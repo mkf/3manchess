@@ -69,13 +69,18 @@ func CastlingFromArray(b [6]bool) Castling {
 	return cs
 }
 
+const (
+	castnbyteK = 0
+	castnbyteQ = 1
+)
+
 func forcastlingconv(c Color, b byte) (uint8, uint8) {
 	var ct uint8
 	switch b {
 	case 'k', 'K':
-		ct = 0
+		ct = castnbyteK
 	case 'q', 'Q':
-		ct = 1
+		ct = castnbyteQ
 	}
 	return uint8(c) - 1, ct
 }

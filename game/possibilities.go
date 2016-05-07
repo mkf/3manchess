@@ -440,52 +440,56 @@ func (b *Board) knightMove(from, to Pos, m MoatsState) bool {
 	return dosq.Empty() || c && dosq.Color() != b.GPos(from).Color()
 }
 
-func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
-	var colorproper bool
-	var col Color
-	switch from {
-	case Pos{0, 4}: //white king starting
-		col = White
-		colorproper = true
-	case Pos{0, 12}: //gray king starting
-		col = Gray
-		colorproper = true
-	case Pos{0, 20}: //black king starting
-		col = Black
-		colorproper = true
+func (b *Board) multithreatchecking(pa PlayersAlive, ep EnPassant, wheres ...Pos) (check Check) {
+	for _, where := range wheres {
+		check = b.ThreatChecking(where, pa, ep)
+		if check.If {
+			return
+		}
 	}
-	if !colorproper || to[0] != 0 {
+	return
+}
+
+func (b *Board) rank0files3thrchk(pa PlayersAlive, f, d int8) Check {
+	return b.multithreatchecking(pa, DEFENPASSANT, Pos{0, f}, Pos{0, f + d}, Pos{0, f + d + d})
+}
+
+func (b *Board) castthreat(whopart int8, ksnotqs bool, pa PlayersAlive) Check {
+	return b.rank0files3thrchk(pa, whopart*8+4, bdodatni(ksnotqs))
+}
+
+func (b *Board) castemptqside(whopart int8) bool {
+	p := whopart * 8
+	p4 := p + 4
+	for i := p + 1; i < p4; i++ {
+		if b[0][i].NotEmpty {
+			return false
+		}
+	}
+	return true
+}
+
+func (b *Board) castemptkside(whopart int8) bool {
+	s := whopart*8 + 5
+	if b[0][s].NotEmpty {
 		return false
 	}
-	queenside := false
-	kingside := false
+	return b[0][s+1].Empty()
+}
+
+func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
+	if from[0] != 0 || to[0] != 0 || from[1]%8 != 4 {
+		return false
+	}
 	switch to[1] {
 	case from[1] - 2: //cuz queen is on the minus
-		queenside = cs.Give(col, 'Q')
+		part := from[1] / 8
+		return !(!cs[part][castnbyteQ] || b.castemptqside(part) || b.castthreat(part, false, pa).If)
 	case from[1] + 2: //cuz king is on the plus
-		kingside = cs.Give(col, 'K')
+		part := from[1] / 8
+		return !(!cs[part][castnbyteK] || b.castemptkside(part) || b.castthreat(part, true, pa).If)
 	}
-	if kingside && (*b)[0][from[1]+1].Empty() && (*b)[0][from[1]+2].Empty() { // kingside and kingside empty
-		uncheckedPos := [3]Pos{{from[0], from[0]}, {to[0] + 1, to[1] + 1}, {to[0], to[1]}}
-		for _, checkPos := range uncheckedPos {
-			check := b.ThreatChecking(checkPos, pa, DEFENPASSANT)
-			if check.If {
-				kingside = false
-				break
-			}
-		}
-	}
-	if !kingside && queenside && (*b)[0][to[1]+1].Empty() && (*b)[0][to[1]+2].Empty() && (*b)[0][to[1]+3].Empty() { // not kingside, queenside and queenside empty
-		uncheckedPos := [3]Pos{{from[0], from[0]}, {to[0] - 1, to[1] - 1}, {to[0], to[1]}}
-		for _, checkPos := range uncheckedPos {
-			check := b.ThreatChecking(checkPos, pa, DEFENPASSANT)
-			if check.If {
-				kingside = false
-				break
-			}
-		}
-	}
-	return kingside || queenside
+	return false
 }
 
 func (b *Board) rook(from Pos, to Pos, m MoatsState) bool { //whether a rook could move like that
