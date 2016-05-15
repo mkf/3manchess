@@ -137,9 +137,8 @@ var datafordiagonal = [6][6][2]int8{ //fromrank, torank, short&long file vector 
 func tablediagonal(fromrank, torank int8, longnotshort bool) int8 {
 	if longnotshort {
 		return fromrank + torank
-	} else {
-		return abs(fromrank - torank)
 	}
+	return abs(fromrank - torank)
 }
 
 func techdiagonal(from, to Pos) (short, long bool, znak int8) {
@@ -217,17 +216,15 @@ func (b *Board) canfigdiagonal(from, to Pos, znak int8, longnotshort bool) bool 
 func bujemny(b bool) int8 {
 	if b {
 		return -1
-	} else {
-		return 1
 	}
+	return 1
 }
 
 func bdodatni(b bool) int8 {
 	if b {
 		return 1
-	} else {
-		return -1
 	}
+	return -1
 }
 
 func moatnumdiagonal(from, to Pos, z, longnotshort bool) int8 {
@@ -305,9 +302,8 @@ func (b *Board) checkbadpc(from Pos, p PawnCenter) {
 func (p PawnCenter) ujemny() int8 {
 	if p {
 		return -1
-	} else {
-		return 1
 	}
+	return 1
 }
 
 func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,PawnCenter,EnPassant) {
@@ -351,9 +347,8 @@ func pawncreek(from Pos, tof int8) bool {
 func (e EnPassant) ktorys(to Pos) Pos {
 	if e[0] == to {
 		return e[0]
-	} else {
-		return e[1]
 	}
+	return e[1]
 }
 
 func (b *Board) pawnCapture(from Pos, to Pos, e EnPassant, p PawnCenter) bool {
