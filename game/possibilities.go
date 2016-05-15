@@ -15,76 +15,103 @@ func (b *Board) canfigstraighthorizdirec(r, f, t, d int8) bool { //rank, from fi
 	return true
 }
 
-func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
-	var cantech, canmoat, canfig bool
-	//capcheck := true
-	if from == to { //Same square
-		return false
+func nummoatrest(f int8) (int8, int8) {
+	switch f {
+	case 1:
+		return 0, 2
+	case 2:
+		return 0, 1
+	case 0:
+		return 1, 2
 	}
+	return -1, -1
+}
+
+func (m MoatsState) moatshortlong(f int8) (bool, bool) {
+	j, d := nummoatrest(f)
+	return m[f], m[j] && m[d]
+}
+
+func strmoatnumshortanddirec(mf, mt int8) (int8, bool) {
+	switch mf {
+	case 0:
+		switch mt {
+		case 1:
+			return 1, true
+		case 2:
+			return 0, false
+		}
+	case 1:
+		switch mt {
+		case 0:
+			return 1, false
+		case 2:
+			return 2, true
+		}
+	case 2:
+		switch mt {
+		case 0:
+			return 0, true
+		case 1:
+			return 2, false
+		}
+	case mt:
+		panic("comparison error")
+	}
+	return -1, false
+}
+
+func (b *Board) straightadjacent(from, to Pos) bool {
+	return ((from[1]+12)%24) == to[1] && //if the adjacent file, passing through center
+		b.canfigstraightvertthrucenter(from[1], from[0], to[0])
+
+}
+
+func canfigdirec(d, p, m bool) (bool, bool) {
+	if d {
+		return p, m
+	}
+	return m, p
+}
+
+func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
+	//capcheck := true
 	if from[0] == to[0] { //same rank
-		cantech = true
-		if from[0] == 0 { //first rank
-			var mshort, mlong bool //, capcheckshort bool
-			var direcshort int8
-			var fromtominus int8
-			if from[1]>>3 == to[1]>>3 { //same color area
-				mlong, direcshort, mshort, canmoat = m[0] && m[1] && m[2], sign(to[1]-from[1]), true, true
+		if from[1] == to[1] { //same file — same square
+			return false
+		}
+		canfigplus, canfigminus := b.canfigstraighthoriz(from[0], from[1], to[1])
+		if !(canfigplus || canfigminus) {
+			return b.straightadjacent(from, to)
+		}
+		if from[0] == 0 {
+			var mshort, mlong, direcshort, nomoat bool //, capcheckshort bool
+			mfrom, mto := from[1]>>3, to[1]>>3
+			if mfrom == mto { //same color area
+				mlong, direcshort, nomoat = m[0] && m[1] && m[2], to[1] > from[1], true
 			} else { //moving to another color's area
-				fromto := [2]int8{from[1] >> 3, to[1] >> 3}
-				switch fromto {
-				case [2]int8{0, 1}, [2]int8{1, 0}:
-					mshort = m[1]
-					mlong = m[0] && m[2]
-				case [2]int8{1, 2}, [2]int8{2, 1}:
-					mshort = m[2]
-					mlong = m[0] && m[1]
-				case [2]int8{2, 0}, [2]int8{0, 2}:
-					mshort = m[0]
-					mlong = m[1] && m[2]
-				}
-				fromtominus = fromto[1] - fromto[0]
-				if abs(fromtominus) == 2 {
-					fromtominus = -fromtominus
-				}
-				direcshort = sign(fromtominus)
+				var shmoatnum int8
+				shmoatnum, direcshort = strmoatnumshortanddirec(mfrom, mto)
+				mshort, mlong = m.moatshortlong(shmoatnum)
 			}
-			canfigplus, canfigminus := b.canfigstraighthoriz(0, from[1], to[1])
-			canfig = canfigplus || canfigminus
+			canfigshort, canfiglong := canfigdirec(direcshort, canfigplus, canfigminus)
 
-			//as we are on the first rank && moving to another color's area, we gotta check the moats
-			canmoat = canmoat || (direcshort == 1 && ((canfigplus && mshort) || (canfigminus && mlong))) ||
-				(direcshort == -1 && ((canfigminus && mshort) || (canfigplus && mlong)))
-
-			if canmoat {
-				if b.GPos(to).NotEmpty {
-					return false
-				}
-			}
-			/*if canmoat {
+			//if we are on the first rank && moving to another color's area, we gotta check the moats
+			return nomoat && canfigshort ||
+				(canfigshort && mshort || canfiglong && mlong) && b.GPos(to).Empty() ||
+				b.straightadjacent(from, to)
+			/*
 				cheb := *b
 				ourmoasq := new(Square)
 				ourmoasq.FromUint8(0)
 				*cheb.GPos(to),*cheb.GPos(from) = *cheb.GPos(from),*ourmoasq
-
-			}
+				//return false if the move initiates a check
 			*/
-
-		} else { //if same rank, but not first rank
-			canmoat = true
-			canfigplus, canfigminus := b.canfigstraighthoriz(from[0], from[1], to[1])
-			canfig = canfigplus || canfigminus
 		}
-	} else if from[1] == to[1] { //if the same file, ie. no passing through center
-		cantech, canmoat = true, true
-		canfig = b.canfigstraightvertnormal(from[1], from[0], to[0])
+		return true //if same rank, but not first rank
 	}
-	if cantech && canmoat && canfig {
-		return true
-	}
-	if ((from[1] + 12) % 24) == to[1] { //if the adjacent file, passing through center
-		return b.canfigstraightvertthrucenter(from[1], from[0], to[0])
-	}
-	return false
+	return from[1] == to[1] && b.canfigstraightvertnormal(from[1], from[0], to[0]) ||
+		b.straightadjacent(from, to)
 }
 
 func (b *Board) canfigstraightvertthrucenter(s, f, t int8) bool { //startfile (from[0]), from, to
