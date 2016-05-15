@@ -106,7 +106,7 @@ type Color uint8
 
 //Next returns the next color: White, Gray, Black,  White, etc.
 func (c Color) Next() Color {
-	return Color(c%3 + 1)
+	return c%3 + 1
 }
 
 //String returns string "White"/"Gray"/"Black"

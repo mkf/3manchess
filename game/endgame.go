@@ -8,7 +8,7 @@ func (os *State) CanIMoveWOCheck(who Color) bool {
 	*s = *os
 	s.MovesNext = who
 	for oac, loacp := range AMFT {
-		if s.Board.GPos(Pos(oac)).Fig.Color == who {
+		if s.Board.GPos(oac).Fig.Color == who {
 			for _, oacp := range loacp {
 				m := Move{oac, oacp, s, Queen}
 				if _, err := m.After(); err == nil {
