@@ -149,7 +149,11 @@ func amftinit() {
 			AMFT[from] = make([]Pos, 0, 61) // 61 is the biggest encountered number of to's since 497ca04494eb470c5d1d5778453f7ae026cb00b9
 			for to[0] = 0; to[0] < 6; to[0]++ {
 				for to[1] = 0; to[1] < 24; to[1]++ {
-					if b.queen(from, to, BRIDGEDMOATS) || b.knight(from, to, BRIDGEDMOATS) {
+					whether, _ := b.queen(from, to, BRIDGEDMOATS)
+					if !whether {
+						whether, _ = b.knight(from, to, BRIDGEDMOATS)
+					}
+					if whether {
 						AMFT[from] = append(AMFT[from], to)
 					}
 				}
