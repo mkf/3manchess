@@ -258,7 +258,7 @@ func (s *State) String() string {
 }
 
 //AnyPiece : if a piece could move (any piece, whatever stays there)
-func (s *State) AnyPiece(from, to Pos) bool {
+func (s *State) AnyPiece(from, to Pos) (bool, bool) {
 	return s.Board.AnyPiece(from, to, s.MoatsState, s.Castling, s.EnPassant, s.PlayersAlive)
 }
 

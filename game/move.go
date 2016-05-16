@@ -173,9 +173,11 @@ func (b *Board) ThreatChecking(where Pos, pa PlayersAlive, ep EnPassant) Check {
 	who := b.GPos(where).Color()
 	var heyitscheck Check
 	for opos := range AMFT {
-		if tjf := b.GPos(opos); tjf.NotEmpty && tjf.Color() != who && pa.Give(tjf.Color()) &&
-			b.AnyPiece(opos, where, DEFMOATSSTATE, FALSECASTLING, ep, pa) {
-			return Check{If: true, From: opos}
+		if tjf := b.GPos(opos); tjf.NotEmpty && tjf.Color() != who && pa.Give(tjf.Color()) {
+			apie, apiem := b.AnyPiece(opos, where, DEFMOATSSTATE, FALSECASTLING, ep, pa)
+			if apiem && apie {
+				return Check{If: true, From: opos}
+			}
 		}
 	}
 	return heyitscheck
@@ -205,7 +207,8 @@ func (b *Board) WeAreThreateningTypes(who Color, pa PlayersAlive, ep EnPassant) 
 	my, oni := b.FriendsNAllies(who, pa)
 	for ich := range oni {
 		for _, nasz := range my {
-			if b.AnyPiece(nasz, ich, DEFMOATSSTATE, FALSECASTLING, ep, pa) {
+			apie, apiem := b.AnyPiece(nasz, ich, DEFMOATSSTATE, FALSECASTLING, ep, pa)
+			if apiem && apie {
 				ret <- (*b)[ich[0]][ich[1]].Fig.FigType
 				break
 			}
@@ -225,7 +228,8 @@ func (b *Board) WeAreThreatened(who Color, pa PlayersAlive, ep EnPassant) <-chan
 	}
 	for _, nasz := range my {
 		for _, ich := range oni {
-			if b.AnyPiece(ich, nasz, DEFMOATSSTATE, FALSECASTLING, ep, pa) {
+			apie, apiem := b.AnyPiece(ich, nasz, DEFMOATSSTATE, FALSECASTLING, ep, pa)
+			if apiem && apie {
 				ret <- (*b)[nasz[0]][nasz[1]].Fig.FigType
 				break
 			}
