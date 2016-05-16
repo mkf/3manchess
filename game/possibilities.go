@@ -105,7 +105,7 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(wheth
 			}
 			return b.straightadjacent(from, to), true
 		}
-		return true //if same rank, but not first rank
+		return true, true //if same rank, but not first rank
 	}
 	return from[1] == to[1] && b.canfigstraightvertnormal(from[1], from[0], to[0]) ||
 		b.straightadjacent(from, to), true
@@ -461,7 +461,7 @@ func canmoatKnight(from, to Pos, m MoatsState) (bool, bool) {
 func (b *Board) knightMove(from, to Pos, m MoatsState) (bool, bool) {
 	t, c := canmoatKnight(from, to, m)
 	if !t {
-		return false
+		return false, false
 	}
 	dosq := b.GPos(to)
 	return dosq.Empty() || c && dosq.Color() != b.GPos(from).Color(), c
@@ -572,7 +572,8 @@ func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassan
 	}
 	switch (*b)[from[0]][from[1]].What() {
 	case Pawn:
-		return b.pawn(from, to, e)
+		pawn := b.pawn(from, to, e)
+		return pawn, pawn
 	case Rook:
 		return b.rook(from, to, m)
 	case Knight:
