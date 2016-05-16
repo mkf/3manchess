@@ -74,15 +74,15 @@ func canfigdirec(d, p, m bool) (bool, bool) {
 	return m, p
 }
 
-func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) { //(whether it can, whether it can capture/check)
+func (b *Board) straight(from Pos, to Pos, m MoatsState) (bool, bool) { //(whether it can, whether it can initiate a check)
 	//capcheck := true
 	if from[0] == to[0] { //same rank
 		if from[1] == to[1] { //same file — same square
-			return false
+			return false, false
 		}
 		canfigplus, canfigminus := b.canfigstraighthoriz(from[0], from[1], to[1])
 		if !(canfigplus || canfigminus) {
-			return b.straightadjacent(from, to)
+			return b.straightadjacent(from, to), true
 		}
 		if from[0] == 0 {
 			var mshort, mlong, direcshort, nomoat bool //, capcheckshort bool
@@ -97,21 +97,18 @@ func (b *Board) straight(from Pos, to Pos, m MoatsState) bool { //(bool, bool) {
 			canfigshort, canfiglong := canfigdirec(direcshort, canfigplus, canfigminus)
 
 			//if we are on the first rank && moving to another color's area, we gotta check the moats
-			return nomoat && canfigshort ||
-				(canfigshort && mshort || canfiglong && mlong) && b.GPos(to).Empty() ||
-				b.straightadjacent(from, to)
-			/*
-				cheb := *b
-				ourmoasq := new(Square)
-				ourmoasq.FromUint8(0)
-				*cheb.GPos(to),*cheb.GPos(from) = *cheb.GPos(from),*ourmoasq
-				//return false if the move initiates a check
-			*/
+			if nomoat && canfigshort {
+				return true, true
+			}
+			if (canfigshort && mshort || canfiglong && mlong) && b.GPos(to).Empty() {
+				return true, false
+			}
+			return b.straightadjacent(from, to), true
 		}
 		return true //if same rank, but not first rank
 	}
 	return from[1] == to[1] && b.canfigstraightvertnormal(from[1], from[0], to[0]) ||
-		b.straightadjacent(from, to)
+		b.straightadjacent(from, to), true
 }
 
 func (b *Board) canfigstraightvertthrucenter(s, f, t int8) bool { //startfile (from[0]), from, to
@@ -300,11 +297,11 @@ func moatnumsdiagonal(from, to Pos, l, s, z bool) int8 {
 	return -1
 }
 
-func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
+func (b *Board) diagonal(from, to Pos, m MoatsState) (bool, bool) {
 	short, long, znak := techdiagonal(from, to)
 	var canfigshort, canfiglong bool
 	if !(short || long) {
-		return false
+		return false, false
 	}
 	if short {
 		canfigshort = b.canfigshortdiagonal(from, to, znak)
@@ -313,10 +310,13 @@ func (b *Board) diagonal(from, to Pos, m MoatsState) bool {
 		canfiglong = b.canfiglongdiagonal(from, to, znak)
 	}
 	if !(canfigshort || canfiglong) {
-		return false
+		return false, false
 	}
 	moatnum := moatnumsdiagonal(from, to, canfiglong, canfigshort, znak > 0)
-	return moatnum == -1 || m[moatnum] && b.GPos(to).Empty()
+	if moatnum == -1 {
+		return true, true
+	}
+	return m[moatnum] && b.GPos(to).Empty(), false
 }
 
 func (b *Board) checkbadpc(from Pos, p PawnCenter) {
@@ -353,13 +353,18 @@ func (b *Board) pawnStraight(from Pos, to Pos, p PawnCenter) bool { //(bool,Pawn
 	return ((from[1]+12)%24) == to[1] && from[0] == 5 && to[0] == 5 && !bool(p) && b.GPos(to).Empty()
 }
 
-func (b *Board) kingMove(from Pos, to Pos, m MoatsState) bool {
-	return from != to && b.queen(from, to, m) && absu(from[0]-to[0]) <= 1 &&
-		((absu(from[1]-to[1]) == 23 || absu(from[1]-to[1]) <= 1) ||
-			// king isn't moving to adjacent or current file (such as from file 1 to 24 or vice versa)
-			(from[0] == 5 && to[0] == 5 && // king is moving through the center
-				((from[1]+12)%24 == to[1] || // king movin fwd thru center
-					((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1])))) // king movin diag thru center
+func (b *Board) kingMove(from Pos, to Pos, m MoatsState) (bool, bool) {
+	if from == to {
+		return false, false
+	}
+	qu, qum := b.queen(from, to, m)
+	return qu && absu(from[0]-to[0]) <= 1 &&
+			((absu(from[1]-to[1]) == 23 || absu(from[1]-to[1]) <= 1) ||
+				// king isn't moving to adjacent or current file (such as from file 1 to 24 or vice versa)
+				(from[0] == 5 && to[0] == 5 && // king is moving through the center
+					((from[1]+12)%24 == to[1] || // king movin fwd thru center
+						((from[1]+10)%24 == to[1] || (from[1]-10+24)%24 == to[1])))), // king movin diag thru center
+		qum
 }
 
 func pawncreek(from Pos, tof int8) bool {
@@ -453,13 +458,13 @@ func canmoatKnight(from, to Pos, m MoatsState) (bool, bool) {
 	return true, true
 }
 
-func (b *Board) knightMove(from, to Pos, m MoatsState) bool {
+func (b *Board) knightMove(from, to Pos, m MoatsState) (bool, bool) {
 	t, c := canmoatKnight(from, to, m)
 	if !t {
 		return false
 	}
 	dosq := b.GPos(to)
-	return dosq.Empty() || c && dosq.Color() != b.GPos(from).Color()
+	return dosq.Empty() || c && dosq.Color() != b.GPos(from).Color(), c
 }
 
 func (b *Board) multithreatchecking(pa PlayersAlive, ep EnPassant, wheres ...Pos) (check Check) {
@@ -514,20 +519,33 @@ func (b *Board) castling(from Pos, to Pos, cs Castling, pa PlayersAlive) bool {
 	return false
 }
 
-func (b *Board) rook(from Pos, to Pos, m MoatsState) bool { //whether a rook could move like that
+func (b *Board) rook(from Pos, to Pos, m MoatsState) (bool, bool) { //whether a rook could move like that
 	return b.straight(from, to, m)
 }
-func (b *Board) knight(from Pos, to Pos, m MoatsState) bool { //whether a knight could move like that
+func (b *Board) knight(from Pos, to Pos, m MoatsState) (bool, bool) { //whether a knight could move like that
 	return b.knightMove(from, to, m)
 }
-func (b *Board) bishop(from Pos, to Pos, m MoatsState) bool { //whether a boshop could move like that
+func (b *Board) bishop(from Pos, to Pos, m MoatsState) (bool, bool) { //whether a boshop could move like that
 	return b.diagonal(from, to, m)
 }
-func (b *Board) king(from Pos, to Pos, m MoatsState, cs Castling, pa PlayersAlive) bool { //whether a king could move like that
-	return b.kingMove(from, to, m) || b.castling(from, to, cs, pa)
+func (b *Board) king(from Pos, to Pos, m MoatsState, cs Castling, pa PlayersAlive) (bool, bool) { //whether a king could move like that
+	k, km := b.kingMove(from, to, m)
+	if k {
+		return k, km
+	}
+	c := b.castling(from, to, cs, pa)
+	return c, c
 }
-func (b *Board) queen(from Pos, to Pos, m MoatsState) bool { //whether a queen could move like that (concurrency, yay!)
-	return b.straight(from, to, m) || b.diagonal(from, to, m)
+func (b *Board) queen(from Pos, to Pos, m MoatsState) (bool, bool) { //whether a queen could move like that (concurrency, yay!)
+	s, sm := b.straight(from, to, m)
+	if s && sm {
+		return true, true
+	}
+	d, dm := b.diagonal(from, to, m)
+	if d {
+		return true, dm
+	}
+	return s, sm
 	/*
 		whether := make(chan bool)
 		go func() { whether <- b.straight(from, to, m) }()
@@ -545,7 +563,7 @@ func (b *Board) pawn(from Pos, to Pos, e EnPassant) bool { //whether a pawn coul
 }
 
 //AnyPiece : tell whether the piece being in 'from' could move like that
-func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant, pa PlayersAlive) bool {
+func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassant, pa PlayersAlive) (bool, bool) {
 	if err := from.Correct(); err != nil {
 		panic(err)
 	}
@@ -569,7 +587,7 @@ func (b *Board) AnyPiece(from Pos, to Pos, m MoatsState, cs Castling, e EnPassan
 		if (*b)[from[0]][from[1]].NotEmpty {
 			panic("What it is if it was said to exist???")
 		} else {
-			return false
+			return false, false
 		}
 	}
 }
