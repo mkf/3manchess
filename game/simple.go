@@ -49,3 +49,10 @@ func ynbool(b bool) byte {
 	}
 	return 'N'
 }
+
+func tI8(b bool, y int8, n int8) int8 {
+	if b {
+		return y
+	}
+	return n
+}

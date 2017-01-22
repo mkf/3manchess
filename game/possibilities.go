@@ -453,6 +453,13 @@ func canmoatKnight(from, to Pos, m MoatsState) (bool, bool) {
 	return true, true
 }
 
+func xoreqFunc(from, to Pos) Color {
+	if (from[0] < 3 || to[0] < 3) && xoreq(from[0], to[0], xrqnmv[from[1]%8][to[1]%8]) {
+		return COLORS[((from[1] + 2) / 8) % 3]
+	}
+	return ZeroColor
+}
+
 func (b *Board) knightMove(from, to Pos, m MoatsState) bool {
 	t, c := canmoatKnight(from, to, m)
 	if !t {

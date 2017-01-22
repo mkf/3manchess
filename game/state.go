@@ -7,10 +7,13 @@ import "fmt"
 //MoatsState :  Black-White, White-Gray, Gray-Black  //true: bridged. Originally, true meant still active, i.e. non-bridged!!!
 type MoatsState [3]bool
 
+func (ms MoatsState) Give(c Color) { return ms[c-1] }
+
 //var DEFMOATSSTATE = MoatsState{true, true, true}
 
 //DEFMOATSSTATE , ie. nothig is bridged     const
 var DEFMOATSSTATE = MoatsState{false, false, false} //are they bridged?
+
 
 //Castling : White,Gray,Black King-side,Queen-side
 type Castling [3][2]bool
@@ -236,7 +239,7 @@ func Byte144(s []byte) [144]byte {
 func (s *State) EvalDeath() {
 	testCheckmate := true
 	player := s.MovesNext
-	for _ = range COLORS {
+	for range COLORS {
 		if !s.PlayersAlive.Give(player) {
 			player = player.Next()
 			continue
